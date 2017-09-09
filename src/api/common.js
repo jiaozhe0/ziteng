@@ -1,11 +1,13 @@
+const md5 = require('md5')
+
 // 获取当前时间
 function getNowFormatDate() {
   var date = new Date()
   var month = date.getMonth() + 1
-  month = month < 9 ? `0${month}` : month
+  month = month <= 9 ? `0${month}` : month
   var day = date.getDate()
-  day = day < 9 ? `0${day}` : day
-  return `${date.getFullYear()}-${month}-${day} ${date.getHours()}:${date.getMinutes()}`
+  day = day <= 9 ? `0${day}` : day
+  return `${date.getFullYear()}-${month}-${day} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
 }
 // 获取浏览器和版本号
 var userAgent = window.navigator.userAgent,
@@ -43,11 +45,23 @@ var userAgent = window.navigator.userAgent,
 }
 
 var browserMatch = uaMatch(userAgent.toLowerCase())
-// if (browserMatch.browser) {
-// 	var browser = browserMatch.browser,
-// 	version = browserMatch.version
-// }
+if (browserMatch.browser) {
+	var browser = browserMatch.browser,
+      browserReverse = [...browserMatch.browser].reverse().reduce((x, y) => {
+				return x + y
+			})
+  var version = browserMatch.version,
+			versionReverse = [...browserMatch.version].reverse().reduce((x, y) => {
+				return x + y
+			})
+}
+
+let time = getNowFormatDate()
 
 export default {
-  time: getNowFormatDate()
+	'machine-code': browser,
+	'network-code': version,
+  'current-time': time,
+  'token': (md5(`${browserReverse}${versionReverse}${time}`)).toUpperCase()
 }
+

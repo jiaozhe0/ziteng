@@ -1,7 +1,7 @@
 <template>
   <div class='city'>
     	<mt-header title="城市"></mt-header>
-    	<list-view></list-view>	
+    	<list-view ref='list'></list-view>	
   </div>
 </template>
 
