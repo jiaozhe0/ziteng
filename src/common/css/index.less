@@ -1,4 +1,5 @@
 @import './variable.less';
+@import './normalize.less';
 @import './mixin.less';
 @import './rem.less';
 @import './grid.less';
@@ -41,10 +42,10 @@ a, input, textarea, select, button {
 // Wrapper to be used around all content not in .bar-title and .bar-tab
 .content {
   position: absolute;
-  top: 0;
+  top: 44px;
   right: 0;
-  bottom: 0;
+  bottom: 50px;
   left: 0;
-  overflow: auto;
+  overflow: hidden;
   -webkit-overflow-scrolling: touch;
 }

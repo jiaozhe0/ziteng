@@ -1,0 +1,26 @@
+@import '../variable.less'
+@import '../mixin.less'
+.content{
+  bottom:0;
+  border:1px solid red;
+  padding:30px 60px;
+  background-color: #fffce2;
+  .reminder-content{
+    height:auto;
+    font-size:12px;
+    color:@color-text-secondary;
+    .reminder-icon{
+      display:inline-block;
+      margin-right: 5px;
+      .square(6px);
+      border-radius: 50%;
+      background:@color-text-secondary;
+    }
+    .reminder-text{
+      margin-top:36px;
+      .reminder-text-item{
+        margin-bottom: 20px;
+      }
+    }               
+  }
+ }
