@@ -20,14 +20,13 @@ export default {
       type: Array,
       default: null
     },
-    listenScroll: {
+    listenScroll: { // 是否监听 滚动事件
       type: Boolean,
       default: false
     }
   },
   mounted() {
     setTimeout(() => {
-      console.log('[[[[[[[')
       this._initScroll()
     }, 20)
   },
@@ -65,7 +64,6 @@ export default {
   },
   watch: {
     data() {
-      console.log('------')
       setTimeout(() => {
         this.refresh()
       }, 20)
