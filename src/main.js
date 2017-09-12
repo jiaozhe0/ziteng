@@ -4,6 +4,7 @@ import 'babel-polyfill'
 import Vue from 'vue'
 import App from './App'
 import router from './router'
+import store from './store'
 // import Vuelazyload from 'vue-lazyload'
 Vue.config.productionTip = false
 import 'mint-ui/lib/style.css'
@@ -18,6 +19,7 @@ Vue.use(Mint)
 new Vue({
   el: '#app',
   router,
+  store,
   template: '<App/>',
   components: { App }
 })

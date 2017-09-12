@@ -1,7 +1,7 @@
 <template>
   <div class="agreement">
     <mt-header :title="title" v-show="isHeader"></mt-header>
-    <scroll class='content'>
+    <scroll class='content' :style="{'top': isHeader ? '44px' : '0px'}">
     	<div class="reminder-content">
         <section class='reminder-text text-indent' v-if="this.$route.params.title === 'service'">
           <p class='reminder-text-item'>
@@ -162,7 +162,7 @@
             您同意，本协议适用中华人民共和国大陆地区法律。因桔子生活平台与您就本协议的签订、履行或解释发生任何纠纷或争议，双方应努力友好协商解决。如协商不成，桔子生活平台和您均同意由被告所在地法院管辖审理上述纠纷或争议。
           </p>
         </section>
-        <section class="reminder-text" v-else-if="this.$route.params.title === 'manager'">
+        <section class="reminder-text" v-else-if="this.$route.params.title === 'server'">
           <div class="juzi">
             <h3>第一章：概述</h3>
 
@@ -640,7 +640,6 @@
 <script type="text/ecmascript-6">
 import MtHeader from 'components/mtHeader'
 import Scroll from 'components/Scroll'
-import {browserTest} from 'common/js/browser'
 export default {
   data() {
     return {
@@ -649,12 +648,12 @@ export default {
     }
   },
   created() {
-    this.isHeader = browserTest()
+    this.isHeader = this.$route.params.broswer === 'html'
     switch (this.$route.params.title) {
       case 'user':
         this.title = '用户协议'
         break
-      case 'manager':
+      case 'server':
         this.title = '服务者管理协议'
         break
       case 'service':

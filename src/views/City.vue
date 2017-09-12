@@ -39,6 +39,7 @@ export default {
     _getcityData() {
       cityList().then((res) => {
         let data = res.data
+        console.log(res)
         this.cityList = this._normalizeCity(data.baiduCity)
       })
     },

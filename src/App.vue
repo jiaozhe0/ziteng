@@ -1,13 +1,12 @@
 <template>
   <div id="app">
+    <mt-footer></mt-footer>
     <router-view></router-view>
   </div>
 </template>
 
 <script  type="text/ecmascript-6">
-import {Header} from 'mint-ui'
-import Scroll from 'components/Scroll'
-import {browserTest} from 'common/js/browser'
+import MtFooter from 'components/MtFooter'
 export default {
   name: 'app',
   data() {
@@ -15,15 +14,11 @@ export default {
       isHeader: true
     }
   },
-  created() {
-    this.isHeader = browserTest()
-  },
   mounted() {
     console.log(this.isHeader)
   },
   components: {
-    appHeader: Header,
-    Scroll
+   MtFooter
   }
 }
 </script>

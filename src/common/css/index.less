@@ -4,6 +4,7 @@
 @import './rem.less';
 @import './grid.less';
 @import './base.less';
+@import './bar.less';
 
 * {
   box-sizing: border-box;
@@ -47,5 +48,22 @@ a, input, textarea, select, button {
   bottom: 50px;
   left: 0;
   overflow: hidden;
+  background:#fff;
   -webkit-overflow-scrolling: touch;
+}
+.wrap{
+  .size(100%;100%)
+}
+.active{
+  color:@color-primary
+}
+.avatar-img{
+  .size(30px;30px);
+  overflow: hidden;
+  border-radius: 50%;
+  margin-right:10px;
+}
+.img-wrap{
+  display: block;
+  overflow: hidden;
 }

@@ -58,10 +58,11 @@ if (browserMatch.browser) {
 
 let time = getNowFormatDate()
 
-export default {
+export const header = {
 	'machine-code': browser,
 	'network-code': version,
   'current-time': time,
   'token': (md5(`${browserReverse}${versionReverse}${time}`)).toUpperCase()
 }
 
+export const server = 'http://test.zitengkeji.com'

@@ -1,21 +1,14 @@
-# ziteng
+## Html5与app共用页面制作
+* 协议静态页面：
+> /#/agreement/user/app : 用户协议
+> /#/agreement/service/app : 用户服务协议
+> /#/agreement/server/app : 服务者管理协议
 
-> A Vue.js project
+* 温馨提示静态页面：
+> /#/reminder/user/app :   用户温馨提示
+> /#/reminder/server/app : 服务者温馨提示
+> /#/reminder/freeze/app ：资金冻结温馨提示
 
-## Build Setup
-
-``` bash
-# install dependencies
-npm install
-
-# serve with hot reload at localhost:8080
-npm run dev
-
-# build for production with minification
-npm run build
-
-# build for production and view the bundle analyzer report
-npm run build --report
-```
-
-For detailed explanation on how things work, checkout the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
+* 其他
+> /#/zmscore/app: 芝麻信用
+> /#/about/app: 关于我们
