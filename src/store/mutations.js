@@ -5,7 +5,10 @@ export const mutation = {
 		state.isFooter = ishow
 	},
 	[types.CHANGE_CITY](state, city) {
-		state.city = city
+		state.city = Object.assign({}, state.city, city)
+	},
+	[types.USER](state, user) {
+		state.user = Object.assign({}, state.user, user)
 	}
 }
 

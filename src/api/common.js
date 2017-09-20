@@ -15,8 +15,11 @@ var userAgent = window.navigator.userAgent,
   rFirefox = /(firefox)\/([\w.]+)/,
 	rOpera = /(opera).+version\/([\w.]+)/,
 	rChrome = /(chrome)\/([\w.]+)/,
-	rSafari = /version\/([\w.]+).*(safari)/
+	rSafari = /version\/([\w.]+).*(safari)/,
+	iPhone = /Version\/(\w+\.\w+).*(Safari)/
 
+	// iphoe = /Mozilla/
+// Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko)
  function uaMatch(ua) {
 	var match = rMsie.exec(ua)
 	if (match != null) {
@@ -39,13 +42,17 @@ var userAgent = window.navigator.userAgent,
 	if (match != null) {
 		return { browser: match[2] || '', version: match[1] || '0' }
 	}
+	match = iPhone.exec(ua)
 	if (match != null) {
-		return { browser: '', version: '0' }
+		return { browser: match[2] || '', version: match[1] || '0' }
+	}
+	if (!match) {
+		return { browser: 'Safari', version: '0' }
 	}
 }
-
 var browserMatch = uaMatch(userAgent.toLowerCase())
-if (browserMatch.browser) {
+
+if (browserMatch && browserMatch.browser) {
 	var browser = browserMatch.browser,
       browserReverse = [...browserMatch.browser].reverse().reduce((x, y) => {
 				return x + y
@@ -55,9 +62,7 @@ if (browserMatch.browser) {
 				return x + y
 			})
 }
-
 let time = getNowFormatDate()
-
 export const header = {
 	'machine-code': browser,
 	'network-code': version,

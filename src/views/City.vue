@@ -9,6 +9,7 @@
 import MtHeader from 'components/mtHeader'
 import ListView from 'components/ListView'
 import {cityList} from 'api/city'
+import {mapGetters} from 'vuex'
 const pinyin = require('tiny-pinyin')
 
 export default {
@@ -24,18 +25,25 @@ export default {
   created() {
     this._getcityData()
   },
+  mounted() {
+		console.log(this.city)
+  },
+  updated() {
+		console.log(this.city)
+  },
   computed: {
     key() {
       return 'ABCDEFGHJKLMNOPQRSTWXYZ'.split('')
-    }
+    },
+    ...mapGetters([
+			'city'
+    ])
   },
   methods: {
     selectCity(city) {
-        // this.$router.push({
-        //   path: `/singer/${singer.id}`
-        // })
-        // this.setSinger(singer)
-      },
+       this.$store.commit('CHANGE_CITY', city)
+       window.history.back()
+    },
     _getcityData() {
       cityList().then((res) => {
         let data = res.data

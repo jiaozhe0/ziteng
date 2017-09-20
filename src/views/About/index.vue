@@ -3,7 +3,7 @@
     <mt-header title="关于我们" v-show="isHeader"></mt-header>
     <scroll class='content ' :style="{'top': isHeader ? '44px' : '0px'}">
     	<div class="about-content wrap">
-    		<div class="about-versions-content" v-if="version">
+    		<div class="about-versions-content" >
     			<div class="center-block img-wrap">
     				<img src="./logo.png" alt="" class="img-responsive">
     			</div>
@@ -22,7 +22,6 @@
 <script type="text/ecmascript-6">
 import MtHeader from 'components/mtHeader'
 import Scroll from 'components/Scroll'
-import {getVersion} from 'api/system'
 export default {
 	data() {
 		return {
@@ -34,9 +33,7 @@ export default {
     Scroll
   },
   created() {
-		getVersion().then((data) => {
-			this.version = data.versionCode
-		})
+		this.version = this.$route.query.version
   },
   computed: {
 		isHeader() {

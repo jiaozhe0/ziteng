@@ -5,14 +5,21 @@
           :probeType = probeType
           :listenScroll="listenScroll"
           @scroll="scroll">
-    <ul>
+    <div>
+    <div class="current-city">
+      <div class="current-city-name text-center">
+        <span>济南市</span>
+      </div>
+    </div>
+    <ul class='city-list'>
       <li v-for='city in cityList' ref='listGroup'>
-        <h2>{{city.letter}}</h2>
-        <ul>
-          <li v-for='item in city.item' @click="selected(item)">{{item.cityName}}</li>
+        <h3 class="city-list-letter">{{city.letter}}</h3>
+        <ul >
+          <li class='city-list-item' v-for='item in city.item' @click="selected(item)">{{item.cityName}}</li>
         </ul>
       </li>
     </ul>
+    </div>
     <div class="list-shortcut" @touchstart="onShortcutTouchStart" @touchmove.stop.prevent="onShortcutTouchMove">
       <ul>
         <li v-for="(item,index) in letter" 
@@ -22,10 +29,9 @@
             >{{item}}</li>
       </ul>
     </div>
-    <div class="bar" v-show="cityList" ref="fixed">
+    <div class="bar currentCity" v-show="cityList" ref="fixed">
      {{fixedTitle}}
     </div>
-   
   </scroll>  
 </template>
 
@@ -57,7 +63,7 @@ export default {
   },
   computed: {
     fixedTitle() {
-      if (this.scrollY > 0) { return '' }
+      if (this.scrollY > -110) { return '当前城市' }
       return this.cityList[this.currentIndex] ? this.cityList[this.currentIndex].letter : ''
     }
   },
@@ -95,7 +101,7 @@ export default {
     },
     _calculateHeight() { // 将每组城市的高度装入 listHeight 数组里
       const list = this.$refs.listGroup
-      let height = 0
+      let height = 112
       this.listHeight.push(height)
       Array.from(list).forEach((item, index) => {
         height += item.clientHeight
@@ -103,6 +109,7 @@ export default {
       })
     },
     selected(item) {
+      console.log(item)
       this.$emit('select', item)
     }
   },
@@ -150,16 +157,36 @@ export default {
 <style scoped lang="less" >
  @import '~common/css/variable.less';
  @import '~common/css/mixin.less';
-
+  .content{
+    bottom: 0;
+  }
   .bar{
     position: absolute;
-    top: 0;
+    top:-1px;
     left: 0;
-    .size(100%;40px);
-    background: red;
+    &.currentCity{
+      .size(100%;30px);
+      background:#eee;
+      color:@color-text;
+      line-height:30px;
+      font-size:0.7rem
+    } 
   }
- 
- .list-shortcut{
+  .current-city{
+    margin-top: 30px;
+    padding: 15px;
+    background-color: #eee;
+    .current-city-name{
+      .size(140px;50px);
+      background-color: #fff;
+      line-height: 50px;
+      border-radius: 8px;
+      span{
+        color: @color-primary;
+      }
+    }
+  }
+  .list-shortcut{
    position: absolute;
     z-index: 30;
     right: 0;
@@ -170,14 +197,32 @@ export default {
     padding: 20px 0;
     border-radius: 10px;
     text-align: center;
-    background: rgba(0,0,0,0.3);
+    /*background: rgba(0,0,0,0.3);*/
     font-family: Helvetica;
-    color:red;
+    color:@color-primary;
     .list-shortcut-item{
       &.on{
         color:green
       }
     }
-  } 
+   }
+  .city-list{
+      margin-top: 0;
+      padding: 0;
+    .city-list-letter{
+      padding: 0 15px;
+      margin: 0;
+      font-weight: normal;
+      font-size: 0.7rem;
+      background-color: #eee;
+    }
+    .city-list-item{
+      position: relative;
+      padding: 15px ;
+     .hairline(bottom, @border-default-color);
+      background-color: #fff;
+      font-size: 0.7rem
+    }
+  }
 
 </style>

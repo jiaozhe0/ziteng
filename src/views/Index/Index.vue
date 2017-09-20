@@ -2,44 +2,55 @@
   <div class="index">
     <my-header>
       <div class="index-header">
-        <div class="def-city">济南</div>
-        <div class="search">
-          <input type="text" placeholder="大家都在找“家政服务”" class="search-btn">
+        <div class="def-city">
+          <router-link to='/city' v-if="city" >
+            {{city.cityName}}
+          </router-link> 
         </div>
-        <div class="publish-btn">地方</div>
+        <div class="search">
+          <router-link to='/search'>
+            <input type="text"  placeholder="大家都在找“家政服务”" class="search-btn">
+          </router-link> 
+        </div>
+        <div class="publish-btn">
+          <router-link to='/login'>
+            地方
+          </router-link>
+        </div>
       </div>
     </my-header>
-			<scroll :data="test" class="content">
+			<scroll :data="newsLists" class="content" ref="scroll">
         <div>
-        <nav class="index-nav row">
-          <ul class="row">
-            <li class="col-20 nav-list" v-for="item in serRecommend">
-              <div class="img-wrap center-block">
-                <img :src="item.serviceType.pictureUrl" class='img-responsive' alt="">
-              </div>
-              {{item.serviceType.typeName}}
-            </li>
-          </ul>
-        </nav>
-			  <div class="news">
-          <div class="news-icon">dd</div>
-          <div class="news-item">
-            <ul>
-              <li v-for="(l,index) in new Array(10)" class='clearfix news-item-list'>
-                <div class="avatar-img pull-left">
-                  <img src="./logo.png" alt="" class="img-responsive">
+          <!-- 推荐服务类别 -->
+          <nav class="index-nav row" >
+            <ul class="row" v-if="serRecommend.length">
+              <li class="col-20 nav-list" v-for="item in serRecommend">
+                <div class="img-wrap center-block">
+                  <img :src="item.serviceType.pictureUrl" class='img-responsive' alt="">
                 </div>
-                <p class="pull-left news-info">
-                  {{index}}dddddddddddddddddddffffffffffffffffffff
-                </p>
+                {{item.serviceType.typeName}}
               </li>
             </ul>
+          </nav>
+          <!-- 最新消息 -->
+  			  <div class="news" >
+            <div class="news-icon">dd</div>
+            <div class="news-wrap" v-if="newsLists.length">
+             <!-- <news-list :newsList="newsLists"></news-list> -->
+            </div>
+            <div class="server-button text-center">
+              发布服务
+            </div>
           </div>
-          <div class="server-button text-center">
-            发布服务
-          </div>
-        </div>
-        <service-list ></service-list>
+          <!-- <div class="indexAdsense">
+            <ul>
+              <li v-for="item in indexAdsense">
+                <img  @load="loadImage" :src="item.picUrl" alt="" class="img-responsive">
+              </li>
+            </ul> 
+          </div>-->
+          <service-list :serviceList="serviceList" @loadImage="_loadImage"></service-list>
+          <div>{{getLsit}}</div>
         </div>
       </scroll>
   </div>
@@ -47,53 +58,83 @@
 
 <script type="text/ecmascript-6">
 import Scroll from 'components/Scroll'
+// import BScroll from 'better-scroll'
 import MyHeader from 'components/MyHeader'
 import ServiceList from 'components/ServiceList'
+import NewsList from 'components/news'
 import {mapMutations, mapGetters} from 'vuex'
-import {getDefualtCity} from 'api/system'
-import {getClassifyRecommend} from 'api/index'
+// import {getDefualtCity} from 'api/system'
+import {getClassifyRecommend, getServiceRecommendList} from 'api/index'
 
 export default {
   data() {
     return {
       serRecommend: [],
-      indexAdsense: []
+      indexAdsense: [],
+      newsLists: [],
+      currentPageIndex: 0,
+      serviceList: []
     }
   },
   components: {
     Scroll,
     MyHeader,
-    ServiceList
+    ServiceList,
+    NewsList
   },
   created() {
-    this._getDefaultCity()
-    this._getClassifyRecommend()
+     // this._getData()
+  },
+  mounted() {
   },
   computed: {
-    test() {
-      var arr = new Array(99)
-      arr = arr.map((item, index) => {
-        return index
-      })
-      return arr
+    getLsit() {
+      console.log(123, this.city.cityId)
+      Promise.all([getClassifyRecommend(), getServiceRecommendList(this.city.cityId)]).then(([a, b]) => {
+        this.serRecommend = a.serviceTypeRecommend
+        this.newsLists = a.analogService
+        this.indexAdsense = a.indexAdsense
+        this.serviceList = b
+        this.indexAdsense.forEach((item, index) => {
+          this.serviceList.splice(item.appPosition, 0, item)
+        })
+    })
     },
     ...mapGetters(['city', 'isFooter'])
   },
   methods: {
-    _getDefaultCity() {
-      getDefualtCity().then((data) => {
-        console.log(data)
-      })
+    _setSliderWidth(isResize) {
+        this.children = this.$refs.sliderGroup.children
+        let height = 0
+        let sliderHeight = this.$refs.newsItem.clientHeight
+        for (let i = 0; i < this.children.length; i++) {
+          let child = this.children[i]
+          // addClass(child, 'slider-item')
+          child.style.height = sliderHeight + 'px'
+          height += sliderHeight
+        }
+        height += 2 * sliderHeight
+        this.$refs.sliderGroup.style.height = height + 'px'
+      },
+    _loadImage() {
+      console.log('....')
+      this.$refs.scroll.refresh()
     },
-    _getClassifyRecommend() {
-      getClassifyRecommend().then((data) => {
-        console.log(data)
-        this.serRecommend = data.serviceTypeRecommend
-        console.log(1, this.serRecommend)
-      })
+    _getData() {
+      console.log(this.city.cityId)
+      Promise.all([getClassifyRecommend(), getServiceRecommendList(this.city.cityId)]).then(([a, b]) => {
+        this.serRecommend = a.serviceTypeRecommend
+        this.newsLists = a.analogService
+        this.indexAdsense = a.indexAdsense
+        this.serviceList = b
+        this.indexAdsense.forEach((item, index) => {
+          this.serviceList.splice(item.appPosition, 0, item)
+        })
+    })
     },
     ...mapMutations({
-      setFooter: 'CHANGE_FOOTER_SHOW'
+      setFooter: 'CHANGE_FOOTER_SHOW',
+      setCity: 'CHANGE_CITY'
     })
   }
 }
@@ -131,8 +172,11 @@ export default {
 }
 .index-header{
   .size(100%;44px);
+  color: #fff;
+  font-size: 0.7rem;
+  a{color: #fff;}
   .search{
-    width: 60%
+    width: 70%
   }
   .search-btn{
     display: block;
@@ -146,13 +190,13 @@ export default {
   }
 }
 .news{
-  .size(100%,64px);
+  .size(100%,54px);
   border-top:1px solid @color-split;
   border-bottom:1px solid @color-split;
   padding: 0 10px;
   background-color: #fff;
   .server-button{
-    .size(130px;30px);
+    .size(110px;30px);
     line-height: 30px;
     border-radius: 40px;
     background-color: @color-primary;
@@ -160,33 +204,13 @@ export default {
     font-size: 0.6rem
   }
   .news-icon{
-    width: 34px
+    width: 40px
   }
-  .news-item{
+.news-wrap{
     flex-grow:1;
-    margin-bottom: 20px;
     align-self:flex-start;
     overflow: hidden;
-    .news-item-list{
-      padding: 0 10px;
-      .flexbox();
-      .flex-wrap(nowrap);
-       margin-bottom: 20px;
-    }
-    .avatar-img{
-      .size(30px;30px);
-      overflow: hidden;
-      border-radius: 50%;
-      margin-right:10px;
-    }
-    .news-info{
-      flex:1;
-      margin: 0;
-      line-height: 30px;
-      overflow: hidden;
-      .text-overflow(block)
-    }
+    font-size:0.7rem;
   }
-
 }
 </style>

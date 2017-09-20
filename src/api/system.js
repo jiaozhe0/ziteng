@@ -12,7 +12,15 @@ export function getVersion() {
     return Promise.resolve(res.data.data)
   })
 }
-
+export function test() {
+	alert('-------------')
+	// const url = `${server}/act/app/isRefreshVersion`
+	// return axios.post(url, {
+	// 	'platform': 1
+ //  }).then((res) => {
+ //    return Promise.resolve(res.data.data)
+ //  })
+}
 // 默认城市
 export function getDefualtCity() {
   const url = `${server}/act/sys/config/list`

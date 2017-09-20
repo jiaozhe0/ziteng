@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<div id="code"></div>
+	
+<script src='https://cdnjs.cloudflare.com/ajax/libs/axios/0.16.2/axios.min.js'></script>
+<script type='text/javascript'>
+		let url = window.location.search.slice(1)
+		var  add = 'http://test.ijzsh.com/html/index.html#/index'
+		// 没有code
+		if (url.indexOf('code') < 0) {
+			window.location.href = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxf21f71c117f32c34&redirect_uri="+ encodeURIComponent(add) +"&response_type=code&scope=snsapi_userinfo&state=state&connect_redirect=1#wechat_redirect.html"
+			// axios.post('http://test.ijzsh.com/act/wx/user/authorize', {
+			// 	"redirect_uri":"http://test.ijzsh.com/html/test.html",
+			// 	"state":"state"
+			// },{
+			// 	headers: {
+			// 		root: 'root'
+			// 	}
+			// }).then(function(data){
+			// 	var h = data.data.data
+			// 	var  l = /<body>((.*[\r\n]*)*)<\/body>/;
+			// 	 var a = h.match(l)
+			// 		// document.querySelector('#code').innerHTML = a[1]
+			// 		document.write(a[0])
+			// })
+		}else{
+			// // var i = new RegExp("(^|&)" + e + "=([^&]*)(&|$)"),
+			// let pettern = /(^|&)code=([^&]*)(&|$)/
+			// let code = search.match(pettern)
+			// code = code != null ? code[2] : null
+			// console.log('..........')
+			// document.querySelector('#code').innerHTML = code
+				url = url.split('&')
+			url.forEach(function(item,index){
+				let items = item.split('=')
+				console.log(items)
+				if(items[0] == 'code'){
+					console.log(decodeURIComponent(items[1]))
+					document.querySelector('#code').innerHTML = decodeURIComponent(items[1])
+					return false
+				}
+			})
+		}
+	</script>
+</body>
+</html>
+
+
