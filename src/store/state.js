@@ -16,7 +16,10 @@ const states = {
   city: {
 		cityId: -1,
 		cityName: ''
-  }
+  },
+  serviceTypeList: [],
+  parentTypeList: [],
+  childTypeList: []
 }
 
 export default states

@@ -4,14 +4,13 @@
   <div class="content"> 
     <div class="img-wrap center-block">
     <img src="./logo.png" alt="" class="img-responsive"></div>
-    <form action="">
+    
     	<label for="" class='center-block login-group'>
-    		<input autofocus autocomplete v-validate="'required|phone|digits:11'" v-model="tel" type="number" placeholder="手机号码" class='login-input' name='phone'>
+    		<input  v-validate="'required|phone'" v-model="tel" type="number" placeholder="手机号码" class='login-input' name='phone'>
     		<i @click="_reset" class='reset-btn'>X</i>
     	</label>
 	    <label for="" class='center-block login-group'>
 	    	<input v-validate="'required|digits:6'" name='code' v-model="code" type="number" placeholder="验证码" class='login-input'>
-	    	<!-- // <p>{{errors.first('code')}}</p> -->
 	    	<button type="button" 
 	    					class='ver-btn' 
 	    					:class="{'on': disabled}"
@@ -25,7 +24,7 @@
 	    <button type="button" class='login-btn' @click="_login">
 				登录
 	    </button>
-    </form>
+   
     <div class="wechat">
     	<p class="wechat-title">第三方登录</p>
     </div>
@@ -35,8 +34,9 @@
 
 <script type="text/ecmascript-6">
 import { Toast } from 'mint-ui'
-import {getTelMessage, checkPhoneCode} from 'api/login'
+import {getTelMessage, bindWeixinUserPhone} from 'api/login'
 import MtHeader from 'components/mtHeader'
+import {mapMutations, mapGetters} from 'vuex'
 export default {
 	data() {
 	return {
@@ -45,13 +45,20 @@ export default {
 		time: 60,
 		flag: true,
 		disabled: false,
-		again: false
+		again: false,
+		loginFlag: false
 	}
 	},
 	components: {
 		MtHeader
 	},
+	computed: {
+		...mapGetters(['user'])
+	},
   methods: {
+		...mapMutations({
+			setUser: 'USER'
+		}),
 		_reset() {
 			this.tel = ''
 		},
@@ -97,12 +104,25 @@ export default {
 				Toast('请输入验证码！')
 				return
 			}
-			console.log(this.tel + '----' + this.code)
+			if (this.loginFlag) {
+				return
+			}
+			this.loginFlag = true
 			Toast({
-				message: 'ss'
+				message: '手机绑定中'
 			})
-			checkPhoneCode(this.tel, this.code).then((data) => {
-				Toast(data)
+			bindWeixinUserPhone(this.$route.query.unionid, this.tel, this.code).then((data) => {
+				this.loginFlag = false
+				if (data.status && data.status === '1001') {
+					Toast('验证码验证失败')
+				} else if (data.status && data.status === '1003') {
+					Toast('该手机已绑微信')
+					this.$router.push('/index')
+				} else if (data.userId) {
+					this.setUser(data)
+					Toast('手机绑定成功')
+					this.$router.push('/index')
+				}
 			})
 		}
   }

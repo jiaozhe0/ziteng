@@ -1,5 +1,5 @@
 <template>
-  <div class="slider" ref="slider">
+  <div class="slider" ref="sliders">
     <div class="slider-group" ref="sliderGroup" style='margin:0'>
       <slot>
       </slot>
@@ -30,25 +30,25 @@
     },
     data() {
       return {
-        dots: [],
+        dots: 0,
         currentPageIndex: 0
       }
     },
     mounted() {
-      setTimeout(() => {
-        this._setSliderWidth()
-        this._initSlider()
-        if (this.autoPlay) {
-          this._play()
-        }
-      }, 2000)
+      // setTimeout(() => {
+      //   this._setSliderWidth()
+      //   this._initSlider()
+      //   if (this.autoPlay) {
+      //     this._play()
+      //   }
+      // }, 2000)
 
       window.addEventListener('resize', () => {
-        if (!this.slider) {
+        if (!this.sliders) {
           return
         }
         this._setSliderWidth(true)
-        this.slider.refresh()
+        this.sliders.refresh()
       })
     },
     activated() {
@@ -65,12 +65,11 @@
     methods: {
       _setSliderWidth(isResize) {
         this.children = this.$refs.sliderGroup.children
+        this.dots = this.children.length
         let height = 0
-        let sliderHeight = this.$refs.slider.clientHeight
-        console.log(sliderHeight)
+        let sliderHeight = this.$refs.sliders.clientHeight
         for (let i = 0; i < this.children.length; i++) {
           let child = this.children[i]
-          // addClass(child, 'slider-item')
           child.style.height = sliderHeight + 'px'
           height += sliderHeight
         }
@@ -81,33 +80,35 @@
         console.log(height)
       },
       _initSlider() {
-        this.slider = new BScroll(this.$refs.slider, {
+        this.sliders = new BScroll(this.$refs.sliders, {
           scrollX: false,
           scrollY: true,
           momentum: false,
           snap: {
-            loop: this.loop,
+            loop: true,
             threshold: 0.3,
             speed: 400
-          }
+          },
+          snapLoop: true,
+          snapSpeed: 400
         })
         // this.slider.goToPage(0, 1, 400)
-        this.slider.on('scrollEnd', () => {
-          let pageIndex = this.slider.getCurrentPage().pageY
-          console.log(pageIndex)
+        this.sliders.on('scrollEnd', () => {
+          let pageIndex = this.sliders.getCurrentPage().pageY
           if (this.loop) {
             pageIndex -= 1
+            if (pageIndex === this.dots) {
+							pageIndex = 0
+            }
           }
           console.log(pageIndex)
           this.currentPageIndex = pageIndex
-
           if (this.autoPlay) {
-						console.log('ddd')
             this._play()
           }
         })
 
-        this.slider.on('beforeScrollStart', () => {
+        this.sliders.on('beforeScrollStart', () => {
           if (this.autoPlay) {
             clearTimeout(this.timer)
           }
@@ -117,13 +118,13 @@
         this.dots = new Array(this.children.length)
       },
       _play() {
-				console.log('.......')
         let pageIndex = this.currentPageIndex + 1
         if (this.loop) {
           pageIndex += 1
         }
+        console.log(pageIndex)
         this.timer = setTimeout(() => {
-          this.slider.goToPage(0, pageIndex, 400)
+          this.sliders.goToPage(0, pageIndex, 400)
         }, this.interval)
       }
     }

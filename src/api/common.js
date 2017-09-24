@@ -51,7 +51,6 @@ var userAgent = window.navigator.userAgent,
 	}
 }
 var browserMatch = uaMatch(userAgent.toLowerCase())
-
 if (browserMatch && browserMatch.browser) {
 	var browser = browserMatch.browser,
       browserReverse = [...browserMatch.browser].reverse().reduce((x, y) => {

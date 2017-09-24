@@ -9,6 +9,15 @@ export const mutation = {
 	},
 	[types.USER](state, user) {
 		state.user = Object.assign({}, state.user, user)
+	},
+	[types.SERVICETYPELIST](state, serviceTypeList) {
+		state.serviceTypeList = serviceTypeList
+	},
+	[types.CHILDTYPELIST](state, childTypeList) {
+		state.childTypeList = childTypeList
+	},
+	[types.PARENTTYPELIST](state, parentTypeList) {
+		state.parentTypeList = parentTypeList
 	}
 }
 

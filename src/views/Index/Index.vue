@@ -24,7 +24,7 @@
           <!-- 推荐服务类别 -->
           <nav class="index-nav row" >
             <ul class="row" v-if="serRecommend.length">
-              <li class="col-20 nav-list" v-for="item in serRecommend">
+              <li @click="_goServiceList(item)" class="col-20 nav-list" v-for="item in serRecommend">
                 <div class="img-wrap center-block">
                   <img :src="item.serviceType.pictureUrl" class='img-responsive' alt="">
                 </div>
@@ -32,23 +32,17 @@
               </li>
             </ul>
           </nav>
+           <router-view></router-view>
           <!-- 最新消息 -->
   			  <div class="news" >
             <div class="news-icon">dd</div>
             <div class="news-wrap" v-if="newsLists.length">
              <!-- <news-list :newsList="newsLists"></news-list> -->
             </div>
-            <div class="server-button text-center">
+            <div class="server-button text-center" @click="_publishService">
               发布服务
             </div>
           </div>
-          <!-- <div class="indexAdsense">
-            <ul>
-              <li v-for="item in indexAdsense">
-                <img  @load="loadImage" :src="item.picUrl" alt="" class="img-responsive">
-              </li>
-            </ul> 
-          </div>-->
           <service-list :serviceList="serviceList" @loadImage="_loadImage"></service-list>
           <div>{{getLsit}}</div>
         </div>
@@ -58,7 +52,6 @@
 
 <script type="text/ecmascript-6">
 import Scroll from 'components/Scroll'
-// import BScroll from 'better-scroll'
 import MyHeader from 'components/MyHeader'
 import ServiceList from 'components/ServiceList'
 import NewsList from 'components/news'
@@ -82,14 +75,8 @@ export default {
     ServiceList,
     NewsList
   },
-  created() {
-     // this._getData()
-  },
-  mounted() {
-  },
   computed: {
     getLsit() {
-      console.log(123, this.city.cityId)
       Promise.all([getClassifyRecommend(), getServiceRecommendList(this.city.cityId)]).then(([a, b]) => {
         this.serRecommend = a.serviceTypeRecommend
         this.newsLists = a.analogService
@@ -100,41 +87,38 @@ export default {
         })
     })
     },
-    ...mapGetters(['city', 'isFooter'])
+    ...mapGetters(['city', 'user', 'isFooter', 'serviceTypeList', 'childTypeList'])
   },
   methods: {
-    _setSliderWidth(isResize) {
-        this.children = this.$refs.sliderGroup.children
-        let height = 0
-        let sliderHeight = this.$refs.newsItem.clientHeight
-        for (let i = 0; i < this.children.length; i++) {
-          let child = this.children[i]
-          // addClass(child, 'slider-item')
-          child.style.height = sliderHeight + 'px'
-          height += sliderHeight
-        }
-        height += 2 * sliderHeight
-        this.$refs.sliderGroup.style.height = height + 'px'
-      },
     _loadImage() {
-      console.log('....')
       this.$refs.scroll.refresh()
     },
-    _getData() {
-      console.log(this.city.cityId)
-      Promise.all([getClassifyRecommend(), getServiceRecommendList(this.city.cityId)]).then(([a, b]) => {
-        this.serRecommend = a.serviceTypeRecommend
-        this.newsLists = a.analogService
-        this.indexAdsense = a.indexAdsense
-        this.serviceList = b
-        this.indexAdsense.forEach((item, index) => {
-          this.serviceList.splice(item.appPosition, 0, item)
-        })
-    })
+    _publishService() {
+      if (this.user.userId) {
+        this.$router.push('/publish')
+      } else {
+        this.$router.push('/login')
+      }
+    },
+    _goServiceList(data) {
+      this.serviceTypeList.some((item, index) => {
+        if (item.parentId === data.serviceTypeId) {
+        console.log(item.parentId + '===' + data.parentId)
+           this.setServiceTypeList(item.typeList)
+           return true
+        }
+      })
+      this.$router.push({path: '/serviceList',
+      query: {
+        searchContent: data.serviceType.typeName,
+        serviceParentTypeId: data.serviceTypeId,
+        serviceTypeId: data.serviceTypeId
+      }})
     },
     ...mapMutations({
       setFooter: 'CHANGE_FOOTER_SHOW',
-      setCity: 'CHANGE_CITY'
+      setCity: 'CHANGE_CITY',
+      setServiceTypeList: 'CHILDTYPELIST'
     })
   }
 }

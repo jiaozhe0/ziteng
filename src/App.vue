@@ -1,7 +1,7 @@
 <template>
   <div id="app">
-    <mt-footer></mt-footer>
-     <keep-alive>
+    <mt-footer v-show="isFooter"></mt-footer>
+     <keep-alive include="ServiceList">
      <router-view></router-view>
     </keep-alive>
   </div>
@@ -23,16 +23,14 @@ export default {
     this._getDefaultCity()
   },
   mounted() {
-    console.log(this.city)
      this._getDefaultCity()
      setTimeout(() => {
       navigator.geolocation.getCurrentPosition((position) => {
-        console.log('ddd')
       })
      }, 3000)
   },
   computed: {
-    ...mapGetters(['city'])
+    ...mapGetters(['city', 'isFooter'])
   },
   components: {
    MtFooter

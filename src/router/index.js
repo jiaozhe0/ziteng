@@ -17,6 +17,17 @@ import MyPublish from 'views/MyPublish/index' // 我的发布
 // import EditService from 'views/EditService/index'
 import Attestation from 'views/Attestation/index'
 import AppServer from 'views/ApproveServer/index'
+import ServiceList from 'views/ServiceList'
+const ServiceDetail = (resolve) => {
+  import('views/ServiceDetail').then((module) => {
+    resolve(module)
+  })
+}
+const Address = (resolve) => {
+  import('views/Address').then((module) => {
+    resolve(module)
+  })
+}
 // import AppPerson from 'views/ApproveServer/index'
 Vue.use(Router)
 
@@ -56,11 +67,6 @@ export default new Router({
       name: 'Home',
       component: Home,
       children: [
-        // {
-        //   path: '/attestation',
-        //   name: 'Attestation',
-        //   component: Attestation
-        // }
       ]
     },
     {
@@ -118,13 +124,29 @@ export default new Router({
      {
       path: '/approve/server',
       name: 'AppServer',
-      component: AppServer,
+      component: AppServer
+    },
+    {
+      path: '/servicelist',
+      name: 'ServiceList',
+      component: ServiceList,
       children: [
         // {
-        //   path: '/server/first',
-        //   component: First
+        //   path: ':id',
+        //   name: 'ServiceDetail',
+        //   component: ServiceDetail
         // }
       ]
+    },
+    {
+      path: '/servicedetail',
+      name: 'ServiceDetail',
+      component: ServiceDetail
+    },
+    {
+      path: '/address',
+      name: 'address',
+      component: Address
     }
   ]
 })

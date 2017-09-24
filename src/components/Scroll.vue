@@ -1,9 +1,10 @@
 <template>
-  <div ref="wrapper">
-    <slot></slot>	
-  </div>
+ <div ref="wrapper" >
+ 		<slot>
+ 		<div class="loading">sdf</div>
+ 		</slot>	
+ </div>
 </template>
-
 <script type="text/ecmascript-6">
 import BScroll from 'better-scroll'
 export default {
@@ -75,5 +76,14 @@ export default {
 <style scoped lang="less" >
  @import '~common/css/variable.less';
  @import '~common/css/mixin.less';
+ .wrapper{
+ 	position: relative;
+ }
+/* .loading{
+ 	position: absolute;
+	.size(100%;40px);
+	top:-40px;
+	border:2px solid red;
+ }*/
  
 </style>

@@ -24,7 +24,7 @@
 				<div class="server-info">
 					<div>
 						<div class='avatar-img server-user-photo'>
-							<img @load="loadImage" :src="serviceItem.userInfo.photoUrl" alt="" class="">
+							<img  :src="serviceItem.userInfo.photoUrl" alt="" class="">
 						</div>
 					</div>
 					<div class='text-left user-name'>{{serviceItem.userInfo.userName}}</div>						
@@ -49,10 +49,7 @@ export default {
   },
   methods: {
 		loadImage() {
-			this.$emit('loadImage')
-			if (!this.checkloaded) {
-				this.checkloaded = true
-			}
+      this.$emit('loadImage')
 		}
 	}
 }

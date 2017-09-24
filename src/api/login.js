@@ -11,14 +11,6 @@ export function getTelMessage(tel) {
   })
 }
 
-// https://open.weixin.qq.com/connect/oauth2/authorize
-// ?appid=wxf21f71c117f32c34
-// &redirect_uri=http%3a%2f%2ftest.zitengkeji.com%2fhtml%2findex.html&
-// response_type=code
-// &scope=snsapi_userinfo
-// &state=state
-// &connect_redirect=1#wechat_redirect.html
-
 // 校验手机验证码
 export function checkPhoneCode(tel, code) {
   const url = `${server}/act/loginphone/checkPhoneCode/${tel}/${code}`
@@ -29,31 +21,27 @@ export function checkPhoneCode(tel, code) {
   })
 }
 
-// 2.2.4.微信绑定手机号
-export function bindWeixinUserPhone(unionid, tel, code) {
-  const url = `${server}/act/loginweixin/bindWeixinUserPhone/${tel}/${code}`
-  return axios.get(url, {
-		params: {
-			unionid: unionid,
-			phoneNumber: tel,
-			phoneCode: code
-		},
+// 微信登录
+export function registerWeixin(data) {
+  const url = `${server}/act/loginweixin/registerWeixin`
+  return axios.post(url, data,
+  {
     headers: header
   }).then((res) => {
     return Promise.resolve(res.data.data)
   })
 }
 
-// 1、获取code值
-export function getCode(rurl) {
-	const url = `https://open.weixin.qq.com/connect/oauth2/authorize
-?appid=wxf21f71c117f32c34
-&redirect_uri=${rurl}&
-response_type=code
-&scope=snsapi_userinfo
-&state=state
-&connect_redirect=1#wechat_redirect.html`
-  return axios.get(url).then((res) => {
+// 2.2.4.微信绑定手机号
+export function bindWeixinUserPhone(unionid, tel, code) {
+  const url = `${server}/act/loginweixin/bindWeixinUserPhone`
+  return axios.post(url, {
+		unionid: unionid,
+		phoneNumber: tel,
+		phoneCode: code
+  }, {
+    headers: header
+  }).then((res) => {
     return Promise.resolve(res.data.data)
   })
 }

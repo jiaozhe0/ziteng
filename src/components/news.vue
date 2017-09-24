@@ -47,7 +47,7 @@ export default {
       .flexbox();
       .flex-wrap(nowrap);
       .align-items(center);
-      border:1px solid red;
+      height:54px
     }
     .avatar-img{
       .size(30px;30px);
