@@ -28,6 +28,21 @@ const Address = (resolve) => {
     resolve(module)
   })
 }
+const HomePage = (resolve) => {
+  import('views/HomePage/index').then((module) => {
+    resolve(module)
+  })
+}
+const ServerAppraise = (resolve) => {
+  import('views/ServerAppraise/index').then((module) => {
+    resolve(module)
+  })
+}
+const ServiceMap = (resolve) => {
+  import('views/ServiceMap').then((module) => {
+    resolve(module)
+  })
+}
 // import AppPerson from 'views/ApproveServer/index'
 Vue.use(Router)
 
@@ -147,6 +162,21 @@ export default new Router({
       path: '/address',
       name: 'address',
       component: Address
+    },
+    {
+      path: '/homepage',
+      name: 'homepage',
+      component: HomePage
+    },
+    {
+      path: '/serappraise',
+      name: 'ServerAppraise',
+      component: ServerAppraise
+    },
+    {
+      path: '/servicemap',
+      name: 'ServiceMap',
+      component: ServiceMap
     }
   ]
 })

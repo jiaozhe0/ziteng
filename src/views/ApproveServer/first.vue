@@ -6,7 +6,6 @@
      <mt-field v-model='businessCode' name='gscode' v-validate="'required'" label="工商号码" placeholder="输入工商号码" type="number" ></mt-field>
     </form>
     <button @click="_next" class='center-block next-btn ziteng-btn'>下一步</button>
-    <button @click="_photo" class='center-block next-btn ziteng-btn'>下一步</button>
   </div>
 </template>
 

@@ -6,12 +6,8 @@ export function saveToLocal(value) {
   } else { // 如果以及创建了seller,但是不同id的seller对象
     historyTitle = JSON.parse(historyTitle)
   }
-  // historyTitle.push(value)
-  historyTitle.forEach((item) => {
-    if (item !== value) {
-      historyTitle.push(value)
-    }
-  })
+  historyTitle.push(value)
+  historyTitle = [...new Set(historyTitle)]
   localStorage.__historyTitle__ = JSON.stringify(historyTitle)
 };
 

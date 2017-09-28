@@ -20,6 +20,7 @@
       </li>
     </ul>
     </div>
+    <!-- 快速入口 -->
     <div class="list-shortcut" @touchstart="onShortcutTouchStart" @touchmove.stop.prevent="onShortcutTouchMove">
       <ul>
         <li v-for="(item,index) in letter" 
@@ -164,6 +165,7 @@ export default {
     position: absolute;
     top:-1px;
     left: 0;
+    .hairline(bottom, #eee);
     &.currentCity{
       .size(100%;30px);
       background:#eee;
@@ -177,10 +179,11 @@ export default {
     padding: 15px;
     background-color: #eee;
     .current-city-name{
-      .size(140px;50px);
+      .size(120px;40px);
       background-color: #fff;
-      line-height: 50px;
+      line-height: 40px;
       border-radius: 8px;
+      font-size:0.7rem;
       span{
         color: @color-primary;
       }
@@ -188,7 +191,7 @@ export default {
   }
   .list-shortcut{
    position: absolute;
-    z-index: 30;
+    z-index: 300;
     right: 0;
     top: 50%;
     -webkit-transform: translateY(-50%);
@@ -200,6 +203,7 @@ export default {
     /*background: rgba(0,0,0,0.3);*/
     font-family: Helvetica;
     color:@color-primary;
+    font-size:0.7rem;
     .list-shortcut-item{
       &.on{
         color:green

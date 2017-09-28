@@ -10,6 +10,9 @@ export const mutation = {
 	[types.USER](state, user) {
 		state.user = Object.assign({}, state.user, user)
 	},
+	[types.SERVER](state, server) {
+		state.server = Object.assign({}, state.server, server)
+	},
 	[types.SERVICETYPELIST](state, serviceTypeList) {
 		state.serviceTypeList = serviceTypeList
 	},

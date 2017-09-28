@@ -48,3 +48,42 @@ export function saveServiceCollection(serviceId, collectionUserId, serviceUserId
     return Promise.resolve(res.data.data)
   })
 }
+
+// 2.6.3.获取收藏服务
+export function getServiceCollection(serviceId, collectionUserId, serviceUserId) {
+	const url = `${server}/act/service/user/getServiceCollection`
+  return axios.post(url, {
+		serviceId: serviceId,
+		collectionUserId: collectionUserId
+  }, {headers: header}).then((res) => {
+    return Promise.resolve(res.data.data)
+  })
+}
+// 2.6.4.删除收藏服务
+export function deleteServiceCollection(serviceId, collectionUserId, serviceUserId) {
+	const url = `${server}/act/service/user/deleteServiceCollection`
+  return axios.post(url, {
+		serviceId: serviceId,
+		collectionUserId: collectionUserId
+  }, {headers: header}).then((res) => {
+    return Promise.resolve(res.data.data)
+  })
+}
+
+// 2.5.7.获取其他用户发布服务列表
+export function getOtherUserServiceList(data) {
+	const url = `${server}/act/service/user/getOtherUserServiceList`
+  return axios.post(url, data, {headers: header}).then((res) => {
+    return Promise.resolve(res.data.data)
+  })
+}
+
+// 2.7.1.查看用户详细信息
+export function getUserAllInfo(data) {
+	const url = `${server}/act/user/getUserAllInfo`
+  return axios.post(url, {
+		userId: data
+  }, {headers: header}).then((res) => {
+    return Promise.resolve(res.data.data)
+  })
+}

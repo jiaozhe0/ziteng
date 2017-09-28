@@ -1,14 +1,11 @@
 <template>
-<scroll class="noData" @scroll="getData" :listenScroll="true">
 	<div class="noData-wrap">
-		<div class="loading text-center">sdfsf</div>
 	  <div class="noData-content">
 	  	<div class="noData-pic"></div>
 	    <p class='noData-title'>暂无数据</p>
 			<p class='noData-info'>SORRY,没有找到您要的服务</p>
   	</div>
   </div>
-</scroll>
 </template>
 
 <script type="text/ecmascript-6">
@@ -27,15 +24,11 @@ export default {
 <style scoped lang="less" >
  @import '~common/css/variable.less';
  @import '~common/css/mixin.less';
- .noData{
- 	position: absolute;
- 	.size(100%;90%);
- 	background-color: #F5F5F5
- 	/*border:1px solid red;*/
- }
  .noData-wrap{
- 	height: 101%;
- 	position: relative;
+ 	position: absolute;
+ 	.size(100%;100.2%);
+	z-index: 10;
+	background: #fff;
  }
 .noData-content{
 	position: absolute;
@@ -43,8 +36,7 @@ export default {
 	left:50%;
 	transform: translate(-50%;-60%);
 	text-align: center;
-/*	border:1px solid green;
-*/	.noData-pic{
+	.noData-pic{
 		.size(375px;180px);
 		background-size:375px 180px;
 		background-repeat: no-repeat;

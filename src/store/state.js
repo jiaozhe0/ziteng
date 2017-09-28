@@ -17,6 +17,7 @@ const states = {
 		cityId: -1,
 		cityName: ''
   },
+  server: {},
   serviceTypeList: [],
   parentTypeList: [],
   childTypeList: []

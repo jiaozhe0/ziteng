@@ -42,3 +42,17 @@ export function MP() {
   })
 }
 
+export function Refresh(ele, pos, text) {
+	if (pos > 0 && pos <= 50) {
+		console.log(pos)
+		ele.icon.style.transform = `scale(${1 + pos / 100})`
+		ele.refresh.style.transform = `translateY(${pos}px)`
+	} else if (pos > 50) {
+		return '松开'
+	}
+}
+
+export function resRefresh(ele) {
+		ele.icon.style.transform = `scale(1)`
+		ele.refresh.style.transform = `translateY(0)`
+}

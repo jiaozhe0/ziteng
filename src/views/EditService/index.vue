@@ -58,7 +58,7 @@
 
 <script type="text/ecmascript-6">
 import MtHeader from 'components/mtHeader'
-import { Cell } from 'mint-ui'
+import { Cell,  } from 'mint-ui'
 import Scroll from 'components/Scroll'
 export default {
 	data() {

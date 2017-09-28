@@ -1,23 +1,26 @@
 <template>
  <div class='serDetial'>
-    <mt-header :bg="{'background':'rgba(0,0,0,.4)','zIndex':200}"></mt-header>
-		<scroll class='content'>
+    <mt-header :bg="{'background':'rgba(0,0,0,.4)','zIndex':200}" :title="serviceInfo.title"></mt-header>
+		<scroll class='content' ref="scroll">
 			<div class="serDetial-content">
 				<mt-swipe :auto="4000">
-				  <mt-swipe-item>1sdf</mt-swipe-item>
-				  <mt-swipe-item>2sdf</mt-swipe-item>
-				  <mt-swipe-item>3sdfsdf</mt-swipe-item>
+				  <mt-swipe-item v-for="(item,index) in serviceInfo.servicePic">
+				  	<img :key="index" @load="_imageLoad" :src="item.picName" alt="" class="img-responsive">
+				  </mt-swipe-item>
 				</mt-swipe>
 				<div class="serDetial-top clearfix">
 					<div class="pull-left">
-						<div class="serDetial-service-title">擦拭玻璃</div>
+						<div class="serDetial-service-title">{{serviceInfo.title}}</div>
 						<div class="serDetial-estimate"> 
-						<span>好评度： <strong>122</strong></span>
-						<span>销量: <strong>455</strong></span>
+						<span>好评度：
+						<strong>{{serviceInfo.evaluateNumber}}</strong></span>
+						<span>销量: 
+						<strong>{{serviceInfo.salesNumber}}</strong>
+						</span>
 						</div>
 					</div>
 					<div class="pull-right serDetial-price">
-						<div class="">100.0</div>
+						<div class="serDetial-price-text">{{serviceInfo.priceNumber}}</div>
 						<div class="serDetial-unit">元/小时</div>
 					</div>
 				</div>
@@ -29,36 +32,44 @@
 			    	</div>
 			    </div>
 			    <div class="card-content">
-			      <div class="card-content-inner">头和尾的卡片。卡头是用来显示一些额外的信息，或自定义操作卡标题和页脚。</div>
-			    </div>
-			  </div>
-			  <!-- 服务预约时间 -->
-			  <div class="card">
-			    <div class="card-header">
-			    	<div class="serDtial-title">
-			    		建议预约时间
-			    	</div>
-			    </div>
-			    <div class="card-content">
-			      <div class="card-content-inner">头和尾的卡片。卡头是用来显示一些额外的信息，或自定义操作卡标题和页脚。</div>
+			      <div class="card-content-inner">
+			      	{{serviceInfo.serviceDescribe}}
+			      </div>
 			    </div>
 			  </div>
 			  <!-- 服务者信息 -->
 			  <div class="card">
-			    <div class="card-header">
-			    	<div>
-			    		<div class="avatar-wrap pull-left">
-			    			<img src="" alt="">
+			    <div class="card-header" @click="_goHomePage(serviceInfo.userId)">
+			    	<div class="clearfix userInfo">
+			    		<div class="avatar-img pull-left" v-if="serviceInfo.userInfo.photoUrl">
+			    			<img :src="serviceInfo.userInfo.photoUrl" alt="" class="img-responsive">
 			    		</div>
-			    		<div class="pull-left">
-			    			<div>服务者信息</div>
-			    			<div>认证</div>
+			    		<div class="userInfo-content">
+			    			<div>{{serviceInfo.userInfo.userName}}
+			    			</div>
+			    			<div class="auth-wrap">
+			    				<div v-show="serviceInfo.userAuthStatus.authZhimaxinyongStatus">
+			    					<img src="" alt="" class="img-responsive">芝麻信用
+			    				</div>
+			    				<div v-show="serviceInfo.userAuthStatus.authUserIdStatus">
+			    					<img src="" alt="" class="img-responsive">已实名认证
+			    				</div>
+			    				<div v-show=''>
+			    					<img src="" alt="" class="img-responsive">
+			    				</div>
+			    				<div v-show=''>
+			    					<img src="" alt="" class="img-responsive">
+			    				</div>
+			    			</div>
 			    		</div>
 			    	</div>
 			    </div>
-			    <div class="card-content">
-			      <div class="card-content-inner">头和尾的卡片。卡头是用来显示一些额外的信息，或自定义操作卡标题和页脚。</div>
-			    </div>
+			     <div class="card-footer">
+			     <router-link :to="{path:'/servicemap', query:{lng:serviceInfo.longitude, lat:serviceInfo.latitude,
+			     name:serviceInfo.baiduCityName}}">
+			     {{serviceInfo.baiduCityName}}
+			     </router-link>
+			     </div>
 			  </div>
 			</div>
 		</scroll>
@@ -75,12 +86,35 @@ import MtHeader from 'components/mtHeader'
 import Scroll from 'components/Scroll'
 import {Swipe, SwipeItem} from 'mint-ui'
 import {mapMutations} from 'vuex'
+import {getServiceDetails} from 'api/service'
 export default {
 	data() {
-		return {}
+		return {
+			serviceInfo: {
+				userInfo: {
+					photoUrl: ''
+				},
+				userAuthStatus: {
+					authZhimaxinyongStatus: ''
+				}
+			}
+		}
 	},
 	created() {
-		this.setFooter()
+		this.setFooter(false)
+	},
+	activated() {
+		this._getServiceDetails(this.$route.query.serviceId)
+	},
+	deactivated() {
+		console.log('.........')
+		this.setFooter(true)
+	},
+	beforeDestroy() {
+		this.setFooter(true)
+	},
+	destroyed() {
+		this.setFooter(true)
 	},
 	components: {
 		MtHeader,
@@ -91,7 +125,22 @@ export default {
 	methods: {
 		...mapMutations({
 			setFooter: 'CHANGE_FOOTER_SHOW'
-		})
+		}),
+		_getServiceDetails(serviceId, collectionUserId) {
+			getServiceDetails(serviceId, collectionUserId).then((data) => {
+				console.log(data)
+				this.serviceInfo = Object.assign({}, this.serviceInfo, data.serviceInfo)
+			})
+		},
+		_goHomePage(userId) {
+			this.$router.push({path: '/homepage', query: {userId: userId}})
+		},
+		_imageLoad() {
+			if (!this.checkloaded) {
+          this.checkloaded = true
+          this.$refs.scroll.refresh()
+      }
+		}
 	}
 }
 </script>
@@ -107,7 +156,8 @@ export default {
 	 	background:#fff;
 	 	padding:0.5rem 0.75rem;
 	 	.serDetial-service-title{
-	 		font-size:0.8rem
+	 		font-size:0.75rem;
+	 		margin-bottom:4px;
 	 	}
 	 	.serDetial-estimate{
 	 		color:@color-text-secondary;
@@ -121,7 +171,11 @@ export default {
 	 		}
 	 	}
 	 	.serDetial-price{
-	 		color:@color-primary
+	 		font-size:0.75rem;
+	 		color:@color-primary;
+	 		.serDetial-price-text{
+	 			// margin-bottom:2px;
+	 		}
 	 	}
 	 	.serDetial-unit{
 	 		font-size:0.6rem;
@@ -129,8 +183,12 @@ export default {
  }
  .card{
  	.serDtial-title{
- 		border-left:4px solid red;
+ 		border-left:3px solid red;
  		padding-left:10px;
+ 		font-size: 0.7rem;
+ 	}
+ 	.card-content-inner{
+ 		font-size:0.6rem;
  	}
  }
 
@@ -145,6 +203,7 @@ export default {
 	background-color: #fff;
 	color: @color-text-secondary;
 	font-size: 0.7rem;
+	padding: 0;
 	.message-btn,.store-btn{
 		width: 25%;
 		text-align: center;
@@ -160,8 +219,24 @@ export default {
 	}
 }
  .mint-swipe{
- 	background:red;
- 	.size(100%;300px)
+ 	.size(100%;240px);
  }
-
+ .userInfo{
+ 	width: 100%;
+ 	font-size: 0.7rem;
+ 	.avatar-img{
+		.square(40px);
+	}
+	.userInfo-content{
+		margin-left: 50px;
+	}
+	.auth-wrap{
+		.flexbox();
+		.justify-content(flex-start);
+		.align-items(center);
+		margin-top: 4px;
+		font-size: 0.6rem;
+		color:@color-text-gray;
+	}
+ }
 </style>

@@ -124,7 +124,10 @@ export default {
 					this.$router.push('/index')
 				}
 			})
-		}
+		},
+		...mapMutations({
+				setUser: 'USER'
+		})
   }
   }
 </script>

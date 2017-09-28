@@ -74,7 +74,6 @@ export default {
 		},
 		_goServiceList(serviceData) {
 			this.serviceType.some((item) => {
-				console.log(item.parentId + '===' + serviceData.parentId)
 				if (item.parentId === serviceData.parentId) {
 					this.setServiceTypeList(item.typeList)
 					return true

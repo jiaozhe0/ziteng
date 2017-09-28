@@ -19,12 +19,12 @@
         </div>
       </div>
     </my-header>
-			<scroll :data="newsLists" class="content" ref="scroll">
+			<scroll :data="newsLists" class="content" ref="scroll" :listenScroll="true">
         <div>
           <!-- 推荐服务类别 -->
           <nav class="index-nav row" >
             <ul class="row" v-if="serRecommend.length">
-              <li @click="_goServiceList(item)" class="col-20 nav-list" v-for="item in serRecommend">
+              <li @click="_goServiceList(item)" class=" needsclick col-20 nav-list" v-for="item in serRecommend">
                 <div class="img-wrap center-block">
                   <img :src="item.serviceType.pictureUrl" class='img-responsive' alt="">
                 </div>
@@ -32,7 +32,6 @@
               </li>
             </ul>
           </nav>
-           <router-view></router-view>
           <!-- 最新消息 -->
   			  <div class="news" >
             <div class="news-icon">dd</div>
@@ -56,7 +55,6 @@ import MyHeader from 'components/MyHeader'
 import ServiceList from 'components/ServiceList'
 import NewsList from 'components/news'
 import {mapMutations, mapGetters} from 'vuex'
-// import {getDefualtCity} from 'api/system'
 import {getClassifyRecommend, getServiceRecommendList} from 'api/index'
 
 export default {
@@ -79,9 +77,10 @@ export default {
     getLsit() {
       Promise.all([getClassifyRecommend(), getServiceRecommendList(this.city.cityId)]).then(([a, b]) => {
         this.serRecommend = a.serviceTypeRecommend
-        this.newsLists = a.analogService
-        this.indexAdsense = a.indexAdsense
+        this.newsLists = a.analogService // 新闻
+        this.indexAdsense = a.indexAdsense // 广告
         this.serviceList = b
+        console.log(this.serviceList)
         this.indexAdsense.forEach((item, index) => {
           this.serviceList.splice(item.appPosition, 0, item)
         })
@@ -103,7 +102,6 @@ export default {
     _goServiceList(data) {
       this.serviceTypeList.some((item, index) => {
         if (item.parentId === data.serviceTypeId) {
-        console.log(item.parentId + '===' + data.parentId)
            this.setServiceTypeList(item.typeList)
            return true
         }

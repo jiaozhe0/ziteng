@@ -5,6 +5,7 @@ import Vue from 'vue'
 import App from './App'
 import router from './router'
 import store from './store'
+import fastclick from 'fastclick'
 // import Vuelazyload from 'vue-lazyload'
 Vue.config.productionTip = false
 import 'mint-ui/lib/style.css'
@@ -14,6 +15,7 @@ import BaiduMap from 'vue-baidu-map'
 // 全局数据异步获取
 import {getServiceList} from 'api/service'
 import {getDefualtCity} from 'api/system'
+fastclick.attach(document.body)
 Vue.use(BaiduMap, {
   ak: '134db1b9cf1f1f2b4427210932b34dcb'
 })
@@ -44,6 +46,8 @@ Vue.use(Mint)
 // 			registerWeixin(userData).then((datas) => {
 // 				if (!datas.userId) {
 // 					router.push({path: '/login', query: {unionid: weixinData.unionid}})
+// 				} else {
+// 					store.commit('USER', datas)
 // 				}
 // 			})
 // 		})
@@ -60,17 +64,19 @@ Promise.all([getServiceList(store), getDefualtCity()]).then(([service, cityData]
 		cityId: cityData[0].configValue
   }
   store.commit('CHANGE_CITY', city)
-	const vm = new Vue({
-  el: '#app',
-  data: {
-		eventHub: new Vue()
-  },
-  router,
-  store,
-  template: '<App/>',
-  components: { App }
- })
- console.log(vm)
+  setTimeout(() => {
+		const vm = new Vue({
+			el: '#app',
+			data: {
+			eventHub: new Vue()
+			},
+			router,
+			store,
+			template: '<App/>',
+			components: { App }
+			})
+			console.log(vm)
+  }, 20)
 })
 
 // Promise.all([getServiceList(store)]).then(([service]) => {

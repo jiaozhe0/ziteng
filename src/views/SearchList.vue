@@ -1,77 +1,155 @@
 <template>
   <div class='searchList'>
-    <search :value="value" @search="_getSearchList" ></search>
-    <div >
-    	<scroll class="content"  style="border:2px solid red" >
-    		<ul >
-    			<li v-for="(i, index) in new Array(60)">{{index}}</li>
-    		</ul>
-    		<ul class="row text-center sort-nav no-gutter">
-			<li class="col-25 sort-nav-item" :class="{'on': selectedSort=='sale'}">销售最高</li>
-			<li class="col-25 sort-nav-item" :class="{'on': selectedSort=='composite'}">综合</li>
-			<li class="col-25 sort-nav-item" :class="{'on': selectedSort == 'comment'}">评价</li>
-			<li class="col-25 sort-nav-item" :class="{'on': selectedSort=='price'}">价格最低</li>
-			</ul>
-    </scroll>	
-    </div>
+    <search :value="key" @search="_getSearchList" ></search>
+     <scroll class="content" 
+     	ref='s' 
+      :data="searchList"
+      :listenScroll="true"
+     	@scroll="_listenScroll"
+     	@scrollToTop="_refresh"
+     	@scrollToEnd="_loadMore"
+     	@scrollToGap="_resRefresh"
+     	:pullup="true"
+     >
+     	<service-list :serviceList="searchList" v-show="searchList.length" class='searchList-wrap'></service-list>
+     	<no-data v-show="!searchList.length" class='ll'></no-data>
+     	<refresh-icon ref='refresh' :top="{'top':searchList.length ? -10+'px' : -40 + 'px'}">
+   				{{refreshText}}加载
+   		</refresh-icon>
+     	<sort @getServiceList="_selectedSort" v-show="searchList.length"></sort>
+     </scroll>	
   </div>
 </template>
 <script type="text/ecmascript-6">
 import Scroll from 'components/Scroll'
 import Search from 'components/SearchCom'
-import { Loadmore } from 'mint-ui'
-import {getSearchList} from 'api/search'
-import {mapGetters} from 'vuex'
+import RefreshIcon from 'components/Refresh/index'
+import ServiceList from 'components/ServiceList'
 import NoData from 'components/NoData/index'
+import Sort from 'components/Sort'
+import { Loadmore } from 'mint-ui'
+import {getServiceList} from 'api/search'
+import {mapGetters} from 'vuex'
+import {saveToLocal} from 'common/js/store'
+import {Refresh, resRefresh} from 'common/js/browser'
 export default {
 	data() {
 		return {
 			searchList: [],
-			value: '',
-			cityId: '',
 			loading: false,
-			page: 0
+			sortType: {overall: 'desc'},
+			value: '',
+			data: {
+				searchContent: '',
+				baiduCityId: '',
+				serviceParentTypeId: '',
+				serviceTypeId: '',
+				page: 0
+			},
+			refreshText: '下拉'
 		}
 	},
 	created() {
-		this.value = this.$route.query.value
-		this._getSearchList(this.$route.query.value)
 	},
-	actived() {
-		this._getSearchList()
+	activated() {
+		this.data.searchContent = this.$route.query.value
+		this._getSearchList(this.$route.query.value)
 	},
 	components: {
 		Search,
 		MtLoadmore: Loadmore,
 		Scroll,
-		NoData
+		NoData,
+		Sort,
+		ServiceList,
+		RefreshIcon
 	},
 	methods: {
-		_getSearchList(val) {
-			this.value = val
-			this.cityId = this.city.cityId
-			let page = 0
-			console.log(`searchContent=${this.value}cityId=${this.cityId}page=${page}`)
-			getSearchList(this.value, this.cityId, page).then((data) => {
+		// 数据排序
+		_selectedSort(val) {
+			switch (val) {
+				case 'overall':
+					this.sortType = {overall: 'desc'}
+				break
+				case 'price':
+					this.sortType = {priceNumber: 'desc'}
+				break
+				case 'sale':
+					this.sortType = {salesNumber: 'desc'}
+					break
+				case 'evaluate':
+					this.sortType = {evaluateNumber: 'desc'}
+					break
+			}
+			this.data.page = 0
+			getServiceList(Object.assign({}, this.data, this.sortType)).then((data) => {
 				console.log(data)
+				this._processingData(data.data)
 			})
 		},
-		_loadMore(id) {
-			alert('....')
+		// 获取第一页列表
+		_getSearchList(val) {
+			this.data.searchContent = val
+			this.data.baiduCityId = this.city.cityId
+			saveToLocal(val)
+			getServiceList(Object.assign({}, this.data, this.sortType)).then((data) => {
+				console.log(data)
+				this._processingData(data.data)
+			})
+		},
+		// 加载更多
+		_loadMore() {
 			if (this.loading) {
 				return
 			} else {
-				this.page += 1
-				getSearchList(this.value, this.cityId, this.page).then((data) => {
+				console.log('加载更多。。。')
+				this.data.page += 1
+				getServiceList(Object.assign({}, this.data, this.sortType)).then((data) => {
 					console.log(data)
-					this.loading = false
+					this._processingData(data.data, true)
 				})
 			}
-			this.$oroadcast('onTopLoad', id)
+		},
+		// 刷新
+		_refresh() {
+			console.log('刷新。。。')
+			this.data.page = 0
+			getServiceList(Object.assign({}, this.data, this.sortType)).then((data) => {
+				console.log(data)
+				this._processingData(data.data)
+			})
+		},
+		// 数据处理
+		_processingData(val, flag) {
+			if (flag) {
+				this.searchList.concat(val)
+				this.loading = false
+			} else {
+				this.searchList = val
+			}
+		},
+		_resRefresh() {
+			this.$nextTick(() => {
+				resRefresh(this.refreshEle)
+				this.refreshText = '下拉'
+			})
+		},
+		_listenScroll(pos) {
+			this.refreshEle = this.$refs.refresh.$refs
+			Refresh(this.refreshEle, pos.y)
+			if (pos.y > 50) {
+				this.refreshText = '松开'
+			}
 		}
 	},
 	computed: {
-		...mapGetters(['city'])
+		...mapGetters(['city']),
+		key() {
+			return this.$route.query.value
+		},
+		listHeight() {
+			return this.$refs.searchList.offsetHeight
+		}
 	}
 }
 </script>
@@ -79,11 +157,22 @@ export default {
  @import '~common/css/variable.less';
  @import '~common/css/mixin.less';
  .content{
- 	bottom: 0
+ 	bottom: 0;
+ 	background-color: #eee;
  }
- .sort-nav{
- 	position: absolute;
- 	.size(100%;30px);
- 	top:0;
- }
+.loading-icon{
+	position: absolute;
+	.size(100%;40px);
+	top:0;	
+	border:2px solid red;
+	z-index:-1
+}
+.searchList-wrap{
+	margin-top: 40px!important;
+	min-height: 600px;
+}
+.ll{
+	border:1px solid red;
+	height: 990px;
+}
 </style>

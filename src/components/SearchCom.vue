@@ -6,7 +6,7 @@
         </div>
         <label class="search" for='search'>
         	<span></span>
-          <input v-model='newValue' v-on:autofocus type="text" v-on:keyup.enter="_search"  id='search' placeholder="输入想要的服务" class="search-btn">
+          <input v-model='newValue'  type="text" v-on:keyup.enter="_search"  id='search' placeholder="输入想要的服务" class="search-btn">
         	<span></span>
         </label>
         <div class="publish-btn" @click="_back">取消</div>
@@ -24,7 +24,7 @@ export default {
 				newValue: ''
 		}
 	},
-	created() {
+	activated() {
 		this.newValue = this.value
 	},
 	components: {

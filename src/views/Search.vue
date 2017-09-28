@@ -10,7 +10,10 @@
     	</ul>
     	<h4 class='search-title'>历史搜索</h4>
     	<ul class='search-list-wrap' >
-    		<li class='history-search search-list' v-for="item in historyList">
+    		<li class='history-search search-list' 
+    		v-for="item in historyList"
+    		@click="_getSearchList(item)"
+    		>
     			{{item}}
     		</li>
     	</ul>
@@ -22,7 +25,7 @@
 <script type="text/ecmascript-6">
 import Search from 'components/SearchCom'
 import {getSearchTitleList} from 'api/search'
-import {loadFromLocal, saveToLocal} from 'common/js/store'
+import {loadFromLocal} from 'common/js/store'
 export default {
 	data() {
 		return {
@@ -36,15 +39,18 @@ export default {
 	},
 	created() {
 		this._getSearchTitleList()
+		console.log(4, localStorage.__historyTitle__)
+	},
+	activated() {
+		console.log(loadFromLocal())
 		this.historyList = loadFromLocal()
 	},
 	methods: {
 		_delet() {
 			this.historyList = []
+			localStorage.__historyTitle__ = []
 		},
 		_getSearchList(val) {
-			console.log(val)
-			saveToLocal(val)
 			this.$router.push({path: 'searchlist', query: {value: val}})
 		},
 		_getSearchTitleList() {
