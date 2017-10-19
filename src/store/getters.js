@@ -5,3 +5,9 @@ export const server = state => state.server
 export const serviceTypeList = state => state.serviceTypeList
 export const parentTypeList = state => state.parentTypeList
 export const childTypeList = state => state.childTypeList
+export const config = state => state.config
+export const userInfo = state => state.userInfo
+export const address = state => state.address
+export const status = state => state.status
+export const map = state => state.map
+export const pictures = state => state.pictures

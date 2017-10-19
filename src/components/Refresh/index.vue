@@ -28,6 +28,7 @@ export default {
 	 top:-50px;
 	.size(100%;60px);
 	.flexbox();
+	z-index:99;
 	.justify-content(center);
 	.align-items(center);
 	transition: all 0.5s @timing-fuction;

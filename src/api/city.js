@@ -5,7 +5,7 @@ import {header, server} from './common'
 export function cityList() {
   const url = `${server}/act/positionbaidu/getCityList`
   return axios.get(url, {
-    headers: header
+    headers: header()
   }).then((res) => {
     return Promise.resolve(res.data)
   })

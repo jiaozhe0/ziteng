@@ -51,7 +51,7 @@ export default {
 			localStorage.__historyTitle__ = []
 		},
 		_getSearchList(val) {
-			this.$router.push({path: 'searchlist', query: {value: val}})
+			this.$router.push({path: 'search/list', query: {value: val}})
 		},
 		_getSearchTitleList() {
 			getSearchTitleList().then((data) => {

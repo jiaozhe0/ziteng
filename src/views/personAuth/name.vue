@@ -1,0 +1,214 @@
+<template>
+<div class='name'>
+    <mt-header title="实名认证"></mt-header>
+    <div class="content name-content editAddress">
+    	<div class="content-wrap">
+    		<!-- 状态栏 -->
+    		<status :status="param.authStatus" v-show="success || param.authStatus>1">
+    		</status>
+	    	<p>您上传的身份信息仅用于实名认证，将严格保密，不会出现信息泄露现象</p>
+	    	<div class="name-content-wrap avatar-wrap">
+		    	<div class='dd'>
+			    	<mt-cell title="姓名" class="value-input">
+			    		<input class="edit-input" v-validate="'required'" v-model="param.realName" type="text" placeholder="请输入真实姓名" name='name' :disabled="param.authId">
+			    	</mt-cell>
+		    	</div>
+		    	<div class='dd'>
+			    	<mt-cell title="身份证号" class="value-input">
+			    		<input class="edit-input"  v-model="param.idNumber" type="number" placeholder="请输入身份证号" :disabled="param.authId">
+			    	</mt-cell>
+		    	</div>
+	    		<p class='name-upload-title'>上传证件照</p>
+		    	<div class="name-upload clearfix text-center">
+		    		<div class="pull-left text-center name-upload-item name-upload-hanlde" @click="_openUpload" v-show="!upload && param.authStatus < 2">
+		    			<div class=" name-upload-icon" ></div>
+		    			手持身份证照片
+		    		</div>
+		    		<div class="name-upload-item center-block" v-show="upload || param.idHoldPic && param.authStatus >1 ">
+		    			<img :src="param.idHoldPic" alt=""  ref='picture' class='img-responsive'>
+		    		</div>
+		    		<div class="pull-right" v-show="!upload && param.authStatus<2">
+		    			<span class="pull-left">的</span>
+		    			<div class="name-upload-item "></div>
+		    		</div>
+		    	</div>
+    		</div>
+    		<p class='danger'>提示：请手持</p>
+    	</div>
+    	<div class="bottom" v-show="this.param.authStatus == 1 || this.param.authStatus == 3">
+    	<button class="footer-btn" 
+    					@click="_saveUserAuthId">
+    		{{buttonText}}
+    	</button>
+    	</div>
+    </div>
+    <mt-popup v-model="popupVisible"
+						  position="bottom" 
+						  :modal="true"
+						  class="sexPopup">
+    	<upload @uploadPicture='_uploadPicture'></upload>
+    </mt-popup>
+</div>
+</template>
+
+<script type="text/ecmascript-6">
+import MtHeader from 'components/mtHeader'
+import Status from 'components/Status/index'
+import {Cell, Popup, Toast} from 'mint-ui'
+import Upload from 'components/uploadPicture'
+import {mapMutations, mapGetters} from 'vuex'
+import {saveUserAuthId, getUserAuthId} from 'api/home'
+import {createObjectURL} from 'common/js/browser'
+export default {
+	data() {
+		return {
+			param: {
+				file: '',  // 身份证
+				userId: '',  // 用户id
+				realName: '',   // 真实姓名
+				idNumber: '', // 身份证号
+				authStatus: 1,
+				idHoldPic: ''
+			},
+			popupVisible: false,
+			upload: false, // 是否选择照片，控制照片显示 上传了照片 返回了照片
+			submiting: false, // 是否正在提交
+			success: false // 提交成功
+		}
+	},
+	created() {
+		this.setFooter(false)
+		this.formData = new FormData()
+		this.param.userId = this.user.userId
+		this.formData.append('userId', this.user.userId)
+	},
+	activated() {
+		this._getUserAuthId(this.user.userId)
+	},
+	computed: {
+		...mapGetters(['user']),
+		buttonText() {
+			let text = '提交认证'
+			if (this.param.authStatus === 3) {
+				text = '重新提交'
+			}
+			return text
+		}
+	},
+	components: {
+		MtHeader,
+		MtCell: Cell,
+		MtPopup: Popup,
+		Upload,
+		Status
+	},
+	methods: {
+		_openUpload() {
+			this.popupVisible = true
+		},
+		_saveUserAuthId() {
+			if (this.param.authStatus === 3) {
+				this.param.authStatus = 1
+				this.upload = false
+			} else {
+				if (this.submiting) {
+					return
+				}
+				if (this.param.realName === '') {
+					Toast('请输入姓名')
+					return
+				}
+				if (this.param.idNumber === '') {
+					Toast('请输入身份证号')
+					return
+				}
+				if (this.param.file === '') {
+					Toast('请上传身份证')
+					return
+				}
+				if (this.errors.has('name')) {
+					Toast(this.errors.items[0].msg)
+					return
+				}
+				this.formData.append('realName', this.param.realName)
+				this.formData.append('idNumber', this.param.idNumber)
+				this.formData.append('file', this.param.file)
+				Toast('正在提交！')
+				this.submiting = true
+				saveUserAuthId(this.formData).then(data => {
+					console.log(data)
+					if (data.code === '000000') {
+						Toast('提交成功！')
+						this.submiting = false
+						this._getUserAuthId(this.user.userId)
+						this.setStatus('person')
+					}
+				})
+			}
+		},
+		_getUserAuthId(id) {
+			getUserAuthId(id).then(data => {
+				console.log(data)
+				if (data.code === '000000') {
+					this.param = Object.assign({}, this.param, data.data)
+				}
+			})
+		},
+		_uploadPicture(file) {
+			this.param.file = file
+			this.formData.append('file', file)
+			this.upload = true
+			this.popupVisible = false
+			this.$refs.picture.src = createObjectURL(file)
+		},
+		...mapMutations({
+			setFooter: 'CHANGE_FOOTER_SHOW',
+			setStatus: 'STATUS'
+		})
+	}
+}
+</script>
+<style scoped lang="less" >
+@import '~common/css/variable.less';
+@import '~common/css/mixin.less';
+.name-content{
+	bottom: 0;
+	p{
+		font-size:0.58rem;
+		padding:0 10px;
+		margin: 5px 0;
+		color:@color-text-gray;
+		&.name-upload-title{
+			font-size: 0.7rem;
+			color:@color-text;
+			margin:10px 0 5px;
+		}
+	}
+	background-color: #eee;
+	.name-content-wrap{
+		background-color: #fff;
+		padding: 10px 0;
+	}
+	.dd{
+		padding:0 5px;
+	}
+	.name-upload{
+		padding: 0 10px;
+	}
+	.name-upload-item{
+		.square(110px);
+		background:#eee;
+		font-size:0.6rem;
+		display: inline-block;
+		overflow: hidden;
+		.name-upload-icon{
+
+		}
+	}
+	input[disabled]{
+		background: transparent;
+		color:@color-text;
+		font-size: 0.7rem;
+	}
+}
+</style>

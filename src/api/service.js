@@ -27,53 +27,82 @@ export function getServiceList(store) {
 				return Promise.resolve({parTypeList, serTypeList})
 	})
 }
+// 2.5.2.修改服务销售状态
+export function updateServiceStatus(data) {
+	const url = `${server}/act/service/state/updateServiceStatus`
+  return axios.post(url, data, {headers: header()}).then((res) => {
+    return Promise.resolve(res.data)
+  })
+}
+// 2.5.3.上传服务图片
+export function saveServicePicture(data) {
+	const url = `${server}/act/service/user/saveServicePicture`
+  return axios.post(url, data, {headers: header()}).then((res) => {
+    return Promise.resolve(res.data)
+  })
+}
+// 2.5.4.发布服务
+export function saveServiceInfo(data) {
+	const url = `${server}/act/service/user/saveServiceInfo`
+  return axios.post(url, data, {headers: header()}).then((res) => {
+    return Promise.resolve(res.data)
+  })
+}
+// 2.5.5.修改服务内容
+export function updateServiceInfo(data) {
+	const url = `${server}/act/service/user/updateServiceInfo`
+  return axios.post(url, data, {headers: header()}).then((res) => {
+    return Promise.resolve(res.data)
+  })
+}
+
+// 2.5.6.获取我的发布服务列表
+export function getCurrentUserServiceList(data) {
+	const url = `${server}/act/service/user/getCurrentUserServiceList`
+  return axios.post(url, data, {headers: header()}).then((res) => {
+    return Promise.resolve(res.data)
+  })
+}
+
 // 2.6.6.获取服务详情
 export function getServiceDetails(serviceId, collectionUserId) {
 	const url = `${server}/act/service/index/getServiceDetails`
   return axios.post(url, {
 		serviceId: serviceId,
 		collectionUserId: collectionUserId
-  }, {headers: header}).then((res) => {
+  }, {headers: header()}).then((res) => {
     return Promise.resolve(res.data.data)
   })
 }
 // 2.6.2.收藏服务
-export function saveServiceCollection(serviceId, collectionUserId, serviceUserId) {
+export function saveServiceCollection(data) {
 	const url = `${server}/act/service/user/saveServiceCollection`
-  return axios.post(url, {
-		serviceId: serviceId,
-		collectionUserId: collectionUserId,
-		serviceUserId: serviceUserId
-  }, {headers: header}).then((res) => {
-    return Promise.resolve(res.data.data)
+  return axios.post(url, data, {headers: header()}).then((res) => {
+    return Promise.resolve(res.data)
   })
 }
 
 // 2.6.3.获取收藏服务
-export function getServiceCollection(serviceId, collectionUserId, serviceUserId) {
+export function getServiceCollection(data) {
 	const url = `${server}/act/service/user/getServiceCollection`
-  return axios.post(url, {
-		serviceId: serviceId,
-		collectionUserId: collectionUserId
-  }, {headers: header}).then((res) => {
-    return Promise.resolve(res.data.data)
+  return axios.post(url, data, {headers: header()}).then((res) => {
+    return Promise.resolve(res.data)
   })
 }
 // 2.6.4.删除收藏服务
-export function deleteServiceCollection(serviceId, collectionUserId, serviceUserId) {
+export function deleteServiceCollection(id) {
 	const url = `${server}/act/service/user/deleteServiceCollection`
   return axios.post(url, {
-		serviceId: serviceId,
-		collectionUserId: collectionUserId
-  }, {headers: header}).then((res) => {
-    return Promise.resolve(res.data.data)
+		serviceCollectionId: id
+  }, {headers: header()}).then((res) => {
+    return Promise.resolve(res.data)
   })
 }
 
 // 2.5.7.获取其他用户发布服务列表
 export function getOtherUserServiceList(data) {
 	const url = `${server}/act/service/user/getOtherUserServiceList`
-  return axios.post(url, data, {headers: header}).then((res) => {
+  return axios.post(url, data, {headers: header()}).then((res) => {
     return Promise.resolve(res.data.data)
   })
 }
@@ -83,7 +112,7 @@ export function getUserAllInfo(data) {
 	const url = `${server}/act/user/getUserAllInfo`
   return axios.post(url, {
 		userId: data
-  }, {headers: header}).then((res) => {
+  }, {headers: header()}).then((res) => {
     return Promise.resolve(res.data.data)
   })
 }

@@ -8,7 +8,7 @@
 </template>
 
 <script  type="text/ecmascript-6">
-import MtFooter from 'components/MtFooter'
+import MtFooter from 'components/MyFooter/index'
 import {getDefualtCity} from 'api/system'
 import {mapMutations, mapGetters} from 'vuex'
 // import {MP} from 'common/js/browser'

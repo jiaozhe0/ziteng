@@ -1,6 +1,7 @@
 <template>
   <mt-header :title="title" :style="bg">
     	 <mt-button  :style="icon" icon="back" slot="left" @click.native="back()"></mt-button>
+       <mt-button  slot="right" @click="handle"><slot></slot></mt-button>
   </mt-header>
 </template>
 
@@ -23,6 +24,10 @@ export default {
       default: function () {
         return { }
       }
+    },
+    path: {
+      type: String,
+      default: ''
     }
   },
   components: {
@@ -30,7 +35,14 @@ export default {
   },
   methods: {
     back() {
-      window.history.back()
+      if (this.path) {
+        this.$router.push(this.path)
+      } else {
+        window.history.back()
+      }
+    },
+    handle() {
+      this.$emit('delete')
     }
   }
 }

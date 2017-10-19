@@ -8,7 +8,7 @@
     <div>
     <div class="current-city">
       <div class="current-city-name text-center">
-        <span>济南市</span>
+        <span>sf{{city.cityName}}</span>
       </div>
     </div>
     <ul class='city-list'>
@@ -39,6 +39,7 @@
 <script type="text/ecmascript-6">
 import Scroll from 'components/Scroll'
 import {Header} from 'mint-ui'
+import {mapGetters} from 'vuex'
 import {getData} from 'common/js/browser' // 获得/设置 data-* 属性
 // const ANCHOR_HEIGHT = 18 // 右边字母锚点的高度
 const TITLE_HEIGHT = 30 // 固定标题栏的高度
@@ -66,7 +67,8 @@ export default {
     fixedTitle() {
       if (this.scrollY > -110) { return '当前城市' }
       return this.cityList[this.currentIndex] ? this.cityList[this.currentIndex].letter : ''
-    }
+    },
+    ...mapGetters(['city'])
   },
   methods: {
     onShortcutTouchStart(e) {

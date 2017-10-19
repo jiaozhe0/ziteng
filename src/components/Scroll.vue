@@ -6,6 +6,7 @@
 </template>
 <script type="text/ecmascript-6">
 import BScroll from 'better-scroll'
+// import {Toast} from 'mint-ui'
 export default {
   props: {
     probeType: {
@@ -64,16 +65,18 @@ export default {
       })
       if (this.listenScroll) {
         let me = this
+        // 出发滚动和y周最大高度
         this.scroll.on('scroll', (pos) => {
-           me.$emit('scroll', pos)
+           console.log(this.scroll.maxScrollY)
+           me.$emit('scroll', pos, this.scroll.maxScrollY)
         })
       }
       if (this.pullup) {
           this.scroll.on('touchEnd', () => {
 						// alert(this.scroll.maxScrollY)
-						if (this.scroll.y > 50) {
+						if (this.scroll.y > 40) {
               this.$emit('scrollToTop')
-            } else if (this.scroll.maxScrollY <= -700 && this.scroll.y <= (this.scroll.maxScrollY + 50)) {
+            } else if (Math.abs(this.scroll.maxScrollY) % -700 === 0 || Math.abs(this.scroll.maxScrollY) % -700 > 100 && this.scroll.y <= (this.scroll.maxScrollY + 50)) {
               this.$emit('scrollToEnd')
             }
             this.$emit('scrollToGap')

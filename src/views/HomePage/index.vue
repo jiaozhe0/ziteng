@@ -22,35 +22,33 @@
    				</div>
    			</div>
 				<div class="approve card-footer">
-					<div v-show="">芝麻信用</div>
-					<div v-show="">已实名认证</div>
-					<div></div>
+					<certify :size="18"
+									 :name="serverStatus.authUserIdStatus"
+									 :skill="serverStatus.authProfessionalStatus"
+									 :bussiness="serverStatus.authBusinessStatus"
+									 :zhima="serverStatus.authZhimaxinyongStatus"	
+					></certify>
 				</div>
    		</div>
    		</div>
    	</div>
    	<div class="serviceList" ref='serviceWrap'>
+   		<div class='ll'>
    		<div class="evaluate" >
-   			<mt-cell :title="'用户评价('+server.evaluateNumber+')'" is-link @click.native="_ll">
+   			<mt-cell :title="'用户评价('+server.evaluateNumber+')'" is-link @click.native="_goEvaluate">
    			  <span>全部</span>
    			</mt-cell>
    		</div>
-   		<div class="title">TA发布的服务</div>
-   		<scroll class='serviceList-wrap' 
-   		ref='s' 
-   		:data="serviceList"
-   		:listenScroll="true"
-			@scroll="_listenScroll"
-			@scrollToTop="_refresh"
-			@scrollToEnd="_loadMore"
-			@scrollToGap="_resRefresh"
-			:pullup="true"
-   		 >
+   	  	<div class="title">TA发布的服务</div>
+   			<scroller :dataList="serviceList" 
+   			clsss="scroller" 
+   			:loadIcon="loading"
+   			:refreshIcon="refreshing"
+   			@refresh="_refresh" 
+   			@loadMore="_loadMore">	
    			<service-list :serviceList="serviceList" :homeStyle="true"></service-list>
-   			<refresh-icon ref='refresh'>
-   				{{refreshText}}加载
-   			</refresh-icon>
-   		</scroll>
+   		 </scroller>	
+   		</div>
    	</div>
    </div>
 </div>
@@ -58,20 +56,22 @@
 
 <script type="text/ecmascript-6">
 import MtHeader from 'components/mtHeader'
-import Scroll from 'components/Scroll'
+import Scroller from 'components/scroller/index'
 import ServiceList from 'components/ServiceList'
-import RefreshIcon from 'components/Refresh/index'
+import {mapMutations, mapGetters} from 'vuex'
 import {getOtherUserServiceList, getUserAllInfo} from 'api/service'
 import { Cell, Toast } from 'mint-ui'
-import {Refresh, resRefresh} from 'common/js/browser'
+import Certify from 'components/Certify/index'
 export default {
 	data() {
 		return {
 			serviceList: [],
 			refreshText: '下拉',
 			server: {},
+			serverStatus: {},
 			isMore: false,
 			loading: false,
+			refreshing: false,
 			requestData: {
 				userId: '',
 				page: {
@@ -82,12 +82,13 @@ export default {
 	},
 	components: {
 		MtHeader,
-		Scroll,
+		Scroller,
 		Cell,
 		ServiceList,
-		RefreshIcon
+		Certify
 	},
-	created() {
+	computed: {
+		...mapGetters(['user', 'config'])
 	},
 	activated() {
 		this._getUserAllInfo(this.$route.query.userId)
@@ -112,18 +113,44 @@ export default {
 			this.$refs.s.$refs.wrapper.style.height = `${this.height - 140}px`
 		})
 	},
+	deactivated() {
+		this.$root.config = {
+			title: '桔子生活', // 分享标题
+			desc: '身边的生活服务专家,都在桔子生活',
+			imgUrl: 'https://static.vux.li/logo_520.png',
+			link: window.location.href
+		}
+	},
 	methods: {
-		_ll() {
-			this.$router.push({path: '/serappraise', query: {serviceUserId: this.$route.query.userId}})
+		_goEvaluate() {
+			this.$router.push({path: '/home/evaluate/server', query: {serviceUserId: this.$route.query.userId}})
 		},
 		_getUserAllInfo(data) {
 			getUserAllInfo(data).then((data) => {
 				console.log(123, data)
 				this.server = data
+				this.serverStatus = data.userAuthStatuss[0]
+				// 设置分享内容
+				if (this.user.userId === this.server.userId) {
+					this.$root.config = {
+						title: `想知道我有哪些超级技能？快进来围观我的个人主页吧`,
+						desc: '身边的生活服务专家,都在桔子生活',
+						imgUrl: this.server.photoUrl,
+						link: window.location.href
+					}
+				} else {
+					this.$root.config = {
+						title: '我发现了一个师傅,手艺不孬,推荐给各位',
+						desc: '身边的生活服务专家,都在桔子生活',
+						imgUrl: this.server.photoUrl,
+						link: window.location.href
+					}
+				}
 			})
 		},
 		_getOtherUserServiceList() {
 			this.requestData.userId = this.$route.query.userId
+			this.refreshing = true
 			this.requestData.page.currentPage = 0
 			getOtherUserServiceList(this.requestData).then((data) => {
 				console.log(124, data)
@@ -132,11 +159,14 @@ export default {
 		},
 		// 加载更多
 		_loadMore() {
-			if (this.loading || this.isMore) {
+			if (this.loading) {
+				return
+			}
+			if (this.isMore) {
 				Toast('数据加载完成')
 				return
 			}
-			console.log('上拉加载')
+			alert('上拉加载')
 			this.loading = true
 			this.requestData.page.currentPage += 1
 			getOtherUserServiceList(this.requestData).then((data) => {
@@ -146,7 +176,7 @@ export default {
 		},
 		// 刷新
 		_refresh() {
-			console.log('下拉刷新')
+			this.refreshing = true
 			this._getOtherUserServiceList()
 		},
 		// 数据处理
@@ -164,21 +194,12 @@ export default {
 			} else {
 				this.isMore = false
 				this.serviceList = data
+				this.refreshing = false
 			}
 		},
-		_resRefresh() {
-			this.$nextTick(() => {
-				resRefresh(this.refreshEle)
-				this.refreshText = '下拉'
-			})
-		},
-		_listenScroll(pos) {
-			this.refreshEle = this.$refs.refresh.$refs
-			Refresh(this.refreshEle, pos.y)
-			if (pos.y > 50) {
-				this.refreshText = '松开'
-			}
-		}
+		...mapMutations({
+			setConfig: 'CONFIG'
+		})
 	}
 }
 </script>
@@ -258,9 +279,8 @@ export default {
 		width: 100%;
 	}
 	.title{
-		position: absolute;
-		top:54px;
 		.size(100%;44px);
+		margin-top:44px;
 		line-height: 44px;
 		font-size: 0.7rem;
 		padding-left: 10px;
@@ -286,5 +306,15 @@ export default {
 	top:0;
 	border:1px solid red;
 	z-index: 0;
+}
+
+.scroller{
+	margin-top: 46px;
+	top:40px;
+}
+.ll{
+	position: relative;
+	.size(100%;100%);
+	padding-top:1px
 }
 </style>

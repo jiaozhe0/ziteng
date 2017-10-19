@@ -43,15 +43,15 @@ export default {
  	margin: 0;
  	top:0;
  	z-index: 9;
- 	.size(100%;40px);
+ 	.size(100%;36px);
  	padding: 8px 0;
- 	font-size: 0.7rem;
- 	.hairline(bottom, @border-default-color);
+ 	font-size: 0.6rem;
+ 	.hairline(bottom, @color-split);
  	border-bottom: 1px solid #fff;
  	background-color: #fff;
  	.sort-nav-item.on{
  		transition: color 0.8s @timing-fuction;
- 		color: @color-primary
+ 		color: @color-primary;
  	}
  	li~li{
  		border-left: 1px solid @color-split;

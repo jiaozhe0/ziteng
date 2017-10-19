@@ -41,7 +41,7 @@ export default {
 		background-size:375px 180px;
 		background-repeat: no-repeat;
 		vertical-align: top;
-		/*.bg-image("noData")*/
+		.bg-image("NoData/noData")
 	}
 	p{
 		margin: 0;

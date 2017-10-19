@@ -14,10 +14,11 @@ import ZhiMaScore from 'views/ZhiMaScore' // 芝麻信用
 import About from 'views/About/index' // 关于我们
 import Login from 'views/Login/index' // 登录页
 import MyPublish from 'views/MyPublish/index' // 我的发布
-// import EditService from 'views/EditService/index'
-import Attestation from 'views/Attestation/index'
-import AppServer from 'views/ApproveServer/index'
-import ServiceList from 'views/ServiceList'
+import EditService from 'views/EditService/index' // 编辑(发布)服务
+import Attestation from 'views/Attestation/index' // 我们认证
+import BusinessAuth from 'views/BusinessAuth/index' // 商家认证
+import ServiceList from 'views/ServiceList/index' // 服务列表
+// 服务详情
 const ServiceDetail = (resolve) => {
   import('views/ServiceDetail').then((module) => {
     resolve(module)
@@ -28,18 +29,96 @@ const Address = (resolve) => {
     resolve(module)
   })
 }
+// 个人主页
 const HomePage = (resolve) => {
   import('views/HomePage/index').then((module) => {
     resolve(module)
   })
 }
-const ServerAppraise = (resolve) => {
-  import('views/ServerAppraise/index').then((module) => {
+// 服务者评价
+const Evaluate = (resolve) => {
+  import('views/Evaluate/index').then((module) => {
     resolve(module)
   })
 }
+// 服务地址
 const ServiceMap = (resolve) => {
   import('views/ServiceMap').then((module) => {
+    resolve(module)
+  })
+}
+// 我的收藏
+const MyCollect = (resolve) => {
+  import('views/MyCollect/index').then((module) => {
+    resolve(module)
+  })
+}
+
+// 订单
+const BuyOrder = (resolve) => {
+  import('views/BuyOrder').then((module) => {
+    resolve(module)
+  })
+}
+const PersonInfo = (resolve) => {
+  import('views/personInfo/index').then((module) => {
+    resolve(module)
+  })
+}
+const EditAddress = (resolve) => {
+  import('views/EditAddress/index').then((module) => {
+    resolve(module)
+  })
+}
+const MyAddress = (resolve) => {
+  import('views/MyAddress/index').then((module) => {
+    resolve(module)
+  })
+}
+const MyReport = (resolve) => {
+  import('views/MyReport/index').then((module) => {
+    resolve(module)
+  })
+}
+// 个人验证
+const PersonAuth = (resolve) => {
+  import('views/personAuth/index').then((module) => {
+    resolve(module)
+  })
+}
+// 技能验证
+const SkillAuth = (resolve) => {
+  import('views/personAuth/skill').then((module) => {
+    resolve(module)
+  })
+}
+// 实名认证
+const NameAuth = (resolve) => {
+  import('views/personAuth/name').then((module) => {
+    resolve(module)
+  })
+}
+// 技能验证图片上传
+const SkillAuthUpload = (resolve) => {
+  import('views/personAuth/upload').then((module) => {
+    resolve(module)
+  })
+}
+// 商业图片上传
+const BusinessAuthUpload = (resolve) => {
+  import('views/personAuth/upload').then((module) => {
+    resolve(module)
+  })
+}
+// 图片浏览
+const ViewPicture = (resolve) => {
+  import('views/ViewPic/index').then((module) => {
+    resolve(module)
+  })
+}
+// 照相浏览
+const Photo = (resolve) => {
+  import('views/photo/index').then((module) => {
     resolve(module)
   })
 }
@@ -75,7 +154,13 @@ export default new Router({
     {
       path: '/order',
       name: 'Order',
-      component: Order
+      component: Order,
+      children: [
+        {
+          path: '/order/buy',
+          component: BuyOrder
+        }
+      ]
     },
     {
       path: '/home',
@@ -85,12 +170,12 @@ export default new Router({
       ]
     },
     {
-      path: '/search',
+      path: '/index/search',
       name: 'Search',
       component: Search
     },
     {
-      path: '/searchlist',
+      path: '/index/search/list',
       name: 'SearchList',
       component: SearchList
     },
@@ -125,21 +210,55 @@ export default new Router({
       component: Login
     },
     {
-      path: '/publish',
+      path: '/home/publish',
       name: 'MyPublish',
       component: MyPublish
     },
+     {
+      path: '/home/address',
+      component: MyAddress
+    },
     {
-      path: '/attestation',
+      path: '/home/collect',
+      component: MyCollect
+    },
+     {
+      path: '/home/report',
+      component: MyReport
+    },
+    {
+      path: '/home/auth',
       name: 'Attestation',
       component: Attestation,
       children: [
       ]
      },
      {
-      path: '/approve/server',
-      name: 'AppServer',
-      component: AppServer
+      path: '/home/auth/server',
+      name: 'BusinessAuth',
+      component: BusinessAuth
+    },
+    {
+      path: '/home/auth/server/upload:type',
+      component: BusinessAuthUpload
+    },
+    {
+      path: '/home/auth/person',
+      component: PersonAuth
+    },
+    {
+      path: '/home/auth/person/skill',
+      component: SkillAuth,
+      children: [
+         {
+          path: ':type',
+          component: SkillAuthUpload
+        }
+      ]
+    },
+    {
+      path: '/home/auth/person/name',
+      component: NameAuth
     },
     {
       path: '/servicelist',
@@ -169,14 +288,34 @@ export default new Router({
       component: HomePage
     },
     {
-      path: '/serappraise',
-      name: 'ServerAppraise',
-      component: ServerAppraise
+      path: '/home/evaluate/:type',
+      name: 'Evaluate',
+      component: Evaluate
     },
     {
       path: '/servicemap',
       name: 'ServiceMap',
       component: ServiceMap
+    },
+    {
+      path: '/home/info',
+      component: PersonInfo
+    },
+    {
+      path: '/editservice',
+      component: EditService
+    },
+    {
+      path: '/address/edit',
+      component: EditAddress
+    },
+    {
+      path: '/view',
+      component: ViewPicture
+    },
+    {
+      path: '/photo',
+      component: Photo
     }
   ]
 })

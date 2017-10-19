@@ -16,7 +16,8 @@ const dictionary = {
             email: '邮箱',
             password: '密码',
             phone: '手机号',
-            code: '验证码'
+            code: '验证码',
+            name: '姓名'
         }
     }
 }
@@ -36,6 +37,14 @@ Validator.extend('code', {
 	validate: value => {
 		return /^\d{4}$/.test(value)
 	}
+})
+Validator.extend('number', {
+    messages: {
+        zh_CN: field => '请输入正确的身份证'
+    },
+    validate: value => {
+        return /^\d{4}$/.test(value)
+    }
 })
 
 Validator.updateDictionary(dictionary)

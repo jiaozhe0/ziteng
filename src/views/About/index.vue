@@ -35,6 +35,12 @@ export default {
   created() {
 		this.version = this.$route.query.version
   },
+  mounted() {
+			document.title = '关于我们'
+  },
+  activated() {
+		document.title = '关于我们'
+  },
   computed: {
 		isHeader() {
 			return this.$route.params.broswer === 'html'
@@ -53,8 +59,9 @@ export default {
  	position: absolute;
  	text-align:center;
 		.about-versions-content{
-			margin:140px auto;
+			margin:120px auto;
 			.size(100%;140px);
+			font-size:0.8rem;
 			.img-wrap{
 				.size(100px;100px)
 			}
@@ -65,12 +72,13 @@ export default {
 			.about-versions{
 				 color:@color-text-gray;
 				 margin-top: 5px;
+				 font-size:0.67rem;
 			}
 		}
 		.about-info{
 			color:@color-text-gray-light;
 			color:@color-text-gray;
-			font-size: 0.7rem;
+			font-size: 0.6rem;
 			background-color: transparent;
 			.hairline(top, #fff)
 		}

@@ -15,9 +15,7 @@
 					我是商家用户
 				</div>
 			</div>
-			
-			<router-link to="" class='center-block approve-btn'>下一步{{url}}</router-link>
-    	 
+			<router-link :to="url" class='center-block approve-btn'>下一步</router-link>
     </div>
   </div>
 </template>
@@ -32,7 +30,7 @@ export default {
 	},
 	computed: {
 		url() {
-			return this.checked === 'person' ? '/person' : '/server'
+			return this.checked === 'person' ? '/home/auth/person' : '/home/auth/server'
 		}
 	},
 	components: {
@@ -42,8 +40,8 @@ export default {
 </script>
 
 <style scoped lang="less" >
- @import '~common/css/variable.less';
- @import '~common/css/mixin.less';
+ @import '../../common/css/variable.less';
+ @import '../../common/css/mixin.less';
  .content{
  	bottom:0
  }

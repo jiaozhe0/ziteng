@@ -21,6 +21,24 @@ export const mutation = {
 	},
 	[types.PARENTTYPELIST](state, parentTypeList) {
 		state.parentTypeList = parentTypeList
+	},
+	[types.CONFIG](state, newConfig) {
+		state.config = Object.assign({}, state.config, newConfig)
+	},
+	[types.USERINFO](state, userInfo) {
+		state.userInfo = Object.assign({}, state.userInfo, userInfo)
+	},
+	[types.ADDRESS](state, address) {
+		state.address = Object.assign({}, state.address, address)
+	},
+	[types.STATUS](state, status) {
+		state.status = status
+	},
+	[types.MAP](state, map) {
+		state.map = Object.assign({}, state.map, map)
+	},
+	[types.PICTURES](state, pictures) {
+		state.pictures = pictures
 	}
 }
 

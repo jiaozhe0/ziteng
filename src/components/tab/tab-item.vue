@@ -17,6 +17,7 @@ export default {
     style () {
       return {
         height: this.$parent.height,
+        lineHeight: this.$parent.lineHeight,
         borderColor: this.$parent.activeColor,
         color: this.currentSelected ? this.$parent.activeColor : this.disabled ? this.$parent.disabledColor : this.$parent.defaultColor,
         border: this.$parent.animate ? 'none' : 'auto'

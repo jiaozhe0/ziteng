@@ -5,7 +5,7 @@ const wxserver = 'http://test.ijzsh.com'
 export function getTelMessage(tel) {
   const url = `${server}/act/loginphone/sendMessage/${tel}`
   return axios.get(url, {
-    headers: header
+    headers: header()
   }).then((res) => {
     return Promise.resolve(res.data.data)
   })
@@ -15,7 +15,7 @@ export function getTelMessage(tel) {
 export function checkPhoneCode(tel, code) {
   const url = `${server}/act/loginphone/checkPhoneCode/${tel}/${code}`
   return axios.get(url, {
-    headers: header
+    headers: header()
   }).then((res) => {
     return Promise.resolve(res.data.data)
   })
@@ -26,7 +26,7 @@ export function registerWeixin(data) {
   const url = `${server}/act/loginweixin/registerWeixin`
   return axios.post(url, data,
   {
-    headers: header
+    headers: header()
   }).then((res) => {
     return Promise.resolve(res.data.data)
   })
@@ -40,7 +40,7 @@ export function bindWeixinUserPhone(unionid, tel, code) {
 		phoneNumber: tel,
 		phoneCode: code
   }, {
-    headers: header
+    headers: header()
   }).then((res) => {
     return Promise.resolve(res.data.data)
   })
@@ -50,7 +50,7 @@ export function bindWeixinUserPhone(unionid, tel, code) {
 export function getToken(code) {
   const url = `${wxserver}/act/wx/user/getToken`
   return axios.post(url, {code: code}, {
-    headers: header
+    headers: header()
   }).then((res) => {
     return Promise.resolve(res.data.data)
   })
@@ -60,7 +60,7 @@ export function getToken(code) {
 export function refreshToken(token) {
   const url = `${wxserver}/act/wx/user/refreshToken`
   return axios.post(url, {refresh_token: token}, {
-    headers: header
+    headers: header()
   }).then((res) => {
     return Promise.resolve(res.data.data)
   })
@@ -73,7 +73,7 @@ export function getUserInfo(accessToken, openid) {
 			access_token: accessToken,
 			openid: openid
 		},	{
-    headers: header
+    headers: header()
   }).then((res) => {
     return Promise.resolve(res.data.data)
   })
@@ -88,7 +88,7 @@ export function loginweixin(accessToken, openid) {
 			openid: openid,
 			lang: 'zh_CN'
 		},
-    headers: header
+    headers: header()
   }).then((res) => {
     return Promise.resolve(res.data.data)
   })

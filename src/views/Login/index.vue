@@ -112,6 +112,7 @@ export default {
 				message: '手机绑定中'
 			})
 			bindWeixinUserPhone(this.$route.query.unionid, this.tel, this.code).then((data) => {
+				alert(Object.keys(data))
 				this.loginFlag = false
 				if (data.status && data.status === '1001') {
 					Toast('验证码验证失败')
@@ -121,7 +122,7 @@ export default {
 				} else if (data.userId) {
 					this.setUser(data)
 					Toast('手机绑定成功')
-					this.$router.push('/index')
+					window.history.back()
 				}
 			})
 		},

@@ -8,15 +8,12 @@
           </router-link> 
         </div>
         <div class="search">
-          <router-link to='/search'>
+          <router-link to='/index/search'>
             <input type="text"  placeholder="大家都在找“家政服务”" class="search-btn">
           </router-link> 
         </div>
-        <div class="publish-btn">
-          <router-link to='/login'>
-            地方
-          </router-link>
-        </div>
+          <div @click="_publishService" class='loginBtn'>
+          </div>
       </div>
     </my-header>
 			<scroll :data="newsLists" class="content" ref="scroll" :listenScroll="true">
@@ -34,9 +31,9 @@
           </nav>
           <!-- 最新消息 -->
   			  <div class="news" >
-            <div class="news-icon">dd</div>
+            <div class="news-icon"></div>
             <div class="news-wrap" v-if="newsLists.length">
-             <!-- <news-list :newsList="newsLists"></news-list> -->
+             <news-list :newsList="newsLists"></news-list>
             </div>
             <div class="server-button text-center" @click="_publishService">
               发布服务
@@ -56,7 +53,6 @@ import ServiceList from 'components/ServiceList'
 import NewsList from 'components/news'
 import {mapMutations, mapGetters} from 'vuex'
 import {getClassifyRecommend, getServiceRecommendList} from 'api/index'
-
 export default {
   data() {
     return {
@@ -73,12 +69,27 @@ export default {
     ServiceList,
     NewsList
   },
+  created() {
+  },
+  activated() {
+    this.$refs.scroll.refresh()
+  },
   computed: {
     getLsit() {
+      console.log(this.city.cityId)
       Promise.all([getClassifyRecommend(), getServiceRecommendList(this.city.cityId)]).then(([a, b]) => {
         this.serRecommend = a.serviceTypeRecommend
         this.newsLists = a.analogService // 新闻
-        this.indexAdsense = a.indexAdsense // 广告
+        this.indexAdsense = a.indexAdsense.map(item => {
+          let id = item.appProtocol.split('servicelist/')[1]
+          let idArr = id.split('&')
+          item.typeId = {}
+          idArr.forEach(idItem => {
+            let arr = idItem.split('=')
+            item.typeId[arr[0]] = arr[1]
+          })
+          return item
+        })
         this.serviceList = b
         console.log(this.serviceList)
         this.indexAdsense.forEach((item, index) => {
@@ -94,14 +105,16 @@ export default {
     },
     _publishService() {
       if (this.user.userId) {
-        this.$router.push('/publish')
+        this.$router.push('/editservice')
       } else {
         this.$router.push('/login')
       }
     },
     _goServiceList(data) {
+      console.log(data)
       this.serviceTypeList.some((item, index) => {
-        if (item.parentId === data.serviceTypeId) {
+        console.log(item.parentId + '----' + data.serviceType.serviceTypeId)
+        if (item.parentId === data.serviceType.serviceTypeId || item.parentId === data.serviceType.parentId) {
            this.setServiceTypeList(item.typeList)
            return true
         }
@@ -124,11 +137,10 @@ export default {
 
 <style scoped lang="less" >
  @import '~common/css/variable.less';
- @import '~common/css/mixin.less';
+ @import '../../common/css/mixin.less';
 .index,.content{
   background-color: #eee;
 }
-
 .index-nav{
   .size(100%;180px);
   padding: 5px 10px;
@@ -170,6 +182,12 @@ export default {
     font-size: 12px;
     line-height: 30px;   
   }
+  .loginBtn{
+    display: inline-block;
+    .square(24px);
+    .bg-view-image('Index/index-plus');
+    background-size: 24px 24px;
+  }
 }
 .news{
   .size(100%,54px);
@@ -186,7 +204,10 @@ export default {
     font-size: 0.6rem
   }
   .news-icon{
-    width: 40px
+    .square(34px);
+    .bg-view-image('index/fujin');
+     background-size: 34px 34px;
+     margin-right: 5px;
   }
 .news-wrap{
     flex-grow:1;

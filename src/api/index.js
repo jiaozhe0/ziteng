@@ -5,7 +5,7 @@ import {header, server} from './common'
 export function getClassifyRecommend() {
   const url = `${server}/act/index/getIndexInfo`
   return axios.get(url, {
-    headers: header
+    headers: header()
   }).then((res) => {
     return Promise.resolve(res.data.data)
   })
@@ -22,7 +22,7 @@ export function getServiceRecommendList(id) {
 		}
   },
   {
-    headers: header
+    headers: header()
   }).then((res) => {
     return Promise.resolve(res.data.data)
   })

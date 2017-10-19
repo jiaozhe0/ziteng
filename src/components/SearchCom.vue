@@ -3,13 +3,19 @@
   	<my-header>
   		<div class="index-header">
         <div class="def-city">
+          <slot></slot>
         </div>
         <label class="search" for='search'>
         	<span></span>
-          <input v-model='newValue'  type="text" v-on:keyup.enter="_search"  id='search' placeholder="输入想要的服务" class="search-btn">
+          <input v-model='newValue' 
+                 type="text" 
+                 v-on:keyup.enter="_search" 
+                 id='search' :placeholder="text" 
+                 class="search-btn">
         	<span></span>
         </label>
-        <div class="publish-btn" @click="_back">取消</div>
+        <input type="hidden" ref='dd'>
+        <div class="publish-btn" @click="_back" >取消</div>
       </div>
   	</my-header>
   </div>
@@ -18,7 +24,13 @@
 <script  type="text/ecmascript-6">
 import MyHeader from './MyHeader'
 export default {
-	props: ['value'],
+	props: {
+    value: String,
+    text: {
+      type: String,
+      default: '输入想要的服务'
+    }
+  },
 	data() {
 		return {
 				newValue: ''
@@ -41,6 +53,7 @@ export default {
 		},
 		_value(e) {
 			let value = e.target.value
+      e.target.blur()
 			this.$emit('search', value)
 			// this.$emit('update:value', newValue)
 		}
@@ -59,13 +72,15 @@ export default {
   .align-items(center);
    overflow: hidden;
 }
+
 .index-header{
   .size(100%;44px);
   color: #fff;
-  font-size: 0.7rem;
+  font-size: 0.6rem;
   a{color: #fff;}
   .search{
-    width: 88%;
+    /*width: 88%;*/
+    flex: 1;
     position: relative;
   }
   .search-btn{
@@ -76,8 +91,13 @@ export default {
     border-radius: 40px;
     font-size: 12px;
     line-height: 30px;
-    text-indent: 30px;
+    /*text-indent: 30px;*/
+    text-align: center;
     color: @color-text-gray
+  }
+  .publish-btn{
+    text-align: center;
+    width: 40px;
   }
 }
 </style>

@@ -61,12 +61,21 @@ if (browserMatch && browserMatch.browser) {
 				return x + y
 			})
 }
-let time = getNowFormatDate()
-export const header = {
-	'machine-code': browser,
-	'network-code': version,
-  'current-time': time,
-  'token': (md5(`${browserReverse}${versionReverse}${time}`)).toUpperCase()
+// let time = getNowFormatDate()
+export function header() {
+	let timer = getNowFormatDate()
+	return {
+		'machine-code': browser,
+		'network-code': version,
+		'current-time': timer,
+		'token': (md5(`${browserReverse}${versionReverse}${timer}`)).toUpperCase()
+	}
 }
-
+// export const header = {
+// 	'machine-code': browser,
+// 	'network-code': version,
+//   'current-time': time,
+//   'token': (md5(`${browserReverse}${versionReverse}${time}`)).toUpperCase()
+// }
 export const server = 'http://test.zitengkeji.com'
+// export const server = 'http://www.ijzsh.com'

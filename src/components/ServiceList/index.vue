@@ -1,7 +1,7 @@
 <template>
 	  <ul class='servicelist'>
 	  	<!-- <item v-for="(item,index) in serviceList" :serviceItem="item" :key="index"></item> -->
-	  	<li class="clearfix service-list needsclick" v-for="(serviceItem,index) in serviceList" :key="index">
+	  	<li class="clearfix service-list needsclick " v-for="(serviceItem,index) in serviceList" :key="index">
 		<div class="class-adsense" 
 		     v-if="serviceItem.appPosition" 
 		     @click="_goServiceList(serviceItem)">
@@ -9,7 +9,7 @@
 		</div>
 		<div class="service-info" :class="{'on':homeStyle}"  v-else >
 			<!-- <div class="">{{serviceItem.title}}</div> -->
-			<router-link :to="{path: 'servicedetail', query: {serviceId: serviceItem.serviceId}}" tag='div'>
+			<router-link :to="{path: '/servicedetail', query: {serviceId: serviceItem.serviceId}}" >
 			<div class="img-wrap pull-left" >
 				<img :src="serviceItem.servicePic[0].picName" alt="" 
 				class="img-responsive">
@@ -17,9 +17,13 @@
 			<div class=" service-content">
 				<h3 class="service-title">{{serviceItem.title}}</h3>
 				<p class="service-text">内容服务：{{serviceItem.serviceDescribe}}</p>
-				<p class="service-price">0.3元/位</p>
+				<p class="service-price">
+					{{serviceItem.type == 1 ? '一口价'+serviceItem.priceNumber+'元/次'
+					: serviceItem.type == 2 ? '预约金'+serviceItem.priceNumber : serviceItem.priceNumber+'元/次'}}
+				</p>
 				<p class="service-detail" v-if="serviceItem.userInfo">
-					销量&nbsp;:&nbsp;{{serviceItem.salesNumber}} &nbsp评价&nbsp;:&nbsp;
+					销量&nbsp;:&nbsp;{{serviceItem.salesNumber}} &nbsp评价&nbsp;:&nbsp;{{serviceItem.evaluateNumber | score
+}}
 				</p>
 				<div class="server-info" v-if="serviceItem.userInfo">
 					<div>
@@ -29,8 +33,13 @@
 					</div>
 					<div class='text-left user-name'>{{serviceItem.userInfo.userName}}</div>						
 					<div class='' >
-						ll
-					</div>
+			    				<certify :size="12" :isText="false"
+			    				 :name="serviceItem.userAuthStatus.authUserIdStatus"
+									 :skill="serviceItem.userAuthStatus.authProfessionalStatus"
+									 :bussiness="serviceItem.userAuthStatus.authBusinessStatus"
+									 :zhima="serviceItem.userAuthStatus.authZhimaxinyongStatus"
+			    				 ></certify>
+			    </div>
 				</div>
 			</div>
 			</router-link>
@@ -41,6 +50,7 @@
 
 <script  type="text/ecmascript-6">
 import {mapMutations, mapGetters} from 'vuex'
+import Certify from '../Certify/index'
 export default {
 	props: {
 		serviceList: {
@@ -51,6 +61,9 @@ export default {
       default: false
 		}
 	},
+	components: {
+		Certify
+	},
 	computed: {
 		...mapGetters(['serviceTypeList'])
 	},
@@ -59,27 +72,24 @@ export default {
       this.$emit('loadImage')
 		},
 		_goServiceList(data) {
-			console.log('........')
 			this.serviceTypeList.some((item, index) => {
-					item.typeList.some((items, index) => {
-						console.log(items.serviceTypeId + '===' + data.indexAdsenseId)
-						if (items.serviceTypeId === data.indexAdsenseId) {
-							this.setServiceTypeList(item.typeList)
-							return true
-						}
-					})
+				if (item.parentId === data.typeId.serviceParentTypeId) {
+					console.log(item.parentId + '===' + data.typeId.serviceParentTypeId)
+					this.setTypeList(item.typeList)
+					return true
+				}
       })
-      // this.$router.push({path: '/serviceList',
-      // query: {
-      //   searchContent: data.appTitle,
-      //   serviceParentTypeId: data.serviceTypeId,
-      //   serviceTypeId: data.serviceTypeId
-      // }})
-		}
-	},
-	...mapMutations({
-		setTypeList: 'CHILDTYPELIST'
-	})
+      this.$router.push({path: '/serviceList',
+      query: {
+        searchContent: data.appTitle,
+        serviceParentTypeId: data.typeId.serviceParentTypeId,
+        serviceTypeId: data.typeId.serviceTypeId
+      }})
+		},
+		...mapMutations({
+			setTypeList: 'CHILDTYPELIST'
+		})
+	}
 }
 </script>
 
@@ -89,7 +99,8 @@ export default {
 .servicelist{
 	position: relative;
 	margin:0px;
-	z-index: 2
+	z-index: 2;
+	min-height: 101%
 }
 .service-info{
 	padding: 5px 10px;
@@ -104,10 +115,10 @@ export default {
 	background-color: #fff;
 	overflow: hidden;
 	.service-content{
-		padding: 0 10px 0;
+		padding: 0 8px 0;
 		margin-left: 120px;
 		.service-title{
-		margin: 0 0 2px 0;
+		margin: 0 0 1px 0;
 		font-weight: 400;
 		font-size: 0.78rem;
 		font-weight: 400
@@ -130,7 +141,7 @@ export default {
 		margin-bottom: 5px;
 		color:@color-text-gray;
 		font-size:0.6rem;
-		.hairline(bottom, @border-default-color);
+		.hairline(bottom, @color-split);
 	}
 	.server-info{
 		.flexbox();
