@@ -27,9 +27,11 @@ module.exports = {
     'space-before-function-paren': 0,
     'one-var': 0,
     'indent': 0,
-    'no-tabs': 0
+    'no-tabs': 0,
+    'recommended': 0
   },
   'globals':{
-   BMap: false
+   BMap: false,
+   WeixinJSBridge: false
   }
 }

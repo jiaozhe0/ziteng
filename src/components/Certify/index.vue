@@ -48,6 +48,9 @@ export default {
 		isSkill() {
 			return this.skill >= 4
 		}
+	},
+	created() {
+		console.log(444, this.business)
 	}
 }
 </script>

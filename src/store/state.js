@@ -1,7 +1,8 @@
 const states = {
-  isFooter: true,
+  isFooter: false,
   user: {
 		// userId: 'b762a2348d3b44499847b65e7ef11e85',
+    // userId: '033ae71687d848cea817dcb071fa4533', // i
     userId: '',
 		userName: '',
 		phoneNumber: '',
@@ -11,26 +12,20 @@ const states = {
 			password: '',
 			huanxin_uuid: '',
 			huanxin_type: '',
-			huanxin_activated: ''
+			huanxin_activated: '' // 用户
 	}
   },
-  userInfo: {
+  userInfo: { // 用户信息，个人主页用
 		userName: ''
   },
   city: {
 		cityId: -1,
-		cityName: ''
+		cityName: '' // 城市名，城市Id
   },
   server: {},
   serviceTypeList: [],
   parentTypeList: [],
   childTypeList: [],
-  config: {
-		title: '桔子生活', // 分享标题
-    desc: '身边的生活服务专家,都在桔子生活',
-    imgUrl: 'https://static.vux.li/logo_520.png',
-    link: window.location.href
-  },
   address: {}, // 常用地址
   map: {
     address: '',
@@ -42,7 +37,11 @@ const states = {
     title: ''
   }, // 地图位置
   status: '', // 个人/商家
-  pictures: {}
+  pictures: {}, // 图片浏览
+  serviceInfo: {}, // 服务信息
+  openId: '',
+  orderUrl: '',
+  serviceUrl: ''
 }
 
 export default states

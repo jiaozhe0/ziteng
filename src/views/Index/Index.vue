@@ -70,13 +70,13 @@ export default {
     NewsList
   },
   created() {
+    this.setFooter(true)
   },
   activated() {
     this.$refs.scroll.refresh()
   },
   computed: {
     getLsit() {
-      console.log(this.city.cityId)
       Promise.all([getClassifyRecommend(), getServiceRecommendList(this.city.cityId)]).then(([a, b]) => {
         this.serRecommend = a.serviceTypeRecommend
         this.newsLists = a.analogService // 新闻
@@ -91,7 +91,6 @@ export default {
           return item
         })
         this.serviceList = b
-        console.log(this.serviceList)
         this.indexAdsense.forEach((item, index) => {
           this.serviceList.splice(item.appPosition, 0, item)
         })
@@ -111,9 +110,7 @@ export default {
       }
     },
     _goServiceList(data) {
-      console.log(data)
       this.serviceTypeList.some((item, index) => {
-        console.log(item.parentId + '----' + data.serviceType.serviceTypeId)
         if (item.parentId === data.serviceType.serviceTypeId || item.parentId === data.serviceType.parentId) {
            this.setServiceTypeList(item.typeList)
            return true

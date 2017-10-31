@@ -20,7 +20,7 @@ import BusinessAuth from 'views/BusinessAuth/index' // 商家认证
 import ServiceList from 'views/ServiceList/index' // 服务列表
 // 服务详情
 const ServiceDetail = (resolve) => {
-  import('views/ServiceDetail').then((module) => {
+  import('views/ServiceDetail/index').then((module) => {
     resolve(module)
   })
 }
@@ -54,9 +54,15 @@ const MyCollect = (resolve) => {
   })
 }
 
-// 订单
+// 购买订单
 const BuyOrder = (resolve) => {
   import('views/BuyOrder').then((module) => {
+    resolve(module)
+  })
+}
+// 出售订单
+const SaleOrder = (resolve) => {
+  import('views/saleOrder').then((module) => {
     resolve(module)
   })
 }
@@ -122,6 +128,42 @@ const Photo = (resolve) => {
     resolve(module)
   })
 }
+// 订单
+const BookingOrder = (resolve) => {
+  import('views/BookingOrder/index').then((module) => {
+    resolve(module)
+  })
+}
+// 订单详情
+const OrderDetail = (resolve) => {
+  import('views/OrderDetail/index').then((module) => {
+    resolve(module)
+  })
+}
+// 支付订单
+const OrderPay = (resolve) => {
+  import('views/PayOrder/index').then((module) => {
+    resolve(module)
+  })
+}
+// 支付订单
+const CancelOrder = (resolve) => {
+  import('views/CancelOrder/index').then((module) => {
+    resolve(module)
+  })
+}
+// 去评价
+const EditEvaluate = (resolve) => {
+  import('views/EditEvaluate/index').then((module) => {
+    resolve(module)
+  })
+}
+// 收入明细
+const Income = (resolve) => {
+  import('views/Income/index').then((module) => {
+    resolve(module)
+  })
+}
 // import AppPerson from 'views/ApproveServer/index'
 Vue.use(Router)
 
@@ -157,17 +199,35 @@ export default new Router({
       component: Order,
       children: [
         {
-          path: '/order/buy',
+          path: 'buy',
           component: BuyOrder
+        },
+        {
+          path: 'sale',
+          component: SaleOrder
         }
       ]
     },
     {
+      path: '/service/order',
+      component: BookingOrder
+    },
+     {
+      path: '/service/order/detail',
+      component: OrderDetail
+    },
+    {
+      path: '/service/order/pay',
+      component: OrderPay
+    },
+    {
+      path: '/service/order/cancel',
+      component: CancelOrder
+    },
+    {
       path: '/home',
       name: 'Home',
-      component: Home,
-      children: [
-      ]
+      component: Home
     },
     {
       path: '/index/search',
@@ -222,6 +282,10 @@ export default new Router({
       path: '/home/collect',
       component: MyCollect
     },
+    {
+      path: '/home/income',
+      component: Income
+    },
      {
       path: '/home/report',
       component: MyReport
@@ -263,14 +327,7 @@ export default new Router({
     {
       path: '/servicelist',
       name: 'ServiceList',
-      component: ServiceList,
-      children: [
-        // {
-        //   path: ':id',
-        //   name: 'ServiceDetail',
-        //   component: ServiceDetail
-        // }
-      ]
+      component: ServiceList
     },
     {
       path: '/servicedetail',
@@ -316,6 +373,10 @@ export default new Router({
     {
       path: '/photo',
       component: Photo
+    },
+    {
+      path: '/order/evaluate',
+      component: EditEvaluate
     }
   ]
 })

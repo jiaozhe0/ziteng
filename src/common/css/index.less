@@ -96,6 +96,9 @@ a{
 
 .footer-btn-wrap{
   background-color: transparent!important;
+  &:before{
+    background-color:transparent;
+  }
 }
 
 /*-----------------底部公共按钮样式*/
@@ -128,25 +131,46 @@ a{
 
 
 /*----------------------mint-ui样式重写*/
+.small-cell {
+  .mint-cell-wrapper{
+    font-size:0.6rem!important;
+  }
+  .mint-cell{
+      min-height: 40px;
+    }
+}
 .mint-cell-wrapper{
   font-size: 0.7rem!important;
   font-weight: 400;
    background-image: linear-gradient(180deg, @color-split, @color-split 50%, transparent 50%);
    background-image: -webkit-linear-gradient(top, @color-split, @color-split 50%, transparent 50%);
-  input{
+   input{
     font-size: 0.6rem;
-  }
+   }
 }
-  .mint-cell{
+.mint-cell{
     min-height: 42px;
-  }
-  .picker-item{
+}
+.picker-item{
     font-size: 0.7rem;
     &.picker-selected{
     color: @color-primary
    }
 }
-
+.orderDetail{
+  .mint-cell-wrapper{
+    font-size: 0.6rem!important;
+    font-weight: 400;
+  }
+  .mint-cell{
+    min-height: 38px;
+  }
+}
+.income-list {
+   .mint-cell{
+    min-height: 50px;
+  }
+}
 .avatar-wrap .mint-cell-wrapper{
     background-size:0 0;
 }
@@ -187,9 +211,144 @@ a{
   }
 }
 
+// 服务详情，预约订单 的公共footer样式
+.serDetial-footer{
+  .flexbox();
+  .flex-wrap(nowrap);
+  .justify-content(space-between);
+  .align-items(stretch);
+  .size(100%;50px);
+  text-align: center;
+  line-height: 50px;
+  background-color: #fff;
+  color: @color-text-secondary;
+  font-size: 0.7rem;
+  padding: 0;
+  .message-btn,.store-btn{
+    width: 25%;
+    text-align: center;
+    flex:1;
+    &.on{
+      color:@color-danger
+    }
+  }
+  .store-btn{
+    border-right: 1px solid @color-split;
+  }
+  .order-btn{
+    width: 50%;
+    background-color: #F04848;
+    color:#fff;
+  }
+}
+
 .fadeIn {
   animation-name: fadeIn;
 }
 .loadingIn{
   animation: fadeIn 2s forwards;
 }
+
+.page {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  overflow:hidden;
+}
+
+.appServer-header{
+    background:@color-primary;
+    .size(100%;90px);
+    padding-top: 10px;
+    .appServer-path{
+      margin:0; 
+      color:#fff;
+      font-size:0.7rem;
+    }
+    .path-icon{
+      position: relative;
+      .square(20px);
+      box-sizing: border-box;
+      background-color: red;
+      border:3px solid red;
+      border-radius: 50%;
+      z-index:99;
+      transition: all 0.4s;
+      &.on{
+        background-color: #fff;
+      }
+    }
+    .appServer-path-item{
+      display: inline-block;
+      .size(30%;80px);
+      line-height: 50px;
+      position: relative;
+      &:after,&:before{
+        position:absolute;
+        box-sizing: border-box;
+        top:10px;
+        content: '';
+      }
+      &:after,&:before{
+        .size(100%;8px);
+        background-color: red;
+        left:50%;
+        margin-top: -4px;
+      }
+      &:before{
+        transition: all 0.4s;
+        width: 0;
+        height: 4px;
+        margin-top: -2px;
+        margin-left: 1px;
+        background-color: #fff;
+        z-index: 100
+      }
+      &.on{
+        &:before{
+          width:100%;
+        }
+      }
+      &:last-child:after,&:last-child:before{
+        content: none;
+      };
+    }
+ }
+
+ /*分享底部按钮*/
+  .share-footer{
+  background-color: #5B5B59;
+  overflow-y: hidden;
+  padding: 0 15px;
+  .open-btn{
+    display: inline-block;
+    background-color: @color-primary;
+    color:#fff;
+    .size(100px;34px);
+    line-height: 34px;
+    border:none;
+  }
+  .share-footer-logo{
+    .flexbox();
+    .align-items(center);
+    .logo{
+      .square(34px);
+      background-size: 34px 34px;
+      margin-right: 8px;
+      .bg-view-image('ServiceDetail/myIcon');
+    }
+  }
+  .share-footer-text{
+    height: 30px;
+    text-align: left;
+    line-height: 16px;
+    font-size: 0.65rem;
+    color:#fff;
+    .share-footer-slogan{
+      font-size: 0.5rem;
+    }
+  }
+ }
+ 

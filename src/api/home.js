@@ -70,6 +70,24 @@ export function getIndexInfo(id) {
 }
 
 // 2.11.9.获取用户钱包总金额
+export function getBillDetail(id) {
+  const url = `${server}/act/bill/detail`
+  return axios.post(url, {userId: id}, {
+    headers: header()
+  }).then((res) => {
+    return Promise.resolve(res.data.data)
+  })
+}
+// 2.11.10.获取用户钱包明细
+export function getIncomeList(data) {
+  const url = `${server}/act/bill/incomeList`
+  return axios.post(url, data, {
+    headers: header()
+  }).then((res) => {
+    return Promise.resolve(res.data.data)
+  })
+}
+// 2.11.11.获取用户收入明细
 export function getTotal(id) {
   const url = `${server}/act/bill/total`
   return axios.post(url, {userId: id}, {
@@ -162,6 +180,26 @@ export function getUserAuthProfessional(id) {
 export function getUserAuthStatus(id) {
   const url = `${server}/act/user/auth/getUserAuthStatus`
   return axios.post(url, {userId: id}, {
+    headers: header()
+  }).then((res) => {
+    return Promise.resolve(res.data)
+  })
+}
+
+// 2.11.24.获取举报类型
+export function getUserReportTypeList() {
+  const url = `${server}/act/user/report/getUserReportTypeList`
+  return axios.get(url, {
+    headers: header()
+  }).then((res) => {
+    return Promise.resolve(res.data)
+  })
+}
+
+// 2.11.25.保存用户举报内容
+export function saveUserReport(data) {
+  const url = `${server}/act/user/report/saveUserReport`
+  return axios.post(url, data, {
     headers: header()
   }).then((res) => {
     return Promise.resolve(res.data)

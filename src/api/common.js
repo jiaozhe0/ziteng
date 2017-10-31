@@ -77,5 +77,6 @@ export function header() {
 //   'current-time': time,
 //   'token': (md5(`${browserReverse}${versionReverse}${time}`)).toUpperCase()
 // }
-export const server = 'http://test.zitengkeji.com'
-// export const server = 'http://www.ijzsh.com'
+// test.ijzsh.com
+// export const server = 'http://test.ijzsh.com' // 开发环境
+export const server = 'http://www.ijzsh.com' // 生成环境

@@ -93,6 +93,18 @@ export function loginweixin(accessToken, openid) {
     return Promise.resolve(res.data.data)
   })
 }
+// 2.2.5.用户登录日志
+export function saveLoginLog(id) {
+  const url = `${server}/act/login/user/saveLoginLog`
+  return axios.post(url, {
+    userId: id,
+    systemType: 3
+  }, {
+    headers: header()
+  }).then((res) => {
+    return Promise.resolve(res.data)
+  })
+}
 
 // 获取用户信息
 // export function refreshToken(token) {

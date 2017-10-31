@@ -25,7 +25,7 @@ Vue.use(VeeValidate, Veeconfig)
 Vue.use(Mint)
 import {share} from 'common/js/share'
 import {getToken, getUserInfo, registerWeixin} from 'api/login'
-if (window.location.href.indexOf('homepage') < 0) {
+if (window.location.href.indexOf('share') < 0) {
 let search = window.location.search.slice(1)
 if (search.indexOf('code') < 0) {
 	let url = 'http://test.ijzsh.com/html/index.html#/index'
@@ -35,6 +35,8 @@ if (search.indexOf('code') < 0) {
 	let code = search.match(pettern)
 	code = code != null ? code[2] : null
 	getToken(code).then((weixinData) => {
+		// alert(weixinData.openid)
+		store.commit('OPENID', weixinData.openid)
 		getUserInfo(weixinData.access_token, weixinData.openid).then((res) => {
 			let postData = {
 				screen_name: res.nickname,
@@ -55,6 +57,7 @@ if (search.indexOf('code') < 0) {
 				} else {
 					// alert(Object.keys(datas))
 					store.commit('USER', datas)
+					// alert(store.state.user.userId)
 					initVue()
 				}
 			})
@@ -62,41 +65,32 @@ if (search.indexOf('code') < 0) {
 	})
 }
 } else {
-	initVue()
+	initStaticPage()
 }
+
 // 图片懒加载
 // Vue.use(Vuelazyload,{
-// })
-
-// 个人状态设置
-// let status = localStorage.getItem('status')
-// if (status) {
-// 	store.commit('STATUS', status)
-// }
-// getLocal().then(data => {
-// 	console.log(126, data)
 // })
 
 // -------------------------------------过滤器
 Vue.filter('score', (val) => {
  return val > 0 ? `${(val * 20)}%` : 0
 })
-
-// var preloadImage = function () {
-//   return new Promise(function (resolve, reject) {
-//     var image = new Image()
-// 		image.onload = resolve
-// 		image.onerror = reject
-// 		image.src = '../static/loading.png'
-//   }).then(() => {
-// 	document.querySelector('#loading').classList.add('loadingIn')
-//   })
-// }
-// preloadImage()
-// initVue()
+// ----------------------------------loading页
+var preloadImage = function () {
+  return new Promise(function (resolve, reject) {
+    var image = new Image()
+		image.onload = resolve
+		image.onerror = reject
+		image.src = '../static/loading.png'
+  }).then(() => {
+	document.querySelector('#loading').classList.add('loadingIn')
+  })
+}
 // ------------------------------------微信分享
 wx.error(function(res) {
-	console.log(res)
+	alert(Object.keys(res))
+	console.log(9999, res)
 })
 const ztUrl = window.location.href.split('#')[0]
 getJsSignature(ztUrl).then(data => {
@@ -107,27 +101,9 @@ getJsSignature(ztUrl).then(data => {
 	wx.config(Object.assign(data, config))
 })
 
-// 获取服务类型数据
-function initVue() {
-Promise.all([getServiceList(store), getDefualtCity(), getLocal(), cityList()]).then(([service, city, cityData, cityList]) => {
-	if (cityData) {
-		cityList.data.baiduCity.some((item, index) => {
-			if (cityData.cityName === item.cityName) {
-				cityData.cityId = item.cityId
-				return true
-			}
-		})
-		store.commit('CHANGE_CITY', cityData)
-	} else {
-			// 设置默认城市
-			let city = {
-				cityName: city[1].configValue,
-				cityId: city[0].configValue
-			}
-			store.commit('CHANGE_CITY', city)
-	}
-	console.log(999, store.state.city)
-  setTimeout(() => {
+// 创建Vue实例
+function newVue() {
+	setTimeout(() => {
 		const vm = new Vue({
 			el: '#app',
 			data: {
@@ -148,7 +124,45 @@ Promise.all([getServiceList(store), getDefualtCity(), getLocal(), cityList()]).t
 			share(newVal)
 		})
 		document.querySelector('#loading').style.display = 'none'
-  }, 20)
-})
+	}, 20)
 }
+
+// 初始化页面
+function initVue() {
+	Promise.all([getServiceList(store), getDefualtCity(), getLocal(), cityList()]).then(([service, city, cityData, cityList]) => {
+		if (cityData) {
+			cityList.data.baiduCity.some((item, index) => {
+				if (cityData.cityName === item.cityName) {
+					cityData.cityId = item.cityId
+					return true
+				}
+			})
+			store.commit('CHANGE_CITY', cityData)
+		} else {
+			// 设置默认城市
+			let systemCity = {
+				cityName: city[1].configValue,
+				cityId: city[0].configValue
+			}
+			store.commit('CHANGE_CITY', systemCity)
+		}
+		newVue()
+	})
+}
+
+// 初始化静态页面
+function initStaticPage() {
+	Promise.all([getServiceList(store), getDefualtCity()]).then(([service, city]) => {
+		// 设置默认城市
+		let systemCity = {
+			cityName: city[1].configValue,
+			cityId: city[0].configValue
+		}
+		store.commit('CHANGE_CITY', systemCity)
+		newVue()
+	})
+}
+console.log(typeof initStaticPage)
+preloadImage()
+// initVue()
 /* eslint-disable no-new */

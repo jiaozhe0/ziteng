@@ -1,6 +1,6 @@
 <template>
   <mt-header :title="title" :style="bg">
-    	 <mt-button  :style="icon" icon="back" slot="left" @click.native="back()"></mt-button>
+    	 <mt-button  v-show='share' :style="icon" icon="back" slot="left" @click.native="back()"></mt-button>
        <mt-button  slot="right" @click="handle"><slot></slot></mt-button>
   </mt-header>
 </template>
@@ -28,6 +28,14 @@ export default {
     path: {
       type: String,
       default: ''
+    },
+    share: {
+      type: Boolean,
+      default: true
+    },
+    isBack: {
+      type: Boolean,
+      default: true
     }
   },
   components: {
@@ -37,8 +45,10 @@ export default {
     back() {
       if (this.path) {
         this.$router.push(this.path)
+      } else if (this.isBack) {
+         window.history.back()
       } else {
-        window.history.back()
+        return
       }
     },
     handle() {

@@ -1,6 +1,6 @@
 <template>
-<div class='homePage'>
-   <mt-header title="个人主页"></mt-header>
+<div class='homePage page'>
+   <mt-header title="个人主页" :share="$route.query.share && !$route.query.share"></mt-header>
    <div class="content" ref='wrap'>
    	<div class="homePage-header" ref='header'>
 			<div class="homepage-header-content" >
@@ -13,7 +13,7 @@
 							alt="" 
 							class="img-responsive" 
 							v-if="server.photoUrl">
-   						<img src="./n_meiyou.png" alt="" v-else>
+   						<img src="./n_meiyou.png" alt="" v-else class="img-responsive">
    					</div>
    					<div class="homePage-info-text" ref='userInfo'>
    						<strong class="userName">{{server.userName}}</strong>
@@ -25,7 +25,7 @@
 					<certify :size="18"
 									 :name="serverStatus.authUserIdStatus"
 									 :skill="serverStatus.authProfessionalStatus"
-									 :bussiness="serverStatus.authBusinessStatus"
+									 :business="serverStatus.authBusinessStatus"
 									 :zhima="serverStatus.authZhimaxinyongStatus"	
 					></certify>
 				</div>
@@ -45,12 +45,27 @@
    			:loadIcon="loading"
    			:refreshIcon="refreshing"
    			@refresh="_refresh" 
-   			@loadMore="_loadMore">	
-   			<service-list :serviceList="serviceList" :homeStyle="true"></service-list>
+   			@loadMore="_loadMore"
+   			@scrollTop='_scrollTop'
+   			>	
+   			<service-list :serviceList="serviceList" :homeStyle="true" :share="$route.query.share"></service-list>
    		 </scroller>	
    		</div>
    	</div>
    </div>
+   <div class="bar bar-footer serDetial-footer share-footer" v-if="$route.query.share">
+			<div class='clearfix share-footer-logo'>
+					<div class="logo pull-left"></div>
+					<div class="pull-left share-footer-text"> 
+						<div>桔子生活</div>
+						<span class='share-footer-slogan'>你身边的生活服务超市</span>
+					</div>
+			</div>
+			<div>
+				<a class='open-btn' 
+				href="http://a.app.qq.com/o/simple.jsp?pkgname=com.zitengkeji.app">打开应用</a>
+			</div>
+		</div>
 </div>
 </template>
 
@@ -67,7 +82,9 @@ export default {
 		return {
 			serviceList: [],
 			refreshText: '下拉',
-			server: {},
+			server: {
+				evaluateNumber: 0
+			},
 			serverStatus: {},
 			isMore: false,
 			loading: false,
@@ -90,14 +107,18 @@ export default {
 	computed: {
 		...mapGetters(['user', 'config'])
 	},
+	created() {
+		this.setFooter(false)
+	},
 	activated() {
+		this.setFooter(false)
 		this._getUserAllInfo(this.$route.query.userId)
 		this._getOtherUserServiceList()
 	},
 	mounted() {
 		this.height = window.innerHeight
 		this.$refs.wrap.onscroll = (e) => {
-			console.log(e.target.scrollTop)
+			console.log(1234, e.target.scrollTop)
 			if (this.timer) {
 				clearInterval(this.timer)
 			}
@@ -114,6 +135,7 @@ export default {
 		})
 	},
 	deactivated() {
+		this.setFooter(true)
 		this.$root.config = {
 			title: '桔子生活', // 分享标题
 			desc: '身边的生活服务专家,都在桔子生活',
@@ -122,6 +144,11 @@ export default {
 		}
 	},
 	methods: {
+		_scrollTop(top) {
+			if (top < 0) {
+				this.$refs.wrap.scrollTop = this.$refs.wrap.scrollTop - Math.floor(top) * 2
+			}
+		},
 		_goEvaluate() {
 			this.$router.push({path: '/home/evaluate/server', query: {serviceUserId: this.$route.query.userId}})
 		},
@@ -131,19 +158,21 @@ export default {
 				this.server = data
 				this.serverStatus = data.userAuthStatuss[0]
 				// 设置分享内容
-				if (this.user.userId === this.server.userId) {
+				if (this.user.userId === this.$route.query.userId) {
+					// alert('这个是我个人')
 					this.$root.config = {
 						title: `想知道我有哪些超级技能？快进来围观我的个人主页吧`,
 						desc: '身边的生活服务专家,都在桔子生活',
 						imgUrl: this.server.photoUrl,
-						link: window.location.href
+						link: window.location.href + '&share=true'
 					}
 				} else {
+					// alert('这不是我个人')
 					this.$root.config = {
 						title: '我发现了一个师傅,手艺不孬,推荐给各位',
 						desc: '身边的生活服务专家,都在桔子生活',
 						imgUrl: this.server.photoUrl,
-						link: window.location.href
+						link: window.location.href + '&share=true'
 					}
 				}
 			})
@@ -166,7 +195,6 @@ export default {
 				Toast('数据加载完成')
 				return
 			}
-			alert('上拉加载')
 			this.loading = true
 			this.requestData.page.currentPage += 1
 			getOtherUserServiceList(this.requestData).then((data) => {
@@ -198,7 +226,8 @@ export default {
 			}
 		},
 		...mapMutations({
-			setConfig: 'CONFIG'
+			setConfig: 'CONFIG',
+			setFooter: 'CHANGE_FOOTER_SHOW'
 		})
 	}
 }
@@ -208,6 +237,7 @@ export default {
  @import '~common/css/variable.less';
  @import '~common/css/mixin.less';
 .content{
+	top:43px;
 	bottom:0;
 	overflow-y: auto;
 	background-color: #eee;
@@ -216,10 +246,9 @@ export default {
 	position: relative;
 	overflow: hidden;
 	z-index:auto;
-	.size(100%;220px);
+	.size(100%;224px);
 	background:#fff;
 	.homepage-header-content{
-		position: fixed;
 		z-index:auto;
 		.size(100%;200px);
 		.homePage-info-text{
@@ -246,11 +275,12 @@ export default {
 			margin-left: -50px;
 			top:-50%;
 			.square(100px);
-			padding: 5px;
 			background-color: #fff;
 			border:1px solid @color-split;
+			overflow:hidden;
 			img{
 				display: inline-block;
+				border-radius: 50%;
 			}
 		}
 		.homePage-top{
@@ -270,7 +300,7 @@ export default {
 }
 .serviceList{
 	position: relative;
-	margin-top: 10px;
+	margin-top:8px;
 	z-index:auto;
 	overflow: hidden;
 	background-color: #eee;
@@ -304,7 +334,6 @@ export default {
 	position: absolute;
 	.size(100%;30px);
 	top:0;
-	border:1px solid red;
 	z-index: 0;
 }
 
@@ -316,5 +345,8 @@ export default {
 	position: relative;
 	.size(100%;100%);
 	padding-top:1px
+}
+.share-footer{
+	z-index:999;
 }
 </style>

@@ -1,6 +1,11 @@
 <template>
-  <div class="star" :class="starType">
-    <span v-for="item in itemClasses" :class="item" class="star-item"></span>
+  <div class="star" :class="starType"  v-if="starList.length > 0">
+  <span v-for="(item, index) in text" :class="item" class="star-item" :id="index"></span>
+  </span>
+  </div>
+  <div class="star" :class="starType" v-else >
+    <span v-for="item in itemClasses" :class="item" class="star-item" >
+  </span>
   </div>
 </template>
 <script type='text/ecmascript-6'>
@@ -15,18 +20,25 @@
       },
       score: {
         type: Number
+      },
+      starList: {
+        type: Array,
+        default() {
+          return []
+        }
       }
     },
     components: {},
-    data () {
-      return {}
-    },
     created () {},
-    mounted () {},
+    mounted () {
+    },
     methods: {},
     computed: {
       starType() {
         return 'star-' + this.size
+      },
+      text() {
+        return this.starList
       },
       itemClasses() {
         let result = []

@@ -18,7 +18,7 @@
  <mt-cell title="性别" is-link @click.native="popupVisible = true">
   {{setSexText}}
  </mt-cell>
-  <mt-cell title="手机号码(不可更改)" is-link >
+  <mt-cell title="手机号码(不可更改)" >
   {{userInfo.phoneNumber}}
  </mt-cell>
  </div>
@@ -82,8 +82,8 @@ export default {
 			sexData: [
 				{
 					flex: 1,
-					values: ['男', '女'],
-					defaultIndex: 0
+					values: ['', '男', '女'],
+					defaultIndex: 1
 				}
 			],
 			param: {

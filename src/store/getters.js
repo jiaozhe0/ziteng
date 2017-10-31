@@ -11,3 +11,7 @@ export const address = state => state.address
 export const status = state => state.status
 export const map = state => state.map
 export const pictures = state => state.pictures
+export const serviceInfo = state => state.serviceInfo
+export const openId = state => state.openId
+export const orderUrl = state => state.orderUrl
+export const serviceUrl = state => state.serviceUrl

@@ -16,6 +16,7 @@
 <script type="text/ecmascript-6">
 const Exif = require('exif-js')
 const wx = require('weixin-js-sdk')
+// import {sdk} from 'api/wechat'
 export default {
   data () {
     return {
@@ -23,20 +24,32 @@ export default {
       picValue: ''
     }
   },
+  created() {
+    // sdk()
+    wx.ready(() => {
+    wx.getLocation({
+        type: 'wgs84', // 默认为wgs84的gps坐标，如果要返回直接给openLocation用的火星坐标，可传入'gcj02'
+        success: function (res) {
+            alert('zouni')
+            // var latitude = res.latitude; // 纬度，浮点数，范围为90 ~ -90
+            // var longitude = res.longitude; // 经度，浮点数，范围为180 ~ -180。
+            // var speed = res.speed; // 速度，以米/每秒计
+            // var accuracy = res.accuracy; // 位置精度
+            alert(Object.keys(res))
+        }
+    })
+    })
+  },
   methods: {
     wxPic() {
-      wx.error((res) => {
-        alert(res)
-      })
-      wx.ready(() => {
-        wx.chooseImage({
-            count: 1, // 默认9
-            sizeType: ['original', 'compressed'], // 可以指定是原图还是压缩图，默认二者都有
-            sourceType: ['album', 'camera'], // 可以指定来源是相册还是相机，默认二者都有
-            success: function (res) {
-              alert(res)
-            }
-        })
+      alert('photo')
+      wx.chooseImage({
+        count: 1,
+        sizeType: ['original', 'compressed'],
+        sourceType: ['album', 'camera'],
+        success: function(res) {
+          alert('已选择 ' + res.localIds.length + ' 张图片')
+        }
       })
     },
     upload (e) {
@@ -193,20 +206,26 @@ export default {
       }
       // 进行最小压缩
       let ndata = canvas.toDataURL('image/jpeg', 0.1)
+      let pic = this.dataURLtoBlob(ndata)
+      console.log(pic)
       console.log('压缩前：' + initSize)
       console.log('压缩后：' + ndata.length)
       console.log('压缩率：' + (100 * (initSize - ndata.length) / initSize) + '%')
       tCanvas.width = tCanvas.height = canvas.width = canvas.height = 0
       return ndata
+    },
+    dataURLtoBlob(dataurl) {
+        var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+            bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n)
+        while (n--) {
+            u8arr[n] = bstr.charCodeAt(n)
+        }
+        return new Blob([u8arr], {type: mime})
     }
   }
 }
 </script>
 <style scope>
-*{
-  margin: 0;
-  padding: 0;
-}
 .show {
   width: 100px;
   height: 100px;

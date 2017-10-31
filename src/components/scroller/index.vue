@@ -74,7 +74,7 @@ export default {
 		},
 		// 监听滑动
 		_listenScroll(pos, maxVal) {
-			console.log(666, maxVal)
+			this.$emit('scrollTop', pos.y)
 			if (pos.y > 0 && pos.y <= 50) {
 				this.$refs.refreshIcon.style.transform = `scale(${1 + pos.y / 100})`
 				this.$refs.refreshIcon.style.webkitTransform = `scale(${1 + pos.y / 100})`

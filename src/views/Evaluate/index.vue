@@ -2,7 +2,7 @@
 <div>
 	 <div v-show="!pictureList.lenght">
 		 <mt-header :title="title"></mt-header>
-		 <div v-show='evaluateList.length'>
+		 <div v-show='evaluateList.length || unData'>
 		 <div class="wrap" ref="wrap" >
 		   <div class="evaluate-header">
 		   		<div class='evaluate-all'>
@@ -14,10 +14,15 @@
 		   		<div class='evaluate-list-item'>服务态度:<star class='star' :score="statistics.attitudeLevel" :size="24"></star></div>
 		   		<div class='evaluate-list-item'>专业技能:<star class='star' :score="statistics.professionalLevel" :size="24"></star></div>
 		   </div>
+		   <ul class='typeList' v-if="typeStatistics.length">
+		   	<li v-for="item in typeStatistics" class='typeList-item'>
+		   		{{item.evaluateTypeName}}&nbsp;&nbsp;{{item.count}}
+		   	</li>
+		   </ul>
 		   </div>
 		   <div class="scroll" ref="scroll">
 		   	 <!-- 评价类型导航 -->
-			   <tab class='evaluate-nav'>
+			   <tab class='evaluate-nav' :flag="true">
 			      <tab-item selected @click.native="_setEvaluateType(9)">全部评价<div>{{statistics.allCount}}</div></tab-item>
 			      <tab-item @click.native="_setEvaluateType(1)">好评<div class="evaluate-num">{{statistics.isGood}}</div></tab-item>
 			      <tab-item @click.native="_setEvaluateType(2)">中评<div class="evaluate-num">{{statistics.isMedium}}</div></tab-item>
@@ -28,15 +33,21 @@
 			      </tab-item>
 			      <tab-item @click.native="_setEvaluateType(0)"><div></div>有图<div class="evaluate-num">{{statistics.isPicture}}</div></tab-item>
 			   </tab>
-			   <div>
-			   <scroller  @refresh='_refresh' @loadMore="_loadMore" :dataList="evaluateList">
+			   <div class="evaluate-content" ref="scroll">
+			   <scroller  @refresh='_refresh' 
+			   :refreshIcon='refreshing'
+			   :loadIcon='loading'
+			   @loadMore="_loadMore" 
+			   :dataList="evaluateList"
+			   @scrollTop='_scrollTop'
+			   >
 			   	<evaluate-list class='evaluate-list-wrap' :evaluateList="evaluateList" @pictureList="_getPicture"></evaluate-list>
 			   </scroller>
-			   </div>
+			  </div>
 		   </div>
 	   </div>
 	   </div>
-	   <no-data v-show='!evaluateList.length'></no-data>
+	   <no-data v-show='!evaluateList.length && !unData'></no-data>
    </div>
 </div>
 </template>
@@ -51,19 +62,24 @@ import Star from 'components/star/star'
 import {initSize} from 'common/js/browser'
 import {getEvaluateList, getEvaluateStatistics} from 'api/evaluate'
 import {mapMutations, mapGetters} from 'vuex'
+import {Toast} from 'mint-ui'
+const LIMIT = 15
 export default {
 	data() {
 		return {
 			evaluateList: [],
 			loading: false,
 			isMore: false,
+			unData: false,
+			refreshing: false,
 			evaluateType: {},
 			pictureList: [],
+			typeStatistics: [],
 			param: {
-				serviceUserId: '',
 				currentPage: 0
 			},
-			statistics: {}
+			statistics: {},
+			typeNum: 9
 		}
 	},
 	components: {
@@ -95,49 +111,64 @@ export default {
 	},
 	activated() {
 		if (this.$route.params.type === 'my') {
-				this.param.serviceUserId = this.user.userId
-				this._getEvaluateStatistics(this.user.userId)
+				this.typeId = {serviceUserId: this.user.userId}
+				this._getEvaluateStatistics({serviceUserId: this.user.userId})
 				this._getEvaluateList()
+		} else if (this.$route.params.type === 'server') {
+			this.typeId = {serviceUserId: this.$route.query.serviceUserId}
+			this._getEvaluateStatistics({serviceUserId: this.$route.query.serviceUserId})
+			this._getEvaluateList()
 		} else {
-			this.param.serviceUserId = this.$route.query.serviceUserId
-			this._getEvaluateStatistics(this.param.serviceUserId)
+			this.typeId = {serviceId: this.$route.query.serviceId}
+			this._getEvaluateStatistics({serviceId: this.$route.query.serviceId})
 			this._getEvaluateList()
 		}
 	},
 	deactivated() {
 		this.setFooter(true)
+		this.evaluateType = {}
+		// this.evaluateType = {}
 	},
 	methods: {
+		_scrollTop(top) {
+			if (top < 0) {
+				this.$refs.wrap.scrollTop = this.$refs.wrap.scrollTop - Math.floor(top) * 2
+			}
+		},
 		_getEvaluateList() {
 			this.param.currentPage = 0
-			getEvaluateList(Object.assign({}, this.param, this.evaluateType)).then(data => {
-				console.log(666, data)
-				console.log(this.evaluateType)
+			this.refreshing = true
+			getEvaluateList(Object.assign({}, this.param, this.typeId, this.evaluateType)).then(data => {
+				console.log(1234555, Object.assign({}, this.param, this.typeId, this.evaluateType))
 				this._processingData(data)
 			})
 		},
 		_getEvaluateStatistics(id) {
 			getEvaluateStatistics(id).then(data => {
-				console.log(data)
+				console.log(1233455, data)
 				this.statistics = data.statistics
+				this.typeStatistics = data.typeStatistics
 			})
 		},
 		_setEvaluateType(val) {
 			switch (val) {
 				case 0:
 					this.evaluateType = {isPicture: 1}
+					this.unData = true
 				break
 				case 1:
 					this.evaluateType = {evaluateType: 1}
+					this.unData = true
 					break
 				case 2:
 					this.evaluateType = {evaluateType: 2}
+					this.unData = true
 					break
 				case 3:
 					this.evaluateType = {evaluateType: 3}
+					this.unData = true
 					break
 				case 9:
-					console.log(val)
 					this.evaluateType = {}
 					break
 			}
@@ -151,10 +182,12 @@ export default {
 		_loadMore() {
 			if (this.loading) {
 				return
-			} else {
-				console.log('加载更多。。。')
+			} else if (this.hasMore) {
+				Toast('没有更多数据')
+				return
+			}	else {
 				this.param.currentPage += 1
-				getEvaluateList(Object.assign({}, this.evaluateType, this.param)).then((data) => {
+				getEvaluateList(Object.assign({}, this.evaluateType, this.param, this.typeId)).then((data) => {
 					console.log(data)
 					this._processingData(data, true)
 				})
@@ -165,8 +198,12 @@ export default {
 			if (flag) {
 				this.evaluateList = this.evaluateList.concat(data)
 				this.loading = false
+				if (data.length < LIMIT) {
+					this.hasMore = true
+				}
 			} else {
 				this.evaluateList = data
+				this.refreshing = false
 			}
 		},
 		_getPicture(pictures, index) {
@@ -188,15 +225,27 @@ export default {
  	width:100%;
  	overflow-y: auto;
  }
+ .evaluate-content{
+ 	/*position: relative;*/
+ 	/*height: 1000px;*/
+ }
+ .s{
+ 	border:2px solid green;
+ 	height: 100%;
+ }
 .evaluate-header{
-	.size(100%;100px);
+	width: 100%;
+	height: auto;
 	.flexbox();
 	.justify-content(space-between);
 	.align-items(center);
+	.flex-wrap(wrap);
 	margin-bottom:8px;
-	padding:0 15px;
+	padding:10px 15px;
+	padding-bottom: 10px;
 	background:#fff;
 	.evaluate-all{
+		width:60%;
 		font-size:0.7rem;
 	}
 	.evaluate-list{
@@ -231,9 +280,20 @@ export default {
 		background:#eee;
 	}
 }
-
 .evaluate-list-wrap{
-	min-height:500px;
+	/*min-height:500px;*/
 	margin-top: 0;
+}
+.typeList{
+	margin:10px 0 0;
+	li{
+		display:inline-block;
+		font-size: 0.5rem;
+		text-align: center;
+		border-radius: 4px;
+		padding: 5px;
+		background-color: @color-split;
+		margin-right: 8px;
+	}
 }
 </style>

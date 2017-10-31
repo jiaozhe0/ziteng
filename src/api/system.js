@@ -34,7 +34,7 @@ export function cityList() {
 }
 
 export function getJsSignature(zturl) {
-  const urls = `http://test.ijzsh.com/act/wx/getJsSignature`
+  const urls = `${server}/act/wx/getJsSignature`
   return axios.post(urls, {
     url: zturl
   }, {

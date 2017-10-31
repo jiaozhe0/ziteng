@@ -1,12 +1,12 @@
 <template>
 <ul class="addressList">
-	<li v-for='item in addressList' class="addressList-item">
+	<li v-for='item in addressList' class="addressList-item" @click="_goOrder(item)">
 		<div class="addressList-userInfo">
 			<div class="address-userInfo-userName pull-left">{{item.receiver}}</div>
 			{{item.phoneNumber}}
 		</div>
 		<div class="addressList-info">
-			<div class="addressList-info-text">{{item.province}}{{item.city}}{{item.area}}{{item.addressDetail}}
+			<div class="addressList-info-text">{{item.addressDetail}}
 			</div>
 			<div class="edit-address-btn" @click="_goAddress(item)"><div class="icon"></div></div>
 		</div>
@@ -22,6 +22,12 @@ export default {
 		_goAddress(address) {
 			this.setAddress(address)
 			this.$router.push({path: '/address/edit', query: {update: true}})
+		},
+		_goOrder(item) {
+			console.log(item.area)
+			if (this.$route.query.order) {
+				this.$router.push({path: '/service/order', query: {address: item.area, id: item.addressId}})
+			}
 		},
 		...mapMutations({
 			setAddress: 'ADDRESS'

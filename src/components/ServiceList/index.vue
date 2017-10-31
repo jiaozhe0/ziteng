@@ -9,7 +9,7 @@
 		</div>
 		<div class="service-info" :class="{'on':homeStyle}"  v-else >
 			<!-- <div class="">{{serviceItem.title}}</div> -->
-			<router-link :to="{path: '/servicedetail', query: {serviceId: serviceItem.serviceId}}" >
+			<router-link :to="{path: '/servicedetail', query: {serviceId: serviceItem.serviceId,share:$route.query.share && $route.query.share,serviceTypeId:serviceItem.serviceType.serviceTypeId}}" >
 			<div class="img-wrap pull-left" >
 				<img :src="serviceItem.servicePic[0].picName" alt="" 
 				class="img-responsive">
@@ -18,12 +18,11 @@
 				<h3 class="service-title">{{serviceItem.title}}</h3>
 				<p class="service-text">内容服务：{{serviceItem.serviceDescribe}}</p>
 				<p class="service-price">
-					{{serviceItem.type == 1 ? '一口价'+serviceItem.priceNumber+'元/次'
-					: serviceItem.type == 2 ? '预约金'+serviceItem.priceNumber : serviceItem.priceNumber+'元/次'}}
+					{{serviceItem.priceType == 2 ? '预约金'+serviceItem.subscription + '元': serviceItem.priceNumber +'元/次'}}
 				</p>
 				<p class="service-detail" v-if="serviceItem.userInfo">
-					销量&nbsp;:&nbsp;{{serviceItem.salesNumber}} &nbsp评价&nbsp;:&nbsp;{{serviceItem.evaluateNumber | score
-}}
+					销量:&nbsp;{{serviceItem.salesNumber}}单 &nbsp;<span v-if="serviceItem.evaluateNumber > 0">好评度:&nbsp;{{serviceItem.evaluateNumber | score
+}}</span> <span v-else>暂无评价</span>
 				</p>
 				<div class="server-info" v-if="serviceItem.userInfo">
 					<div>
@@ -57,6 +56,10 @@ export default {
 			type: Array
 		},
 		homeStyle: {
+			type: Boolean,
+      default: false
+		},
+		share: {
 			type: Boolean,
       default: false
 		}

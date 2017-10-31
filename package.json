@@ -11,6 +11,9 @@
     "lint": "eslint --ext .js,.vue src"
   },
   "dependencies": {
+    "array-filter": "^1.0.0",
+    "array-find": "^1.0.0",
+    "array-map": "^0.0.0",
     "axios": "^0.16.2",
     "babel-polyfill": "^6.26.0",
     "babel-runtime": "^6.26.0",

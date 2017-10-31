@@ -39,6 +39,18 @@ export const mutation = {
 	},
 	[types.PICTURES](state, pictures) {
 		state.pictures = pictures
+	},
+	[types.SERVICEINFO](state, info) {
+		state.serviceInfo = Object.assign({}, state.serviceInfo, info)
+	},
+	[types.OPENID](state, id) {
+		state.openId = id
+	},
+	[types.ORDERURL](state, url) {
+		state.orderUrl = url
+	},
+	[types.SERVICEURL](state, url) {
+		state.serviceUrl = url
 	}
 }
 

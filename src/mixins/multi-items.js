@@ -21,7 +21,14 @@ const parentMixin = {
     }
   },
   props: {
-    value: Number
+    value: Number,
+    flag: {
+      type: Boolean,
+      default: false
+    }
+  },
+  beforeDestroy () {
+    this.index = 0
   },
   watch: {
     currentIndex (val, oldVal) {
@@ -54,6 +61,11 @@ const childMixin = {
   },
   mounted () {
     this.$parent.updateIndex()
+  },
+  deactivated() {
+     if (this.$parent.flag) {
+      this.currentSelected = this.selected
+     }
   },
   beforeDestroy () {
     const $parent = this.$parent

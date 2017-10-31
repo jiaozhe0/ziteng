@@ -1,6 +1,6 @@
 <template>
  <div class='serDetial'>
-    <mt-header :bg="{'background':'rgba(0,0,0,.4)','zIndex':200}" :title="serviceInfo.title"></mt-header>
+    <mt-header  :share="$route.query.share && !$route.query.share" :bg="{'background':'rgba(0,0,0,.4)','zIndex':200}" :title="serviceInfo.title"></mt-header>
 		<div class='content serDetial-wraps' ref="scroll">
 			<div class="serDetial-wrap">
 			<div class="serDetial-content">
@@ -34,7 +34,7 @@
 			    </div>
 			    <div class="card-content">
 			      <div class="card-content-inner">
-			      	{{serviceInfo.serviceDescribe}}
+			      	{{serviceInfo.serviceDescribe | htmls}}
 			      </div>
 			    </div>
 			  </div>
@@ -43,8 +43,9 @@
 			    <div class="card-header" @click="_goHomePage(serviceInfo.userId)">
 			    	<div class="clearfix userInfo">
 			    		<div class="avatar-img pull-left" v-if="serviceInfo.userInfo.photoUrl">
-			    			<img :src="serviceInfo.userInfo.photoUrl" alt="" class="img-responsive">
+			    			<img :src="serviceInfo.userInfo.photoUrl." alt="" class="img-responsive">
 			    		</div>
+			    		<div class='pull-left' v-else>dsdf</div>
 			    		<div class="userInfo-content">
 			    			<div>{{serviceInfo.userInfo.userName}}
 			    			</div>
@@ -86,11 +87,23 @@
 			  </div>
 			</div>
 		</div>
-		<div class="bar bar-footer serDetial-footer">
+		<div class="bar bar-footer serDetial-footer share-footer">
+			<div class='clearfix share-footer-logo'>
+					<div class="logo pull-left"></div>
+					<div class="pull-left share-footer-text"> 
+						<div>桔子生活</div>
+						<span>你身边的生活服务超市</span>
+					</div>
+			</div>
+			<div>
+				<button class='open-btn'>打开应用</button>
+			</div>
+		</div>
+		<!-- <div class="bar bar-footer serDetial-footer" v-else>
 			<div class="store-btn" :class="{'on':collect}" @click="_saveServiceCollection">收藏</div>
 			<div class="message-btn">发消息</div>
-			<div class="order-btn">立即下单</div>
-		</div>
+			<div class="order-btn" @click="_goOrder">立即下单</div>
+		</div> -->
  </div>
 </template>
 
@@ -102,7 +115,7 @@ import {Swipe, SwipeItem, Toast} from 'mint-ui'
 import {mapMutations, mapGetters} from 'vuex'
 import {getServiceDetails, saveServiceCollection, getServiceCollection, deleteServiceCollection} from 'api/service'
 import {getEvaluateList} from 'api/evaluate'
-import {share} from 'common/js/share'
+// import {share} from 'common/js/share'
 import {initSize} from 'common/js/browser'
 import Certify from 'components/Certify/index'
 export default {
@@ -137,10 +150,14 @@ export default {
 		this.setFooter(false)
 	},
 	mounted() {
+		alert('......')
 		let size = initSize()
 		this.$refs.evaluate.style.height = (size.vH - 140) + 'px'
 	},
 	activated() {
+		alert('......')
+		console.log(123, this.serviceTypeList)
+		this.$root.config = ''
 		let serviceId = this.$route.query.serviceId
 		this.collectParam.serviceId = this.$route.query.serviceId
 		this.collectParam.collectionUserId = this.user.userId
@@ -149,15 +166,15 @@ export default {
 	},
 	deactivated() {
 		this.setFooter(true)
-		this.$root.config = {
-			title: '桔子生活', // 分享标题
-			desc: '身边的生活服务专家,都在桔子生活',
-			imgUrl: 'https://static.vux.li/logo_520.png',
-			link: window.location.href
-		}
+		// this.$root.config = {
+		// 	title: '桔子生活', // 分享标题
+		// 	desc: '身边的生活服务专家,都在桔子生活',
+		// 	imgUrl: 'https://static.vux.li/logo_520.png',
+		// 	link: window.location.href
+		// }
 	},
 	computed: {
-		...mapGetters(['user', 'config'])
+		...mapGetters(['user', 'serviceTypeList'])
 	},
 	components: {
 		MtHeader,
@@ -170,13 +187,30 @@ export default {
 	methods: {
 		...mapMutations({
 			setFooter: 'CHANGE_FOOTER_SHOW',
-			setConfig: 'CONFIG'
+			setConfig: 'CONFIG',
+			setServiceInfo: 'SERVICEINFO'
 		}),
 		// 获取服务详情
 		_getServiceDetails(serviceId, collectionUserId) {
 			getServiceDetails(serviceId, collectionUserId).then((data) => {
+				console.log(data)
 				this.serviceInfo = Object.assign({}, this.serviceInfo, data.serviceInfo)
-				// 判断是否收藏
+				console.log(2324, this.serviceInfo.serviceDescribe)
+				if (this.user.userId === this.$route.query.serviceId) {
+					this.$root.config = {
+						title: `我在桔子生活发布了一个${this.serviceInfo.title}服务,求围观`,
+						desc: '身边的生活服务专家,都在桔子生活',
+						imgUrl: this.serviceInfo.servicePic[0].picName,
+						link: window.location.href + '&share=true'
+					}
+				} else {
+					this.$root.config = {
+						title: `推荐一个${this.serviceInfo.serviceType.typeName}服务,我觉得值五星`,
+						desc: '身边的生活服务专家,都在桔子生活',
+						imgUrl: this.serviceInfo.servicePic[0].picName,
+						link: window.location.href + '&share=true'
+					}
+				}				// 判断是否收藏
 				if (data.serviceCollection && data.serviceCollection.serviceCollectionId) {
 						console.log(data.serviceCollection.serviceCollectionId)
 						this.collect = data.serviceCollection.serviceCollectionId
@@ -184,7 +218,7 @@ export default {
 						this.collect = ''
 				}
 				this.collectParam.serviceUserId = data.serviceInfo.serviceId
-				share(this.config)
+				// 设置分享内容
 			})
 		},
 		// 获取评价列表
@@ -196,9 +230,11 @@ export default {
 				this._processingData(data)
 			})
 		},
+		// 刷新
 		_refresh() {
 			this._getEvaluateList(this.$route.query.serviceId)
 		},
+		// 加载更多
 		_loadMore() {
 			if (this.loading) {
 				return
@@ -227,8 +263,20 @@ export default {
 				this.hasMore = true
 			}
 		},
+		// 前往个人主页
 		_goHomePage(userId) {
-			this.$router.push({path: '/homepage', query: {userId: userId}})
+			this.$router.push({path: '/homepage', query: {userId: userId, share:$route.query.share && !$route.query.share}})
+		},
+		// 前往订单页
+		_goOrder() {
+			let info = {
+				serviceId: this.$route.query.serviceId,
+				title: this.serviceInfo.title,
+				singleAmount: this.serviceInfo.priceNumber,
+				priceType: this.serviceInfo.priceType
+			}
+			this.setServiceInfo(info)
+			this.$router.push('/service/order')
 		},
 		_imageLoad() {
 			if (!this.checkloaded) {
@@ -268,6 +316,8 @@ export default {
 					}
 				}
 			})
+		},
+		_getTypeName() {
 		}
 	}
 }
@@ -386,5 +436,29 @@ export default {
  		.size(100%;102%);
  	}
  }
+ }
+ .share-footer{
+	background-color: #5B5B59;
+	overflow-y: hidden;
+	padding: 0 15px;
+	.open-btn{
+		background-color: @color-primary;
+		color:#fff;
+		.size(100px;34px);
+		line-height: 34px;
+		border:none;
+	}
+	.share-footer-logo{
+		display: table-cell;
+		vertical-align: middle;
+		border:1px solid red;
+	}
+	.share-footer-text{
+		text-align: left;
+		height: 50px;
+		line-height: 20px;
+		font-size: 0.6rem;
+		color:#fff;
+	}
  }
 </style>

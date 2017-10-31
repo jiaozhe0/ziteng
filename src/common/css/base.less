@@ -40,3 +40,93 @@
 	height: 8px;
 	background-color: #eee;
 }
+
+// 单选
+.order-item-radio{
+	position: relative;
+	.square(28px);
+	border:1px solid @color-split;
+	border-radius: 50%;
+	overflow: hidden;
+	line-height: 28px;
+	color:#fff;
+	&.on{
+		border-color:@color-primary;
+		background-color: @color-primary;
+	}
+	input{
+		position: absolute;
+		.square(100%);
+		display: block;
+		top:0;
+    left:0;
+		opacity: 0;
+		z-index: 99;
+	}
+}
+
+/*订单详情页*/
+.pay-btn{
+      display: inline-block;
+      border:none;
+      height: 32px;
+      .size(100px; 32px);
+      padding: 0 15px;
+      line-height: 32px;
+      font-size: 0.6rem;
+      border-radius: 3px;
+      background-color: transparent;
+      color: @color-text;
+      &.cancel{
+        border:1px solid @color-split;
+      }
+      &.pay{
+        margin-left: 14px;
+        background-color: @color-danger;
+        color: #fff;
+        border:1px solid @color-danger;
+      }
+   }
+
+   .user-info{
+    .flexbox();
+    .align-items(center);
+   }
+
+   .tab-reItem{
+    position:relative;
+     .count{
+      position: absolute;
+      right: 12px;
+      top:4px;
+      .square(16px);
+      background-color: @color-danger;
+      border-radius: 50%;
+      color:#fff;
+      text-align: center;
+      line-height: 16px;
+      font-size: 0.6rem;
+     }
+   }
+
+/*// 编辑ui, 可封装成为组件*/
+   .result-text{
+    padding: 10px;
+    position: relative;
+    textarea{
+      .size(100%;130px);
+      border-radius: 4px;
+      border:1px solid @color-split;
+      text-indent: 8px;
+      font-size: 0.7rem;
+    }
+    .number{
+      position: absolute;
+      .size(20px;20px);
+      bottom: 14px;
+      right:20px;
+      font-size: 0.54rem;
+    }
+  }
+
+

@@ -20,10 +20,10 @@
     	<!-- <div class="home-edit-info">点击登录</div> -->
     </header>
     <div class="home-info ">
-    	<div class="home-info-total">
+    	<router-link class="home-info-total" tag="div" to='/home/income'>
     		<span class="home-info-score">{{total}}</span>
     		<p class="home-info-text">我的收入</p>
-    	</div>
+    	</router-link>
     	<router-link to='/home/collect' class="" tag="div">
     		<span class="home-info-score">{{collectionCount}}</span>
     		<p class="home-info-text">收藏夹</p>
@@ -69,6 +69,7 @@ import {getIndexInfo, getSerColCount, getTotal, getUserAuthStatus} from 'api/hom
 			}
 		},
 		activated() {
+			console.log(this.user.userId)
 			this._getIndexInfo(this.user.userId)
 			this._getSerColCount(this.user.userId)
 			this._getTotal(this.user.userId)
@@ -86,6 +87,7 @@ import {getIndexInfo, getSerColCount, getTotal, getUserAuthStatus} from 'api/hom
 		methods: {
 			_getIndexInfo(userId) {
 				getIndexInfo(userId).then((data) => {
+					console.log(12, data)
 					this.setUserInfo(data)
 				})
 			},
@@ -102,6 +104,7 @@ import {getIndexInfo, getSerColCount, getTotal, getUserAuthStatus} from 'api/hom
 			_getUserAuthStatus(id) {
 				getUserAuthStatus(id).then(data => {
 					if (data.code === '000000') {
+						console.log(data)
 						let auth = data.data[0]
 						if (auth.authBusinessStatus > 1) {
 							this.url = '/home/auth/server'

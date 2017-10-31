@@ -10,8 +10,8 @@
 					@click="_all"
 					ref='allBtn'
 					>
-						<div class="img-wrap all-icon"></div>
-							<p class='type-text'>全部</p>
+					<div class="img-wrap all-icon"></div>
+						<p class='type-text'>全部</p>
 					</div>
 					<div class="serlist-item text-center pull-left" 
 								v-for="(item, index) in childTypeList"
@@ -131,6 +131,7 @@ export default {
 	methods: {
 		_all() {
 			this.selectedType = 'all'
+			this.data.searchContent = ''
 			this._getServiceList(this.$route.query)
 		},
 		// 点击类型导航请求数据
@@ -145,7 +146,7 @@ export default {
 					this.sortType = {overall: 'desc'}
 				break
 				case 'price':
-					this.sortType = {priceNumber: 'desc'}
+					this.sortType = {priceNumber: 'asc'}
 				break
 				case 'sale':
 					this.sortType = {salesNumber: 'desc'}

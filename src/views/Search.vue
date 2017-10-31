@@ -26,6 +26,7 @@
 import Search from 'components/SearchCom'
 import {getSearchTitleList} from 'api/search'
 import {loadFromLocal} from 'common/js/store'
+import {Toast} from 'mint-ui'
 export default {
 	data() {
 		return {
@@ -51,6 +52,10 @@ export default {
 			localStorage.__historyTitle__ = []
 		},
 		_getSearchList(val) {
+			if (val === '') {
+				Toast('内容不得为空')
+				return
+			}
 			this.$router.push({path: 'search/list', query: {value: val}})
 		},
 		_getSearchTitleList() {
