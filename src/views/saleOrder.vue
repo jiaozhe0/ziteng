@@ -1,6 +1,6 @@
 <template>
 <div class=''>
-    <tab class='buyOrder-nav'>
+    <tab class='buyOrder-nav' ref='tabItem'>
        <tab-item selected @click.native="_setevaluateType(1)" class='tab-reItem'>
        <div class="count" v-if="orderCount>0">{{orderCount}}</div>待接单</tab-item>
        <tab-item @click.native="_setevaluateType(2)">进行中</tab-item>
@@ -16,7 +16,7 @@
         @refresh="_refresh"
         @load="_loadMore"
         >
-       <order-list @refresh="_refresh" :orderList="orderList" userType='service'></order-list>
+       <order-list @refresh="_jdRefresh" :orderList="orderList" userType='service'></order-list>
       </scroller>
     </div>
     <div v-else class='noData-wrap'>
@@ -35,7 +35,7 @@ import Scroller from 'components/scroller/index'
 import NoData from 'components/NoData/index'
 import OrderList from 'components/orderList/index'
 import {getSellOrderList, getListRemind} from 'api/order'
-import {mapGetters} from 'vuex'
+import {mapGetters, mapMutations} from 'vuex'
 import {Toast} from 'mint-ui'
 const LIMIT = 15
 export default {
@@ -45,6 +45,7 @@ export default {
       refreshing: false,
       hasMore: false,
       orderList: [],
+      orderCount: 0,
       param: {
         userId: '',
         status: 1,
@@ -56,7 +57,6 @@ export default {
     this.param.userId = this.user.userId
   },
   activated() {
-    this.orderCount = this.$route.query.count && parseInt(this.$route.query.count)
     this._getSellOrderList()
     this._getListRemind(this.user.userId)
   },
@@ -71,6 +71,13 @@ export default {
     ...mapGetters(['user'])
   },
   methods: {
+    ...mapMutations({
+      setOrderCount: 'ORDERCOUNT'
+    }),
+    _goWorking() {
+      this.$refs.tabItem.currentIndex = 1
+      this.param.status = 2
+    },
     _setevaluateType(status) {
       this.param.status = status
       this._getSellOrderList()
@@ -80,6 +87,7 @@ export default {
       getListRemind(id).then(res => {
         if (res.code === '000000') {
           this.orderCount = res.data.sellListRemind.unCatch
+          this.setOrderCount(this.orderCount)
         }
       })
     },
@@ -96,6 +104,11 @@ export default {
     },
     _refresh() {
       this._getSellOrderList()
+      this._getListRemind(this.user.userId)
+    },
+    _jdRefresh() {
+      this._goWorking()
+      this._refresh()
     },
     // 加载更多
     _loadMore() {

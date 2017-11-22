@@ -20,6 +20,7 @@ export function getServiceList(serviceData) {
 		uniqueCode: 12333333123123
 	}
 	let data = Object.assign({}, dataObj, serviceData)
+  console.log(900, data)
   const url = `${server}/act/service/index/getIndexServiceList`
   return axios.post(url, data, {headers: header()}).then((res) => {
     return Promise.resolve(res.data)

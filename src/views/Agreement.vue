@@ -1,7 +1,7 @@
 <template>
   <div class="agreement">
     <mt-header :title="title" v-show="isHeader"></mt-header>
-    <scroll class='content' :style="{'top': isHeader ? '44px' : '0px'}">
+    <scroll ref="scroll" class='content' :style="{'top': isHeader ? '44px' : '0px'}">
     	<div class="reminder-content">
         <section class='reminder-text text-indent' v-if="this.$route.params.title === 'service'">
           <p class='reminder-text-item'>
@@ -647,7 +647,8 @@ export default {
       isHeader: true
     }
   },
-  created() {
+  activated() {
+    this.$refs.scroll.refresh()
     this.isHeader = this.$route.params.broswer === 'html'
     switch (this.$route.params.title) {
       case 'user':
@@ -660,6 +661,8 @@ export default {
         this.title = '用户服务协议'
         break
     }
+  },
+  created() {
   },
   components: {
     MtHeader,

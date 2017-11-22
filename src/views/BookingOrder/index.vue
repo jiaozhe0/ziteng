@@ -23,7 +23,15 @@
  	<mt-cell title="订单金额"  class='order-handler-btn'>
  	<div><span class="price danger">￥{{param.singleAmount}}</span> x {{param.copies}}</div>
  	</mt-cell>
+ 	<section class='text'>
+ 			<p><strong>温馨提示</strong></p>
+ 			<p><span class="textOn">请仔细核对填写的手机号，并保持电话畅通</span>，服务者会在服务开始前与此号码沟通服务具体事宜
+ 			</p>
+ 			<p>下单即代表同意 <router-link class="textOn" to="/agreement/service/html" replace><<用户服务协议>></router-link></p>
+ 	</section>
+ 
  </div>
+
   <!-- footer -->
  <div class="bar bar-footer serDetial-footer order-footer">
  	<div class="text-center order-pay">待支付：<span class="danger">￥{{pay}}</span></div><div class="order-btn" @click="_placeOrder">确认支付</div>
@@ -76,12 +84,14 @@ export default {
 			year6Value: []
 		}
 	},
-	created() {
-		this.param.orderUserId = this.user.userId
-		this.orderDate.push()
+	beforeRouteLeave(to, from, next) {
+		this.toPath = to.path
+		next()
 	},
 	activated() {
 		this.setFooter(false)
+		this.param.orderUserId = this.user.userId
+		// this.param.serviceId = this.$route.query.serviceId
 		this.param = Object.assign({}, this.param, this.serviceInfo)
 		// 地址
 		if (this.$route.query.id) {
@@ -90,8 +100,22 @@ export default {
 		}
 	},
 	deactivated() {
-		// this.dateName = ''
-		// this.param.makeTime = ''
+		if (this.toPath.indexOf('address') < 0) {
+			this.dateName = ''
+			this.area = ''
+			this.orderDate = []
+			this.param = {
+				'serviceId': '', // 服务id
+				'copies': 1, // 份数（必填）
+				'orderAmount': 0, // 订单金额
+				'singleAmount': 0, // 单价
+				'makeTime': '', // 时间,
+				'totalAmount': '', // 总价
+				'orderAddressId': '',
+				'orderRemark': '',
+				'priceType': 1
+			}
+		}
 	},
 	components: {
 			MtHeader,
@@ -117,7 +141,7 @@ export default {
 				this.currentTime = Object.assign({}, this.currentTime, data)
 				let syM = (60 - parseInt(new Date(this.formatDate(this.currentTime.currentTime)).getMinutes())) * 60 * 1000
 				let sT = new Date(this.formatDate(this.currentTime.currentTime)).getTime() + syM + this.currentTime.limitOrderTime
-				let eT = new Date(this.formatDate(timeStamp() + ' ' + this.currentTime.endTime)).getTime()
+				let eT = new Date(this.formatDate(timeStamp() + ' ' + this.currentTime.endTime)).getTime() + 30 * 60 * 100
 				if (sT < eT) {
 					this._initDate()
 					this._initHour(sT, eT)
@@ -137,7 +161,7 @@ export default {
 				if (res.code === '000000') {
 					let data = res.data
 					if (data.status === 101) {
-						this.$router.push({path: '/service/order/pay', query: {orderId: data.orderId, serviceId: this.$route.query.serviceId, totalAmount: this.pay}})
+						this.$router.replace({path: '/service/order/pay', query: {orderId: data.orderId, serviceId: this.$route.query.serviceId, totalAmount: this.pay}})
 					} else {
 						Toast(data.msg)
 					}
@@ -309,7 +333,7 @@ input.edit-input{
 	vertical-align: middle;
 	
 	&.time{
-
+		.bg-view-image('BookingOrder/time')
 	}
 	&.address{
 		.bg-view-image('BookingOrder/dizhi');
@@ -317,6 +341,13 @@ input.edit-input{
 	&.edit{
 		margin-top: -4px;
 		.bg-view-image('BookingOrder/beizhu');
+	}
+}
+section.text{
+	padding: 10px;
+	font-size: 0.6rem;
+	p{
+		margin: 5px 0;
 	}
 }
 </style>

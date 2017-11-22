@@ -2,7 +2,7 @@
 <ul class='attestation text-center' :class="attesType">
 	<li class="attesItem" v-show="isName"><span class='attesIcon  name'></span><span v-show="isText"> 已实名认证</span></li>
 	<li class="attesItem" v-show="isZhima"><span class='attesIcon zhima'></span><span v-show="isText"> 芝麻信用</span></li>
-	<li class="attesItem" v-show="isBusiness"><span class='attesIcon business'></span><span v-show="isText"> 工商认证</span></li>
+	<li class="attesItem" v-show="isBusiness"><span class='attesIcon business'></span><span v-show="isText"> 认证商家</span></li>
 	<li class="attesItem" v-show="isSkill"><span class='attesIcon skill'></span><span v-show="isText"> 技能认证</span></li>
 </ul>
 </template>

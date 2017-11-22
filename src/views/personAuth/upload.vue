@@ -46,7 +46,7 @@
     </div>
    	<div v-show='upload || this.$route.query.status && !againUpload'>
     <div class="content view-content" >
-    	<status :status="parseInt(this.$route.query.status)" v-show="!success || this.$route.query.status && !againUpload">
+    	<status :status="status" v-show="!success || this.$route.query.status && !againUpload">
     	</status>
     	<div class="upload-item">
     		<div class="upload-content-pic">
@@ -69,6 +69,7 @@ import {createObjectURL} from 'common/js/browser'
 import {mapMutations, mapGetters} from 'vuex'
 import {Cell, Popup, Toast} from 'mint-ui'
 import {saveUserAuthProfessional} from 'api/home'
+import {imgPreview} from 'common/js/photo'
 export default {
 	data() {
 		return {
@@ -77,7 +78,12 @@ export default {
 			success: true, // 提交成功
 			againUpload: false, // 重新提交
 			status: 0
-		}
+			}
+	},
+	activated() {
+		console.log('状态是：')
+		console.log(parseInt(this.$route.query.status))
+		this.testStatus = parseInt(this.$route.query.status)
 	},
 	created() {
 		this.setFooter(false)
@@ -127,11 +133,14 @@ export default {
 	methods: {
 		...mapMutations({
 			setFooter: 'CHANGE_FOOTER_SHOW',
-			setStatus: 'STATUS'
+			setStatus: 'STATUS',
+			setLoading: 'LOADING'
 		}),
 		_uploadPicture(file) {
 			this.upload = true
-			this.formData.append('file', file)
+			imgPreview(file).then(data => {
+				this.formData.append('file', data, 'file_' + Date.parse(new Date()) + '.jpg')
+			})
 			this.status = 0
 			this.success = true
 			this.$refs.picture.src = createObjectURL(file)
@@ -139,12 +148,14 @@ export default {
 		_saveUserAuthProfessional() {
 			// 判断审核失败 againUpload:false
 			if (!this.againUpload && this.$route.query.status && this.$route.query.status === 3) {
+				this.testStatus = 2
 				this.againUpload = true
 			} else {
 				if (this.submiting) {
 					return
 				}
-				Toast('材料提交中！')
+				this.setLoading(true)
+				// Toast('材料提交中！')
 				this.submiting = true
 				saveUserAuthProfessional(this.formData).then((data) => {
 					console.log(data)
@@ -154,6 +165,7 @@ export default {
 						this.success = false
 						this.setStatus('person')
 						window.localStorage.setItem('status', 'person')
+						this.setLoading(false)
 						this.$emit('upload')
 					}
 				})

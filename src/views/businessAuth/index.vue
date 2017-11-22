@@ -23,7 +23,7 @@
   			<div class="first" v-show="path == 'first'">
   			  <p class="first-text">请正确填写工商信息</p>
   			   <mt-field  v-model='businessName' label="名称" placeholder="输入工商注册名称"  :attr="{autofocus:true}"></mt-field>
-  			   <mt-field v-model='businessCode' name='gscode' v-validate="'required'" label="工商号码" placeholder="输入工商号码" type="number" ></mt-field>
+  			   <mt-field v-model='businessCode' name='gscode' v-validate="'required'" label="工商号码" placeholder="输入工商号码" ></mt-field>
   			  <button @click="_nextSecond" class='center-block next-btn ziteng-btn'>下一步</button>
   			</div>
 
@@ -48,8 +48,8 @@
   		</div>
   	</div>
     <div class="content view-content editAddress" v-else>
-      <div class="content-wrap value-input">
-        <status :status="authData.authStatus"></status>
+      <div class="value-input">
+        <status :status="authData.authStatus" :authDescribe="authData.authDescribe"></status>
           <mt-cell title="名称" :value="authData.businessName"></mt-cell>
         <mt-cell title="工商号码" :value="authData.businessCode"></mt-cell>
         <mt-cell title="营业执照" class="business-wrap">
@@ -59,9 +59,14 @@
             <upload-btn class='business-wrap-pic' @click.native="popupVisible = true" :url="authData.businessAddressPic"></upload-btn>
           </mt-cell>
         </div>
-        <button class="footer footer-btn" @click="againUpload=true">
-          重新认证
-        </button>
+        <div>
+        <div class="text-center btn-wrap" v-show='authData.authStatus !==2 '>
+          <button class="footer-btn" @click="againUpload=true">
+            重新认证
+          </button>
+        </div>
+          
+        </div>
     </div>
     <mt-popup v-model="popupVisible"
      position="bottom" 
@@ -82,6 +87,7 @@ import Status from 'components/Status/index'
 import Upload from 'components/uploadPicture'
 import {createObjectURL} from 'common/js/browser'
 import {mapGetters, mapMutations} from 'vuex'
+import {imgPreview} from 'common/js/photo'
 export default {
 	data() {
 		return {
@@ -116,11 +122,9 @@ export default {
     Upload,
     Status
 	},
-	created() {
-		this.formData = new FormData()
-    this.formData.append('userId', this.user.userId)
-	},
   activated() {
+    this.formData = new FormData()
+    this.formData.append('userId', this.user.userId)
     this._getUserAuthBusiness(this.user.userId)
   },
   computed: {
@@ -164,10 +168,11 @@ export default {
       if (this.submiting) {
         return
       }
-      Toast('正在提交！')
+      this.setLoading(true)
 			saveUserAuthBusiness(this.formData).then((data) => {
 				console.log(data)
         if (data.code === '000000') {
+          this.setLoading(false)
           Toast('提交成功！')
           this.againUpload = false
           this._getUserAuthBusiness(this.user.userId)
@@ -190,20 +195,48 @@ export default {
     _uploadPicure(file) {
       if (this.path === 'second') {
         console.log('businessFile')
-        this.formData.append('businessFile', file)
+        imgPreview(file).then(data => {
+          this.formData.append('businessFile', data, 'file_' + Date.parse(new Date()) + '.jpg')
+        })
         this.businessFile = createObjectURL(file)
         this.popupVisible = false
       } else if (this.path === 'third') {
         console.log('businessAddressFile')
-        this.formData.append('businessAddressFile', file)
+        imgPreview(file).then(data => {
+          this.formData.append('businessAddressFile', data, 'file_' + Date.parse(new Date()) + '.jpg')
+        })
         this.businessAddressFile = createObjectURL(file)
         this.popupVisible = false
       }
     },
     ...mapMutations({
-      'setStatus': 'STATUS'
+      'setStatus': 'STATUS',
+      'setLoading': 'LOADING'
     })
-	}
+	},
+  watch: {
+    againUpload(val) {
+      this.pathFirst = false
+      this.pathSecond = false
+      this.path = 'first'
+      this.businessName = ''
+      this.businessCode = ''
+      this.businessFile = ''
+      this.businessAddressFile = ''
+      if (val) {
+        this.authData = {
+          businessId: '',
+          userId: this.user.userId,
+          businessName: '',
+          businessAddressPic: '',
+          businessPic: '',
+          authTime: '',
+          authDescribe: '',
+          authStatus: 1
+        }
+      }
+    }
+  }
 }
 </script>
 
@@ -293,5 +326,8 @@ export default {
   .business-wrap-pic{
     margin: 5px auto;
   }
+}
+.btn-wrap{
+  margin-top:40px;
 }
 </style>

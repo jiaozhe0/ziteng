@@ -8,11 +8,11 @@
     	<div class="no-publish" v-if="!publishList.length">
     		<div class="img-wrap">
     		</div>
-    		<router-link to='/editservice' class='ser-btn center-block'>
     		<strong>没有发布服务</strong>
-    		<p>您还没发过服务，现在发布一个吧！</p>
+    		<router-link to='/editservice' class='ser-btn center-block'>
     			发布我的第一个服务
     		</router-link>	
+    		<p>您还没发过服务，现在发布一个吧！</p>
     	</div>
 			<scroller :dataList="publishList" 
 							v-else class='list-content' 
@@ -53,7 +53,8 @@ export default {
 					currentPage: 0
 				}
 			},
-			authStatus: {}
+			authStatus: {},
+			url: '/home/auth?skill=true'
 		}
 	},
 	created() {
@@ -78,16 +79,16 @@ export default {
 				}
 			}
 			return status
-		},
-		url() {
-				let url = 'home/auth'
-				if (this.status === 'person') {
-					url = '/home/auth/person'
-				} else if (this.status === 'business') {
-					url = '/home/auth/server'
-				}
-				return url
-			}
+		}
+		// url() {
+		// 		let url = 'home/auth'
+		// 		if (this.status === 'person') {
+		// 			url = '/home/auth/person'
+		// 		} else if (this.status === 'business') {
+		// 			url = '/home/auth/server'
+		// 		}
+		// 		return url
+		// 	}
 	},
 	components: {
 			MtHeader,
@@ -100,12 +101,15 @@ export default {
 		_getUserAuthStatus(id) {
 			getUserAuthStatus(id).then(data => {
 					if (data.code === '000000') {
+						console.log(12345, data)
 						let auth = data.data[0]
 						this.authStatus = data.data[0]
 						if (auth.authBusinessStatus > 1) {
+							this.url = '/home/auth/server?skill=true'
 							this.setStatus('business')
 						} else {
-							if (auth.authProfessionalStatus > 1 || auth.authUserIdStatus > 1 || auth.authZhimaxinyongStatus) {
+							if (auth.authProfessionalStatus > 1 || auth.authZhimaxinyongStatus > 1) {
+								this.url = '/home/auth/person?skill=true'
 								this.setStatus('person')
 							}
 						}
@@ -114,7 +118,8 @@ export default {
 		},
 		_getCurrentUserServiceList() {
 			this.refreshing = true
-			this.param.currentPage = 0
+			this.param.page.currentPage = 0
+			this.hasMore = false
 			getCurrentUserServiceList(this.param).then(data => {
 				if (data.code === '000000') {
 					this._processingData(data.data)
@@ -132,11 +137,12 @@ export default {
 				return
 			}
 			if (this.hasMore) {
-				Toast('没有更多数据')
+				Toast('没有更多数据--')
 				return
 			}
 			this.loading = true
-			this.param.currentPage += 1
+			this.param.page.currentPage += 1
+			console.log(1234, this.param)
 			getCurrentUserServiceList(this.param).then(data => {
 				if (data.code === '000000') {
 					this._processingData(data.data, true)
@@ -146,7 +152,8 @@ export default {
 		// 数据处理
 		_processingData(val, flag) {
 			if (val.length === 0) {
-				Toast('没有更多数据')
+				// Toast('没有更多数据')
+				this.loading = false
 				return
 			}
 			if (flag) {
@@ -192,6 +199,7 @@ export default {
 	&>p{
 		margin: 2px auto 30px;
 		font-size: 0.6rem;
+		color:@color-text-gray;
 	}
 	.img-wrap{
 		.size(375px;180px);
@@ -202,6 +210,7 @@ export default {
 	}
 	.ser-btn{
 		.size(200px;36px);
+		margin:20px auto;
 		line-height: 36px;
 		color: #fff;
 		border-radius: 6px;

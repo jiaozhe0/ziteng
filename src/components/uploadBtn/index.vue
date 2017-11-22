@@ -3,7 +3,7 @@
 			:style="{'width':square +'px','height':square +'px','margin':margin}">
 	<div class="upload-btn-content text-center" v-show="!url">
     <div class="upload-btn-icon"></div>
-    <p><slot></slot></p>
+    <slot></slot>
    </div>
    <img :src="url" alt="" v-show="url" class="img-responsive">
 </div>
@@ -28,7 +28,7 @@
 
 <style scoped lang="less" >
  @import '~common/css/variable.less';
- @import '~common/css/mixin.less';
+ @import '../../common/css/mixin.less';
 .upload-btn{
 		position:relative;
 		.size(120px;120px);
@@ -43,6 +43,13 @@
 			left:50%;
 			top: 50%;
 			transform: translate(-50%,-50%);
+			font-size: 0.5rem;
+		}
+		.upload-btn-icon{
+			margin: 20px auto 4px;
+			.square(26px);
+			background-size: 26px 26px;
+			.bg-image('uploadPicList/tianjia')
 		}
 		&>input{
 			display: block;

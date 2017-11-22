@@ -2,10 +2,10 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Index from 'views/Index/Index' // 首页
 import Classify from 'views/Classify' // 分类
-import Message from 'views/Message' // 消息
+import Message from 'views/Message/index' // 消息
 import Order from 'views/Order' // 订单
 import Home from 'views/Home/index' // 我的
-import Search from 'views/Search' // 搜索页
+import Search from 'views/Search/index' // 搜索页
 import SearchList from 'views/SearchList' // 搜索结果页
 import City from 'views/City' // 城市选择
 import Reminder from 'views/Reminder/index' // 提示页
@@ -18,6 +18,7 @@ import EditService from 'views/EditService/index' // 编辑(发布)服务
 import Attestation from 'views/Attestation/index' // 我们认证
 import BusinessAuth from 'views/BusinessAuth/index' // 商家认证
 import ServiceList from 'views/ServiceList/index' // 服务列表
+import DownLoad from 'views/DownLoad/index' // 服务列表
 // 服务详情
 const ServiceDetail = (resolve) => {
   import('views/ServiceDetail/index').then((module) => {
@@ -25,7 +26,7 @@ const ServiceDetail = (resolve) => {
   })
 }
 const Address = (resolve) => {
-  import('views/Address').then((module) => {
+  import('views/Address/index').then((module) => {
     resolve(module)
   })
 }
@@ -104,6 +105,18 @@ const NameAuth = (resolve) => {
     resolve(module)
   })
 }
+// 芝麻认证
+const zhimaAuth = (resolve) => {
+  import('views/zhimaAuth/index').then((module) => {
+    resolve(module)
+  })
+}
+// 芝麻认证
+const zhimaPage = (resolve) => {
+  import('views/zhimaPage/index').then((module) => {
+    resolve(module)
+  })
+}
 // 技能验证图片上传
 const SkillAuthUpload = (resolve) => {
   import('views/personAuth/upload').then((module) => {
@@ -164,6 +177,19 @@ const Income = (resolve) => {
     resolve(module)
   })
 }
+// 提现明细
+const Extract = (resolve) => {
+  import('views/Extract/index').then((module) => {
+    resolve(module)
+  })
+}
+
+// 聊天
+const Chat = (resolve) => {
+  import('views/Chat/index').then((module) => {
+    resolve(module)
+  })
+}
 // import AppPerson from 'views/ApproveServer/index'
 Vue.use(Router)
 
@@ -197,6 +223,7 @@ export default new Router({
       path: '/order',
       name: 'Order',
       component: Order,
+      redirect: '/order/buy',
       children: [
         {
           path: 'buy',
@@ -260,6 +287,10 @@ export default new Router({
       component: ZhiMaScore
     },
     {
+      path: '/zmpage',
+      component: zhimaPage
+    },
+    {
       path: '/about/:broswer',
       name: 'About',
       component: About
@@ -286,6 +317,10 @@ export default new Router({
       path: '/home/income',
       component: Income
     },
+    {
+      path: '/home/income/extract',
+      component: Extract
+    },
      {
       path: '/home/report',
       component: MyReport
@@ -309,6 +344,10 @@ export default new Router({
     {
       path: '/home/auth/person',
       component: PersonAuth
+    },
+    {
+      path: '/home/auth/person/zhima',
+      component: zhimaAuth
     },
     {
       path: '/home/auth/person/skill',
@@ -377,6 +416,14 @@ export default new Router({
     {
       path: '/order/evaluate',
       component: EditEvaluate
+    },
+    {
+      path: '/message/chat',
+      component: Chat
+    },
+     {
+      path: '/download',
+      component: DownLoad
     }
   ]
 })

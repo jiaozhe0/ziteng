@@ -25,12 +25,12 @@
 
 			<div class="icon-item loading" ref="load">
 				<div class="refresh-text">{{loadText}}加载</div>
-		  	<div class="img-wrap" ref='loadIcon'></div>
+		  	<div class="img-wrap" ref='loadIcon' style='display:none'></div>
 			</div>
 		</scroll>
 				<div class="loading-wrap text-center bottom-loading" v-show="loadIcon">
 			<div class="loading-icon"></div>
-		 	<div class="img-wrap"></div>
+		 	
 		 </div>
 		<!-- 下拉图标 -->
 	</div>

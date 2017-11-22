@@ -87,12 +87,12 @@ export default {
 	components: {
 		MtHeader
 	},
-	created() {
-		this._getUserAuthProfessional(this.user.userId)
-	},
-	// activated() {
+	// created() {
 	// 	this._getUserAuthProfessional(this.user.userId)
 	// },
+	activated() {
+		this._getUserAuthProfessional(this.user.userId)
+	},
 	computed: {
 		...mapGetters(['user'])
 	},

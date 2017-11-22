@@ -9,10 +9,13 @@
 		</div>
 		<div class="service-info" :class="{'on':homeStyle}"  v-else >
 			<!-- <div class="">{{serviceItem.title}}</div> -->
-			<router-link :to="{path: '/servicedetail', query: {serviceId: serviceItem.serviceId,share:$route.query.share && $route.query.share,serviceTypeId:serviceItem.serviceType.serviceTypeId}}" >
-			<div class="img-wrap pull-left" >
-				<img :src="serviceItem.servicePic[0].picName" alt="" 
-				class="img-responsive">
+			<router-link :to="{path: '/servicedetail', query: {serviceId: serviceItem.serviceId,share:$route.query.share && $route.query.share,serviceTypeId:serviceItem.serviceType.serviceTypeId, value: searchContent && searchContent}}" 
+			>
+			<div class="img-wrap  pull-left" v-lazy:background-image="serviceItem.servicePic[0].picName">
+				<!-- <img v-lazy="serviceItem.servicePic[0].picName" alt="" 
+				class="img-responsive" v-if="serviceItem.servicePic[0].picName"> -->
+				<!-- <div v-lazy:background-image="serviceItem.servicePic[0].picName" v-if="serviceItem.servicePic[0].picName" class="img-responsive"></div> -->
+				<!-- <img v-else src="./default.png" alt="" class="img-responsive" > -->
 			</div>
 			<div class=" service-content">
 				<h3 class="service-title">{{serviceItem.title}}</h3>
@@ -31,11 +34,11 @@
 						</div>
 					</div>
 					<div class='text-left user-name'>{{serviceItem.userInfo.userName}}</div>						
-					<div class='' >
+					<div class='' v-if="serviceItem.userAuthStatus">
 			    				<certify :size="12" :isText="false"
 			    				 :name="serviceItem.userAuthStatus.authUserIdStatus"
 									 :skill="serviceItem.userAuthStatus.authProfessionalStatus"
-									 :bussiness="serviceItem.userAuthStatus.authBusinessStatus"
+									 :business="serviceItem.userAuthStatus.authBusinessStatus"
 									 :zhima="serviceItem.userAuthStatus.authZhimaxinyongStatus"
 			    				 ></certify>
 			    </div>
@@ -62,6 +65,10 @@ export default {
 		share: {
 			type: Boolean,
       default: false
+		},
+		searchContent: {
+			type: String,
+			default: ''
 		}
 	},
 	components: {
@@ -75,6 +82,7 @@ export default {
       this.$emit('loadImage')
 		},
 		_goServiceList(data) {
+			console.log(1236666, data)
 			this.serviceTypeList.some((item, index) => {
 				if (item.parentId === data.typeId.serviceParentTypeId) {
 					console.log(item.parentId + '===' + data.typeId.serviceParentTypeId)
@@ -84,9 +92,9 @@ export default {
       })
       this.$router.push({path: '/serviceList',
       query: {
-        searchContent: data.appTitle,
-        serviceParentTypeId: data.typeId.serviceParentTypeId,
-        serviceTypeId: data.typeId.serviceTypeId
+        searchContent: '',
+        serviceParentTypeId: data.typeId.serviceParentTypeId || '',
+        serviceTypeId: data.typeId.serviceTypeId || ''
       }})
 		},
 		...mapMutations({
@@ -103,20 +111,24 @@ export default {
 	position: relative;
 	margin:0px;
 	z-index: 2;
-	min-height: 101%
+	min-height: 101%;
+	.img-wrap{
+		.square(120px);
+		overflow: hidden;
+		background-size: cover;
+		border-radius: 8px;
+	}
 }
 .service-info{
 	padding: 5px 10px;
 }
-.img-wrap{
-		.square(120px);
-		overflow: hidden;
-		border-radius: 8px;
-	}
 .service-list{
 	margin-bottom: 5px;
 	background-color: #fff;
 	overflow: hidden;
+	.img-responsive{
+		height: auto
+	}
 	.service-content{
 		padding: 0 8px 0;
 		margin-left: 120px;

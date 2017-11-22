@@ -12,8 +12,6 @@ export default {
 <style scoped lang="less" >
 @import '~common/css/variable.less';
 @import '~common/css/mixin.less';
-.bar{
-  
-}
+
 
 </style>

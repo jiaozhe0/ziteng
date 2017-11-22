@@ -88,6 +88,16 @@ export function receiveOrder(data) {
   })
 }
 
+// 2.8.9.服务者拒单
+export function refuseOrder(data) {
+  const url = `${server}/act/order/refuseOrder`
+  return axios.post(url, data, {
+    headers: header()
+  }).then((res) => {
+    return Promise.resolve(res.data)
+  })
+}
+
 // 2.8.11.用户取消订单
 export function cancelOrder(data) {
   const url = `${server}/act/order/cancelOrder`

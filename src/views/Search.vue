@@ -1,6 +1,6 @@
 <template>
   <div class="search">
-  	<search @search="_getSearchList"></search>
+  	<search @search="_getSearchList" path="/index" ref="search"></search>
     <div class="content">
     	<h4 class='search-title'>热门搜索</h4>
     	<ul class='search-list-wrap'>
@@ -23,7 +23,7 @@
 </template>
 
 <script type="text/ecmascript-6">
-import Search from 'components/SearchCom'
+import Search from 'components/searchCom/index'
 import {getSearchTitleList} from 'api/search'
 import {loadFromLocal} from 'common/js/store'
 import {Toast} from 'mint-ui'
@@ -52,6 +52,7 @@ export default {
 			localStorage.__historyTitle__ = []
 		},
 		_getSearchList(val) {
+			this.$refs.search.$refs.searchInput.blur()
 			if (val === '') {
 				Toast('内容不得为空')
 				return

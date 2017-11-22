@@ -6,7 +6,7 @@ import App from './App'
 import router from './router'
 import store from './store'
 import fastclick from 'fastclick'
-// import Vuelazyload from 'vue-lazyload'
+import Vuelazyload from 'vue-lazyload'
 Vue.config.productionTip = false
 import 'mint-ui/lib/style.css'
 import 'common/css/index.less'
@@ -24,79 +24,95 @@ import {VeeValidate, Veeconfig} from './validation'
 Vue.use(VeeValidate, Veeconfig)
 Vue.use(Mint)
 import {share} from 'common/js/share'
+import chat from './im/chat'
+import {initSize} from 'common/js/browser'
+// chat(store)
+
+// ----------------------------------loading页
+let loading = document.querySelector('#loading')
+var preloadImage = function () {
+	loading.style.height = initSize().vH + 'px'
+  return new Promise(function (resolve, reject) {
+    var image = new Image()
+		image.onload = resolve
+		image.onerror = reject
+		image.src = '../html/static/loading.png'
+		// image.src = '../static/loading.png'
+  }).then(() => {
+		loading.classList.add('loadingIn')
+  })
+}
+
+// 如果是不是分享过来的, 需要授权认证
 import {getToken, getUserInfo, registerWeixin} from 'api/login'
 if (window.location.href.indexOf('share') < 0) {
-let search = window.location.search.slice(1)
-if (search.indexOf('code') < 0) {
-	let url = 'http://test.ijzsh.com/html/index.html#/index'
-	window.location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxf21f71c117f32c34&redirect_uri=${encodeURIComponent(url)}&response_type=code&scope=snsapi_userinfo&state=state&connect_redirect=1#wechat_redirect.html`
-} else {
-	let pettern = /(^|&)code=([^&]*)(&|$)/
-	let code = search.match(pettern)
-	code = code != null ? code[2] : null
-	getToken(code).then((weixinData) => {
-		// alert(weixinData.openid)
-		store.commit('OPENID', weixinData.openid)
-		getUserInfo(weixinData.access_token, weixinData.openid).then((res) => {
-			let postData = {
-				screen_name: res.nickname,
-				refreshToken: weixinData.refresh_token,
-				accessToken: weixinData.access_token,
-				gender: res.sex,
-				profile_image_url: res.headimgurl,
-				iconurl: res.headimgurl,
-				name: res.nickname
-			}
-			let userData = Object.assign({}, postData, weixinData, res)
-			console.log(userData)
-			registerWeixin(userData).then((datas) => {
-				console.log(datas)
-				if (!datas['userId']) {
-					initVue()
-					router.push({path: '/login', query: {unionid: weixinData.unionid}})
-				} else {
-					// alert(Object.keys(datas))
-					store.commit('USER', datas)
-					// alert(store.state.user.userId)
-					initVue()
+	let search = window.location.search.slice(1)
+	if (search.indexOf('code') < 0) {
+		let url = 'http://test.ijzsh.com/html/index.html#/index'
+		window.location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxf21f71c117f32c34&redirect_uri=${encodeURIComponent(url)}&response_type=code&scope=snsapi_userinfo&state=state&connect_redirect=1#wechat_redirect.html`
+	} else {
+		let pettern = /(^|&)code=([^&]*)(&|$)/
+		let code = search.match(pettern)
+		code = code != null ? code[2] : null
+		getToken(code).then((weixinData) => {
+			store.commit('OPENID', weixinData.openid)
+			getUserInfo(weixinData.access_token, weixinData.openid).then((res) => {
+				let postData = {
+					screen_name: res.nickname,
+					refreshToken: weixinData.refresh_token,
+					accessToken: weixinData.access_token,
+					gender: res.sex,
+					profile_image_url: res.headimgurl,
+					iconurl: res.headimgurl,
+					name: res.nickname
 				}
+				let userData = Object.assign({}, postData, weixinData, res)
+				console.log(userData)
+				registerWeixin(userData).then((datas) => {
+					console.log(datas)
+					preloadImage()
+					if (!datas['userId']) {
+						initVue()
+						router.push({path: '/login', query: {unionid: weixinData.unionid}})
+					} else {
+						store.commit('USER', datas)
+						// alert(datas)
+						// alert(datas.userHuanxin['username'] + '====' + datas.userHuanxin['password'])
+						chat(store, {
+							user: datas.userHuanxin['username'],
+							pwd: datas.userHuanxin['password']
+						})
+						initVue()
+					}
+				})
 			})
 		})
-	})
-}
+	}
 } else {
 	initStaticPage()
 }
 
 // 图片懒加载
-// Vue.use(Vuelazyload,{
-// })
+Vue.use(Vuelazyload, {
+	// loading: require('../html/static/default.png')
+	// loading: require('./default.png')
+	loading: require('./common/image/loading.png')
+})
 
 // -------------------------------------过滤器
 Vue.filter('score', (val) => {
  return val > 0 ? `${(val * 20)}%` : 0
 })
-// ----------------------------------loading页
-var preloadImage = function () {
-  return new Promise(function (resolve, reject) {
-    var image = new Image()
-		image.onload = resolve
-		image.onerror = reject
-		image.src = '../static/loading.png'
-  }).then(() => {
-	document.querySelector('#loading').classList.add('loadingIn')
-  })
-}
+
 // ------------------------------------微信分享
 wx.error(function(res) {
-	alert(Object.keys(res))
-	console.log(9999, res)
+	// alert(Object.keys(res))
 })
 const ztUrl = window.location.href.split('#')[0]
 getJsSignature(ztUrl).then(data => {
 	let config = {
 		appId: 'wxf21f71c117f32c34',
-		jsApiList: ['onMenuShareAppMessage', 'onMenuShareTimeline']
+		jsApiList: ['onMenuShareAppMessage', 'onMenuShareTimeline', 'chooseImage', 'uploadImage', 'downloadImage', 'getLocalImgData']
 	}
 	wx.config(Object.assign(data, config))
 })
@@ -123,33 +139,36 @@ function newVue() {
 		vm.$watch('config', (newVal) => {
 			share(newVal)
 		})
-		document.querySelector('#loading').style.display = 'none'
+		loading.style.display = 'none'
 	}, 20)
 }
-
 // 初始化页面
 function initVue() {
 	Promise.all([getServiceList(store), getDefualtCity(), getLocal(), cityList()]).then(([service, city, cityData, cityList]) => {
-		if (cityData) {
+		store.commit('cityList', cityList.data.baiduCity)
+		if (cityData.city) {
 			cityList.data.baiduCity.some((item, index) => {
-				if (cityData.cityName === item.cityName) {
-					cityData.cityId = item.cityId
+				if (cityData.city.cityName === item.cityName) {
+					cityData.city.cityId = item.cityId
 					return true
 				}
 			})
-			store.commit('CHANGE_CITY', cityData)
+			console.log(123, cityData)
+			store.commit('LOCAL', cityData) // 本地定位
+			store.commit('CHANGE_CITY', cityData.city)
+			store.commit('MAP', cityData.city) // 本城市地位
 		} else {
 			// 设置默认城市
 			let systemCity = {
 				cityName: city[1].configValue,
 				cityId: city[0].configValue
 			}
+			router.push('/city')
 			store.commit('CHANGE_CITY', systemCity)
 		}
 		newVue()
 	})
 }
-
 // 初始化静态页面
 function initStaticPage() {
 	Promise.all([getServiceList(store), getDefualtCity()]).then(([service, city]) => {
@@ -162,7 +181,8 @@ function initStaticPage() {
 		newVue()
 	})
 }
+// 防止eslint 报错
 console.log(typeof initStaticPage)
-preloadImage()
+console.log(typeof preloadImage)
 // initVue()
 /* eslint-disable no-new */

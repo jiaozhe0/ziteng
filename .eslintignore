@@ -1,2 +1,5 @@
 build/*.js
 config/*.js
+src/im/*.js
+src/common/js/camera.js
+src/views/photo

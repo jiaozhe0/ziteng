@@ -31,6 +31,20 @@
         currentPageIndex: 0
       }
     },
+    activated() {
+      setTimeout(() => {
+        this._setSliderWidth()
+        this._initSlider()
+      }, 20)
+
+      window.addEventListener('resize', () => {
+        if (!this.slider) {
+          return
+        }
+        this._setSliderWidth(true)
+        this.slider.refresh()
+      })
+    },
     mounted() {
       setTimeout(() => {
         this._setSliderWidth()

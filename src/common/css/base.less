@@ -2,7 +2,7 @@
 //375以下不变，375以上等比放大
 
 .text-center {
-  text-align: center;
+  text-align: center!important;
 }
 .text-left {
   text-align: left;
@@ -88,19 +88,20 @@
       }
    }
 
-   .user-info{
-    .flexbox();
-    .align-items(center);
-   }
+.user-info{
+.flexbox();
+.align-items(center);
+}
 
-   .tab-reItem{
+  .tab-reItem{
+    display: block;
     position:relative;
      .count{
       position: absolute;
       right: 12px;
       top:4px;
-      .square(16px);
-      background-color: @color-danger;
+      .square(15px);
+      background-color: @color-primary;
       border-radius: 50%;
       color:#fff;
       text-align: center;
@@ -129,4 +130,32 @@
     }
   }
 
-
+.mask{
+  position: absolute;
+  .size(100%;100%);
+  top:0;
+  left: 0;
+  z-index: 99;
+  background-color: rgba(0,0,0,.5);
+  .payPanel{
+    position: absolute;
+    top:50%;
+    left: 50%;
+    border-radius: 8px;
+    .size(78%;170px);
+    transform: translate(-50%,-50%);
+    background-color: #fff;
+    .card-content-inner{
+      padding: 20px;
+      font-size: 0.7rem;
+      p{
+        font-size: 0.66rem;
+        margin: 10px auto 8px;
+      }
+    }
+    .payPanel-btn{
+      padding: 0 15px;
+      font-size: 0.7rem;
+    }
+  }
+}

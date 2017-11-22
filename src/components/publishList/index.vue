@@ -5,13 +5,10 @@
 					<div class="card-content">
 					<div class="service-info">
 				   <!-- <div class="">{{serviceItem.title}}</div> -->
-						<router-link :to="{path: '/servicedetail', query: {serviceId: serviceItem.serviceId}}" tag='div'>
+						<router-link :to="{path: '/servicedetail', query: {serviceId: serviceItem.serviceId, showStatus: serviceItem.authStatus}}" tag='div'>
 							<!-- 服务图片	 -->
-							<div class="img-wrap pull-left" >
-								<img :src="serviceItem.servicePic[0].picName" alt="" 
-								class="img-responsive">
+							<div class="img-wrap pull-left" v-lazy:background-image="serviceItem.servicePic[0].picName">
 							</div>
-
 							<!-- 服务详情 -->
 							<div class="service-content">
 								<div class="clearfix service-top">
@@ -22,7 +19,7 @@
 								</div>
 								<p class="service-text">内容服务：{{serviceItem.serviceDescribe}}</p>
 								<p class="service-price">
-								{{serviceItem.priceType == 1 ? serviceItem.priceNumber + '元/次' : '预约金：'+serviceItem.priceNumber+'元'}}
+								{{serviceItem.priceType == 1 ? serviceItem.priceNumber + '元/次' : '预约金：'+serviceItem.subscription+'元'}}
 								</p>
 							</div>
 						</router-link>
@@ -88,6 +85,7 @@ export default {
       // }})
 		},
 		_updateServiceStatus(serviceItem) {
+			this.setLoading(true)
 			console.log(serviceItem)
 			console.log(serviceItem.serviceId + '===' + serviceItem.serviceStatus)
 			let stauts = serviceItem.serviceStatus === 1 ? 2 : 1
@@ -98,14 +96,16 @@ export default {
 			updateServiceStatus(param).then(data => {
 				console.log(9999, data)
 				if (data.code === '000000') {
+					this.setLoading(false)
 					serviceItem.serviceStatus = stauts
 				}
 			})
-		}
-	},
-	...mapMutations({
-		setTypeList: 'CHILDTYPELIST'
+		},
+		...mapMutations({
+		setTypeList: 'CHILDTYPELIST',
+		setLoading: 'LOADING'
 	})
+	}
 }
 </script>
 
@@ -125,6 +125,7 @@ export default {
 		.square(70px);
 		overflow: hidden;
 		border-radius: 8px;
+		background-size: cover;
 	}
 .service-list{
 	margin-bottom: 5px;
@@ -167,6 +168,7 @@ export default {
 		font-size:0.7rem;
 	}
 	.service-text{
+		width: 100%;
 		.text-overflow();
 		font-size:0.6rem;
 		color:@color-text-secondary;

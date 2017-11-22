@@ -78,5 +78,5 @@ export function header() {
 //   'token': (md5(`${browserReverse}${versionReverse}${time}`)).toUpperCase()
 // }
 // test.ijzsh.com
-// export const server = 'http://test.ijzsh.com' // 开发环境
-export const server = 'http://www.ijzsh.com' // 生成环境
+export const server = 'http://test.ijzsh.com' // 开发环境
+// export const server = 'http://www.ijzsh.com' // 生成环境

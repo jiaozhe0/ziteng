@@ -1,13 +1,14 @@
 <template>
   <div class="index">
-    <my-header>
+    <my-header class="index-bar">
       <div class="index-header">
         <div class="def-city">
           <router-link to='/city' v-if="city" >
-            {{city.cityName}}
+            <span class="name">{{city.cityName}}</span> <i class="city-icon"></i>
           </router-link> 
         </div>
         <div class="search">
+          <div class="searchIcon"></div>
           <router-link to='/index/search'>
             <input type="text"  placeholder="大家都在找“家政服务”" class="search-btn">
           </router-link> 
@@ -16,8 +17,14 @@
           </div>
       </div>
     </my-header>
-			<scroll :data="newsLists" class="content" ref="scroll" :listenScroll="true">
-        <div>
+		s<scroller :dataList="newsLists" 
+      class="index-content"
+      ref="scroll"
+      :refreshIcon="refreshing"
+      @refresh='_refresh'
+      >
+        <div class='index-content-wrap'>
+          <div>
           <!-- 推荐服务类别 -->
           <nav class="index-nav row" >
             <ul class="row" v-if="serRecommend.length">
@@ -30,9 +37,9 @@
             </ul>
           </nav>
           <!-- 最新消息 -->
-  			  <div class="news" >
-            <div class="news-icon"></div>
-            <div class="news-wrap" v-if="newsLists.length">
+  			  <div class="news" v-if="newsLists.length">
+            <div class="news-icon" ></div>
+            <div class="news-wrap" >
              <news-list :newsList="newsLists"></news-list>
             </div>
             <div class="server-button text-center" @click="_publishService">
@@ -41,13 +48,14 @@
           </div>
           <service-list :serviceList="serviceList" @loadImage="_loadImage"></service-list>
           <div>{{getLsit}}</div>
+          </div>
         </div>
-      </scroll>
+      </scroller>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
-import Scroll from 'components/Scroll'
+import Scroller from 'components/scroller/index'
 import MyHeader from 'components/MyHeader'
 import ServiceList from 'components/ServiceList'
 import NewsList from 'components/news'
@@ -59,21 +67,22 @@ export default {
       serRecommend: [],
       indexAdsense: [],
       newsLists: [],
+      refreshing: true,
       currentPageIndex: 0,
       serviceList: []
     }
   },
   components: {
-    Scroll,
+    Scroller,
     MyHeader,
     ServiceList,
     NewsList
   },
-  created() {
-    this.setFooter(true)
+  mounted() {
   },
   activated() {
-    this.$refs.scroll.refresh()
+    this.setFooter(true)
+    this.$refs.scroll.$refs.scroll.refresh()
   },
   computed: {
     getLsit() {
@@ -93,14 +102,38 @@ export default {
         this.serviceList = b
         this.indexAdsense.forEach((item, index) => {
           this.serviceList.splice(item.appPosition, 0, item)
+          this.refreshing = false
         })
+        console.log(2345, this.serviceList)
     })
     },
     ...mapGetters(['city', 'user', 'isFooter', 'serviceTypeList', 'childTypeList'])
   },
   methods: {
     _loadImage() {
-      this.$refs.scroll.refresh()
+      this.$refs.scroll.$refs.scroll.refresh()
+    },
+    _getLsit() {
+      this.refreshing = true
+      Promise.all([getClassifyRecommend(), getServiceRecommendList(this.city.cityId)]).then(([a, b]) => {
+        this.serRecommend = a.serviceTypeRecommend
+        this.newsLists = a.analogService // 新闻
+        this.indexAdsense = a.indexAdsense.map(item => {
+          let id = item.appProtocol.split('servicelist/')[1]
+          let idArr = id.split('&')
+          item.typeId = {}
+          idArr.forEach(idItem => {
+            let arr = idItem.split('=')
+            item.typeId[arr[0]] = arr[1]
+          })
+          return item
+        })
+        this.serviceList = b
+        this.indexAdsense.forEach((item, index) => {
+          this.serviceList.splice(item.appPosition, 0, item)
+          this.refreshing = false
+        })
+    })
     },
     _publishService() {
       if (this.user.userId) {
@@ -109,18 +142,25 @@ export default {
         this.$router.push('/login')
       }
     },
+    _refresh() {
+      this._getLsit()
+    },
     _goServiceList(data) {
+      console.log(1234567, data)
+      let parentId = ''
+      console.log(123456, this.serviceTypeList)
       this.serviceTypeList.some((item, index) => {
         if (item.parentId === data.serviceType.serviceTypeId || item.parentId === data.serviceType.parentId) {
            this.setServiceTypeList(item.typeList)
+           parentId = item.parentId
            return true
         }
       })
       this.$router.push({path: '/serviceList',
       query: {
-        searchContent: data.serviceType.typeName,
-        serviceParentTypeId: data.serviceTypeId,
-        serviceTypeId: data.serviceTypeId
+        searchContent: '',
+        serviceParentTypeId: data.serviceType.parentId === 'root' ? parentId : data.serviceType.parentId,
+        serviceTypeId: data.serviceType.parentId === 'root' ? '' : data.serviceType.serviceTypeId
       }})
     },
     ...mapMutations({
@@ -135,6 +175,17 @@ export default {
 <style scoped lang="less" >
  @import '~common/css/variable.less';
  @import '../../common/css/mixin.less';
+ .index-bar{
+    padding-right: 0.2rem;
+    padding-left: 0.2rem;
+  }
+ .index .index-content{
+  top:44px;
+  bottom:50px;
+  .index-content-wrap{
+    height: auto
+  }
+ }
 .index,.content{
   background-color: #eee;
 }
@@ -167,7 +218,16 @@ export default {
   font-size: 0.7rem;
   a{color: #fff;}
   .search{
-    width: 70%
+    width: 70%;
+    position:relative;
+    .searchIcon{
+      position:absolute;
+      .square(12px);
+      top:50%;margin-top: -6px;
+      left:20%;
+      background-size: 12px 12px;
+      background-image: url('./search.png');
+    }
   }
   .search-btn{
     display: block;
@@ -193,17 +253,17 @@ export default {
   padding: 0 10px;
   background-color: #fff;
   .server-button{
-    .size(110px;30px);
-    line-height: 30px;
+    .size(160px;28px);
+    line-height: 28px;
     border-radius: 40px;
     background-color: @color-primary;
     color:#fff;
     font-size: 0.6rem
   }
   .news-icon{
-    .square(34px);
+    .size(70px;30px);
     .bg-view-image('index/fujin');
-     background-size: 34px 34px;
+     background-size:cover;
      margin-right: 5px;
   }
 .news-wrap{
@@ -213,4 +273,24 @@ export default {
     font-size:0.7rem;
   }
 }
+
+.def-city{
+  width: 60px;
+  .city-icon{
+    float: right;
+    margin-top: -15px;
+    display: inline-block;
+    .square(12px);
+    background-size: 12px 12px;
+    .bg-view-image('Index/drop-down')
+  }
+  .name{
+    display: inline-block;
+    font-size: 0.65rem;
+    .text-overflow();
+    width: 50px;
+    text-align: center;
+  }
+}
+
 </style>

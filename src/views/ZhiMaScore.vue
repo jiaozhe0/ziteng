@@ -34,14 +34,13 @@ export default {
 			return this.$route.params.broswer === 'html'
 		}
 	},
-	created() {
-		this.value = this.$route.query.value ? this.$route.query.value : 0
-	},
-	mounted() {
-		this._draw(this.value)
-		window.addEventListener('resize', () => {
-			this._draw(this.value)
-    })
+	activated() {
+		this.$nextTick(() => {
+			this._draw(this.$route.query.value ? this.$route.query.value : 0)
+			window.addEventListener('resize', () => {
+				this._draw(this.value)
+		})
+		})
 	},
 	methods: {
 		_clock() {
@@ -204,7 +203,7 @@ export default {
  }
  .zhima-content{
  	.zhima-score{
- 		background:#F95843
+ 		background:@color-primary
  	}
  	.zhima-text{
  		padding: 15px;

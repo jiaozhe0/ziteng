@@ -1,6 +1,6 @@
 <template>
   <div class='publish' >
-  	<mt-header title="常用地址"></mt-header>
+  	<mt-header title="选择常用地址"></mt-header>
     <div class="content" :class="{'noData':!addressList.length}">
     	<div class="no-publish" v-if="!addressList.length">
     		<div class="img-wrap">
@@ -11,7 +11,7 @@
     			添加服务地点
     		</router-link>	
     	</div>
-			<address-list v-else :addressList="addressList"></address-list>
+			<address-list v-else :addressList="addressList" :isEdit="!!$route.query.order"></address-list>
     </div>
     <div class="bar footer-btn-wrap bar-footer" v-show="addressList.length">
     	<router-link to="/address/edit" class="footer-btn">新建地址</router-link>

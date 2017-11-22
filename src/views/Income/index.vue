@@ -3,21 +3,23 @@
  <mt-header title="我的收入"></mt-header>
  <div class="income-top">
  	<div class="money">
- 		我转了这么多钱
+ 		我赚了这么多钱
  		<div class='price'>￥{{total}}</div>
  	</div>
  	<div class="row text-center incomeDetail-list">
- 		<div class="col-33">
+ 		<div class="col-33" @click="$router.push('/reminder/freeze/html')">
  				<span class="text">{{incomeInfo.freezeAmount}}</span>
  			<p>冻结中</p>
+ 			<div class="icon reminder"></div>
  		</div>
  		<div class="col-33">
- 				<span class="text">{{incomeInfo.extractAmount}}</span>
+ 				<span class="text">{{incomeInfo.encashAmount}}</span>
  			<p>可提现</p>
  		</div>
- 		<div class="col-33">
+ 		<div class="col-33" @click="$router.push('/home/income/extract')">
  				<span class="text">{{incomeInfo.extractAmount}}</span>
  			<p>已提现</p>
+ 			<div class="icon link"></div>
  		</div>
  	</div>
  </div>
@@ -136,9 +138,9 @@ export default {
 </script>
 <style scoped lang="less" >
  @import '~common/css/variable.less';
- @import '~common/css/mixin.less';
+ @import '../../common/css/mixin.less';
  .income-content{
- 	top:214px;
+ 	top:218px;
  	bottom: 0;
  }
  .income {
@@ -146,13 +148,14 @@ export default {
  }
  .income-top{
  	background-color: @color-primary;
+ 	margin-top: -1px;
  	color:#fff;
  	font-size: 0.6rem;
  	padding: 15px 10px;
  	.money{
  		margin-bottom:20px;
  		.price {
- 			font-size: 0.9rem;
+ 			font-size: 1rem;
  		}
  	}
  	.incomeDetail-list{
@@ -163,6 +166,23 @@ export default {
  			}
  			.text{
  				font-size: 0.8rem;
+ 			}
+ 			p{
+ 				opacity: 0.7
+ 			}
+ 			.icon{
+ 				right: 4px;
+ 				top:4px;
+ 				position: absolute;
+ 				.square(12px);
+ 				background-size: 12px 12px;
+ 				&.reminder{
+ 					.bg-view-image('Income/cash-question')
+ 				}
+ 				&.link{
+ 					top:12px;
+ 					.bg-view-image('Income/disclosure-arrow')
+ 				}
  			}
  		}
  	}

@@ -14,7 +14,8 @@
   	 		<input type="radio" v-model="payType" value='zfb'>
   	 	</div>
   	 </mt-cell> -->
-  	<mt-cell title="微信支付" class='order-item'>
+  	<mt-cell  class='order-item'>
+  		<div slot='icon'><i class="payIcon"></i>微信支付</div>
   		<div class="order-item-radio text-center" :class="{'on':payType == 'wx'}">✓
   			<input type="radio" v-model="payType" value='wx'>
   		</div>
@@ -86,6 +87,8 @@ export default {
 	},
 	deactivated() {
 		clearInterval(this.timer)
+		this.minute = 29
+		this.second = 60
 		this.setFooter(true)
 	},
 	computed: {
@@ -158,7 +161,7 @@ export default {
 </script>
 <style scoped lang="less" >
  @import '~common/css/variable.less';
- @import '~common/css/mixin.less';
+ @import '../../common/css/mixin.less';
  .payOrder-content{
  	background:#eee;
  	.payOrder-title{
@@ -170,33 +173,13 @@ export default {
  		font-size:0.7rem;
  	}
  }
-.mask{
-	position: absolute;
-	.size(100%;100%);
-	top:0;
-	left: 0;
-	z-index: 99;
-	background-color: rgba(0,0,0,.5);
-	.payPanel{
-		position: absolute;
-		top:50%;
-		left: 50%;
-		border-radius: 8px;
-		.size(78%;170px);
-		transform: translate(-50%,-50%);
-		background-color: #fff;
-		.card-content-inner{
-			padding: 20px;
-			font-size: 0.7rem;
-			p{
-				font-size: 0.66rem;
-				margin: 10px auto 8px;
-			}
-		}
-		.payPanel-btn{
-			padding: 0 15px;
-			font-size: 0.7rem;
-		}
-	}
+.payIcon{
+	display: inline-block;
+	.square(20px);
+	margin-right:8px;
+	vertical-align: middle;
+	.bg-view-image('PayOrder/weChatPay');
+	background-size: 20px 20px;
+
 }
 </style>

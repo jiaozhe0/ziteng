@@ -11,7 +11,8 @@
 					 >{{item.typeName}}</li>
 				</ul>
   	  </div>
-  	<div class="classify-content">
+  	<div class="classify-content" ref='classifyW'>
+  		<div class="wrap">
 			<ul>
 				<li v-for="(items,index) in serviceType" v-show="selectedType == items.parentId">
 					<ul class='row'>
@@ -27,6 +28,7 @@
 					</ul>
 				</li>
 			</ul>
+			</div>
   	</div>
     </div>
   </div>
@@ -60,6 +62,10 @@ export default {
 			probeType: 3,
 			click: true
 		})
+		this.classScroll = new BScroll(this.$refs.classifyNav, {
+			probeType: 3,
+			click: true
+		})
 	},
 	updated() {
 		if (this.scroll) {
@@ -81,7 +87,7 @@ export default {
 			})
 			this.$router.push({path: '/serviceList',
       query: {
-      searchContent: serviceData.typeName,
+      searchContent: '',
       serviceParentTypeId: serviceData.parentId,
       serviceTypeId: serviceData.serviceTypeId
       }})
@@ -137,7 +143,12 @@ export default {
  		}
  	}
  	.classify-content{
+ 		position: relative;
+ 		height:100%;
  		margin-left: 110px;
+		.wrap{
+			overflow-y: auto;
+		}
  		.typeList-item{
  			font-size: 0.6rem;
  			margin-bottom: 25px;

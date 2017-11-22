@@ -1,104 +1,105 @@
 <template>
   <div class='publish'>
   	<mt-header title="发布服务"></mt-header>
-  	<scroll class="content">
-    	<div class="service-form">
-	    	<div class="form-item">
-		    	<div>
-		    		<mt-field v-model="param.title" placeholder="请输入一个服务标题不超过15字"></mt-field>
+  	<div class="content publish-content">
+	  	<div class="publish-wrap">
+	    	<div class="service-form">
+		    	<div class="form-item">
+			    	<div>
+			    		<mt-field v-model="param.title" placeholder="请输入一个服务标题不超过15字" @keyup.native="_wacthTitle"></mt-field>
+			    	</div>
+			    	<label for="serDetail" class="serDetail-wrap">
+			    	<textarea @focusin.native="_test" name=""  
+			    	placeholder="编辑服务描述，准确的描述有助于用户了解您的服务 （至少需要10个字）" 
+			    	id="" cols="30" rows="40" id="serDetail" 
+			    	class="serDetail" @keyup="_setNum" v-model="param.serviceDescribe">
+			    	</textarea>
+			    		<div class="num">{{remainNum}}</div>
+						</label>
+						<!-- 上传照片 -->
+						<div class="upload">
+						 <upload-pic-list :multiple="true" 
+						 									@uploadPicture='_uploadPicure' 
+						 									@deletePic="_deletePic"
+						 									:process="processList"
+						 									:test="process"
+						 									:pictures="param.servicePic"></upload-pic-list>
+						</div>
 		    	</div>
-		    	<label for="serDetail" class="serDetail-wrap">
-		    	<textarea @focusin.native="_test" name=""  
-		    	placeholder="编辑服务描述，准确的描述有助于用户了解您的服务 （至少需要10个字）" 
-		    	id="" cols="30" rows="40" id="serDetail" 
-		    	class="serDetail" @keyup="_setNum" v-model="param.serviceDescribe">
-		    	</textarea>
-		    		<div class="num">{{remainNum}}</div>
-					</label>
-					<!-- 上传照片 -->
-		    	<label for="" class='onload-wrap-pic clearfix'>
-		    		<div class="pull-left upload-item" v-for="(item,index) in param.servicePic">
-		    			<div class="close-icon" @click="_deletePic(index)">×</div>
-		    			<img :src="item.picName" alt="" class="img-responsive">
+		    	<div class="form-item">
+		    		<div class="selectedPrice text-center">
+		    			<!-- 选择金额模式 -->
+		    			<div class="selectedPrice-btn center-block">
+		    				<button type='button':class="{'selected': param.priceType === 1}" @click="_selectPriceType(1)">一口价</button>
+		    				<button type='button':class="{'selected': param.priceType === 2}" @click="_selectPriceType(2)">预约金</button>
+		    			</div>
+		    			<div class='text' v-if="param.priceType === 1">服务价格固定，建议选择一口价模式</div>
+		    			<div class='text' v-else>服务价格不确定，建议选择预约金模式</div>
 		    		</div>
-		    		 <upload-btn class="pull-left" :square="80"
-		    		 				margin="0"
-		    		 				@click.native="uploadVisible = true" >
-		    		 		添加图片
-		    		 </upload-btn>
-		    	</label>
-	    	</div>
-	    	<div class="form-item">
-	    		<div class="selectedPrice text-center">
-	    			<!-- 选择金额模式 -->
-	    			<div class="selectedPrice-btn center-block">
-	    				<button type='button':class="{'selected': param.priceType === 1}" @click="_selectPriceType(1)">一口价</button>
-	    				<button type='button':class="{'selected': param.priceType === 2}" @click="_selectPriceType(2)">预约金</button>
-	    			</div>
-	    			服务价格不确定，建议选择预约金模式
-	    		</div>
-		    	<mt-cell title="服务价格"  v-if="param.priceType === 1">
-		    	  <input type="number" class='price-input text-right'
-		    	   placeholder="请输入服务价格(元)"
-		    	   v-model="onePrice"
-		    	   @keyup="_changePrice">
-		    	 </mt-cell>
-		    	 <mt-cell title="预约金额"  is-link v-else  @click.native="popupVisible = true">
-		    	  <span class='textOn' v-if="priceTransmit">{{priceTransmit}}</span>
-		    	  <span v-else>请选择预约金额</span>
-		    	 </mt-cell>
-		    	 <router-link to="/address">
-			    	<mt-cell title="我的位置" is-link >
-			    	  <span>{{addressName}}</span>
-			    	</mt-cell>
-					 </router-link>
-	    	</div>
-	    	<router-link to="/servicemap" class="danger remind-text">发布前请阅读《服务者管理规则》</router-link>
-    	 	<div>{{param.servicePicId}}</div>
-    	 </div>
-    </scroll>
-    <!-- 提交成功 -->
-		<div class="content success-content text-center"
-				 v-show='success'>
-			<div class="success-icon center-block">
-				<div class="icon"></div>
-			</div>
-			<strong>服务已成功提交</strong>
-			<p class="success-text">感谢您发布服务，我们马上进行审核，审核结果短信送至您的手机，请耐心等待！</p>
-			<div class="success-btn-wrap" v-if="auth">
-				<button @click="_back" class="auth-btn auth">知道了</button>
-			</div>
-			<div class="success-btn-wrap" v-else>
-				<router-link :to="url" class="auth-btn danger unauth">立即认证</router-link to="">
-				<p class="danger unauth-text">提示：您还没有实名认证，通过认证后用户才能看到您发布的服务</p>
-			</div>
+			    	<mt-cell title="服务价格"  v-if="param.priceType === 1">
+			    	  <input type="number" class='price-input text-right'
+			    	   placeholder="请输入服务价格(元)"
+			    	   v-model="onePrice"
+			    	   @keyup="_changePrice">
+			    	 </mt-cell>
+			    	 <mt-cell title="预约金额"  is-link v-else  @click.native="_openPrice">
+			    	  <span class='textOn' v-if="param.subscription">{{param.subscription}}</span>
+			    	  <span v-else>请选择预约金额</span>
+			    	 </mt-cell>
+			    	 <router-link to="/address">
+				    	<mt-cell title="我的位置" is-link >
+				    	  <span>{{addressName}}</span>
+				    	</mt-cell>
+						 </router-link>
+		    	</div>
+		    	<router-link to="/agreement/server/html" class="textOn remind-text">
+		    	<p>发布前请阅读《服务者管理规则》</p>
+		    	</router-link>
+	    	 	<!-- <div>{{param.servicePicId.length}}</div> -->
+	    	 </div>
+	    </div>
 		</div>
+		    <!-- 提交成功 -->
+				<div class="content success-content text-center"
+						 v-show='success'>
+					<div class="success-icon center-block">
+						<div class="icon"></div>
+					</div>
+					<strong>服务已成功提交</strong>
+					<p class="success-text">感谢您发布服务，我们马上进行审核，审核结果短信送至您的手机，请耐心等待！</p>
+					<div class="success-btn-wrap" v-if="auth">
+						<button @click="_back" class="auth-btn auth">知道了</button>
+					</div>
+					<div class="success-btn-wrap" v-else>
+						<router-link :to="{path:url, query:{skill:true}}" class="auth-btn danger unauth">立即认证</router-link to="">
+						<p class="danger unauth-text">提示：您还没有实名认证，通过认证后用户才能看到您发布的服务</p>
+					</div>
+					</div>
     <div class="bar bar-footer on" >
 			<button class="footer-btn" @click="_saveServiceInfo">发布服务</button>
   	</div>
-
+	
     <!-- 预约金额 -->
     <mt-popup v-model="popupVisible"
      position="bottom" 
      :modal="true"
      class="sexPopup"
      >
-     <div class="sexPopup-top">
-     	<div class="textOn" @click="popupVisible = false">取消</div>
+     <div class="sexPopup-top" v-if="priceData[0].values.length">
+     	<div class="textOn" @click="_cancelPrice">取消</div>
      	<div>预约金金额</div>
      	<div class="textOn" @click="_setPrice">确定</div>
      </div>
    		 <mt-picker :slots="priceData" @change="getSlotValue"></mt-picker>
     </mt-popup>
-   
     <!-- 上传照片 -->
-    <mt-popup v-model="uploadVisible"
+    <!-- <mt-popup v-model="uploadVisible"
      position="bottom" 
      :modal="true"
      class="sexPopup"
      >
-    	 <upload :multiple="true" @uploadPicture='_uploadPicure'></upload>
-     </mt-popup>
+    	 <upload :multiple="true"  @uploadPicture='_uploadPicure'></upload>
+     </mt-popup> -->
   </div>
 </template>
 
@@ -108,29 +109,37 @@ import {Cell, Picker, Popup, Field, Toast} from 'mint-ui'
 import uploadBtn from 'components/uploadBtn/index'
 import Upload from 'components/uploadPicture'
 import Scroll from 'components/Scroll'
+import UploadPicList from 'components/uploadPicList/index'
 import {createObjectURL} from 'common/js/browser'
-import {saveServicePicture, saveServiceInfo, getServiceDetails, updateServiceInfo} from 'api/service'
+import {getLocal} from 'api/system'
+import {saveServicePicture, saveServiceInfo, getServiceDetails, getServiceParameter, updateServiceInfo} from 'api/service'
 import {mapGetters, mapMutations} from 'vuex'
 import {getUserAuthStatus} from 'api/home'
+import {dataURLtoBlob, imgPreview} from 'common/js/photo'
+const wx = require('weixin-js-sdk')
+let fromUrl = ''
 export default {
 	data() {
 		return {
+			indexs: 0,
 			publishList: [],
 			remainNum: 500, // 描述字数
 			popupVisible: false, // 价格popup显示
 			uploadVisible: false, // 上传图片popup显示
-			priceTransmit: 0, // 价格中间
-			onePrice: '', // 中间件
+			priceTransmit: 0, // 预约金价格中间值
+			onePrice: '', // 一口价价格中间值
 			sumbiting: false,
 			success: false,
-			priceData: [
+			process: 0,
+			processList: {},
+			priceData: [ // 预约价格
 				{
 					flex: 1,
-					values: [19, 39, 59],
+					values: [],
 					defaultIndex: 0
 				}
 			],
-			serviceInfo: {},
+			serviceInfo: {}, // 服务信息
 			param: {
 				title: '', // 标题
 				serviceDescribe: '', // 描述
@@ -138,35 +147,84 @@ export default {
 				baiduCityName: '', // 城市名
 				longitude: '',
 				latitude: '',
-				priceNumber: '', // 价格
+				priceNumber: 0, // 价格
 				userId: '',
 				serviceParentTypeId: '',
 				serviceTypeId: '',
 				serviceUnitTypeId: '',
 				servicePicId: [], // 图片ID
 				servicePic: [],
+				subscription: 0,
 				priceType: 1 // 价格类型 一口价/预约金
 			},
 			auth: '',
-			serviceId: ''
+			serviceId: '',
+			toUrl: ''
 		}
 	},
+	beforeRouteEnter(to, from, next) {
+		fromUrl = from.path
+		next()
+	},
+	beforeRouteLeave(to, from, next) {
+		this.toUrl = to.path
+		next()
+	},
 	created() {
-		this.param.userId = this.user.userId
-		this.param.baiduCityName = this.city.cityName
-		this.param.baiduCityId = this.city.cityId
+		this._getServiceParameter()
 	},
 	activated() {
+		console.log(9999999999, this.local)
+		this.param.userId = this.user.userId
+		this.param.baiduCityId = this.city.cityId
+		// 来源路径如果不是/address,清空map数据,重新定位，
+		if (fromUrl.indexOf('address') < 0 && this.toUrl.indexOf('agreement') < 0) {
+			this.setMap({
+				uid: '',
+				point: {
+					lng: '',
+					lat: ''
+				},
+				title: ''
+			})
+		}
+		// 如果是编辑进来的去除定位
+		if (fromUrl.indexOf('home/publish') > -1) {
+				this.setLocal({map: {
+					uid: '',
+					point: {
+						lng: '',
+						lat: ''
+					},
+					title: ''
+				}})
+		} else {
+			this._getLocal()
+		}
 		this.serviceId = this.$route.query.serviceId && this.$route.query.serviceId
-		if (this.serviceId) {
+		// 如果有服务ID 并且来源不是从选择地址
+		if (this.serviceId && fromUrl.indexOf('address') < 0) {
+			this.process = 100
 			this._getServiceDetails(this.$route.query.serviceId)
 		}
 		this._getUserAuthStatus(this.user.userId)
 	},
 	deactivated() {
+		this.uploadVisible = false
 		this.success = false
-		this.onePrice = ''
-		if (this.serviceId) {
+		if (this.toUrl.indexOf('address') < 0 && this.toUrl.indexOf('agreement') < 0) {
+			this.onePrice = ''
+			this.setMap({
+				uid: '',
+				point: {
+					lng: '',
+					lat: ''
+				},
+				title: ''
+			})
+			this.remainNum = 500
+			this.priceTransmit = 0
+			this.indexs = 0
 			this.param = {
 				title: '', // 标题
 				serviceDescribe: '', // 描述
@@ -174,30 +232,33 @@ export default {
 				baiduCityName: '', // 城市名
 				longitude: '',
 				latitude: '',
-				priceNumber: '', // 价格
+				priceNumber: 0, // 价格
 				userId: '',
 				serviceParentTypeId: '',
 				serviceTypeId: '',
 				serviceUnitTypeId: '',
 				servicePicId: [], // 图片ID
 				servicePic: [],
+				subscription: '',
 				priceType: 1 // 价格类型 一口价/预约金
 			}
 		}
 	},
 	computed: {
-		...mapGetters(['user', 'city', 'map', 'status']),
+		...mapGetters(['user', 'city', 'map', 'status', 'local', 'cityList']),
 		addressName() {
-			let name = '请选择'
-			if (this.map.uid) {
+			let name = '请手动选择'
+			if (this.map.title) {
 				name = this.map.title
 				this.param.longitude = this.map.point.lng
 				this.param.latitude = this.map.point.lat
+			} else if (this.local.map.uid) {
+				name = this.local.map.title
+				this.param.longitude = this.local.map.lng
+				this.param.latitude = this.local.map.lat
 			}
+			this.param.baiduCityName = name
 			return name
-		},
-		priceText() {
-			this.param
 		},
 		url() {
 				let url = '/home/auth'
@@ -217,55 +278,196 @@ export default {
 			MtField: Field,
 			Scroll,
 			uploadBtn,
-			Upload
+			Upload,
+			UploadPicList
 	},
 	methods: {
+		_cancelPrice() {
+			this.popupVisible = false
+		},
+		// 定位
+		_getLocal() {
+			console.log(234568, this.local)
+			getLocal().then(res => {
+				res.data.baiduCity.some((item, index) => {
+				if (res.city.cityName === item.cityName) {
+					res.city.cityId = item.cityId
+					return true
+				}
+			})
+			this.setLocal(res)
+			})
+		},
+		_openPicBtn() {
+			this.uploadVisible = true
+		},
+		_openPrice() {
+			this.popupVisible = true
+			this.priceData[0].defaultIndex = 0
+			this.priceNumber = this.priceData[0].values[0]
+			this.$nextTick(() => {
+				setTimeout(() => {
+					this.priceData[0].defaultIndex = 1
+					this.priceNumber = this.priceData[0].values[1]
+				}, 20)
+			})
+		},
+		// 监听标题字数
+		_wacthTitle(e) {
+			if (e.target.value.length > 14) {
+				e.target.value = e.target.value.slice(0, 14)
+				Toast('标题不能多于15个字！')
+			}
+		},
+		// 监听服务详情字数变化
 		_setNum(e) {
 			if (this.remainNum === 0) {
+				e.target.value = e.target.value.slice(0, 500)
 				return
 			}
 			this.remainNum = 500 - e.target.value.length
-		},
-		_changePrice(e) {
-			console.log(e.target.value)
-			this.param.priceNumber = e.target.value
 		},
 		// 选择价格类型
 		_selectPriceType(type) {
 			this.param.priceType = type
 			if (type === 1) {
-				this.onePrice = ''
+				this.param.subscription = 0
+				this.param.priceNumber = this.onePrice || 0
+			} else {
+				this.param.priceNumber = 0
+				this.param.subscription = this.priceTransmit && Number(this.priceTransmit.slice(0, -1))
 			}
 		},
-		// 获得价格
+		// 监听一口价价格
+		_changePrice(e) {
+			console.log(e.target.value)
+			this.param.priceNumber = e.target.value
+		},
+		// 获取预约金额
+		_getServiceParameter() {
+			getServiceParameter().then(data => {
+				console.log('预约金额')
+				if (data.code === '000000') {
+					this.priceData[0].values = data.data.serviceSubscription.map(item => {
+						return item.subscription + '元'
+					})
+					this.priceData[0].values.unshift('')
+				}
+			})
+		},
+		// 设置预约金价格
+		_setPrice() {
+			this.param.priceNumber = 0
+			this.param.subscription = this.priceTransmit && Number(this.priceTransmit.slice(0, -1))
+			this.popupVisible = false
+		},
+		// 插件方法：获得价格
 		getSlotValue(picker, values) {
 			this.priceTransmit = values[0]
 		},
-		// 设置价格
-		_setPrice() {
-			this.param.priceNumber = this.priceTransmit
-			this.popupVisible = false
+		// 微信图片上传
+		_uploadPicures(files) {
+			this.param.servicePic = files.map((item, index) => {
+				let picInfo = {
+					createOrder: index,
+					picName: item
+				}
+				new Promise((resolve, reject) => {
+					wx.uploadImage({
+						localId: item,
+						success(res) {
+							resolve(res.serverId)
+						}
+					})
+				}).then(serverId => {
+					alert('返回图片的服务器端ID---' + serverId)
+					wx.downloadImage({
+						serverId: serverId,
+						isShowProgressTips: 1,
+						success(ress) {
+							alert(' // 返回图片下载后的本地ID' + ress.localId)
+							wx.getLocalImgData({
+								localId: ress.localId,
+								success(d) {
+									alert(' //base64' + d.localData)
+									let f = dataURLtoBlob(d.localData)
+									alert(f)
+									let formData = new FormData()
+									formData.append('file', f)
+									formData.append('createOrder', 0)
+									saveServicePicture(formData).then(data => {
+										let str = ''
+										for (let i in data) {
+											str += i + '=' + data[i] + '&'
+										}
+										alert(str)
+									})
+								}
+							})
+						},
+						fail(err) {
+							let str = ''
+							for (let i in err) {
+								str += i + '=' + err[i] + '&'
+							}
+							alert(str)
+						}
+					})
+				})
+				return picInfo
+			})
 		},
 		// 上传图片
 		_uploadPicure(files) {
 			let pictureList = []
 			this.uploadVisible = false
+			if (this.param.servicePic.length > 6) {
+					Toast('最多上传6张图片')
+					return
+			}
 			pictureList = [...files].map((item, index) => {
-				let formData = new FormData()
-				formData.append('file', item)
-				formData.append('createOrder', index)
+				this.process = 0
+				this.indexs++
+				console.log(this.indexs)
+				imgPreview(item).then(data => {
 				// 上传图片
-				saveServicePicture(formData).then(data => {
-					this.param.servicePicId.push(data.data.servicePicId)
-					console.log(data)
+				let formData = new FormData()
+				formData.append('file', data, 'file_' + Date.parse(new Date()) + '.jpg')
+				formData.append('createOrder', this.indexs)
+				// 上传图片 异步
+				saveServicePicture(formData, (data) => {
+              let loaded = data.loaded
+              let total = data.total
+              this.$nextTick(() => {
+                this.process = ((loaded / total) * 100).toFixed(2)
+                this.processList[item.name] = this.process
+              })
+            }).then(data => {
+            this.process = this.process
+            console.log('返回数据')
+            console.log(124556, data)
+						// 上传服务的图片id
+						this.param.servicePicId.push(data.data.servicePicId)
+					// 限制图片
+					if (this.param.servicePicId.length > 6) {
+						this.param.servicePicId = this.param.servicePicId.slice(0, 6)
+					}
 				})
-				let picInfo = {
-					createOrder: index,
-					picName: createObjectURL(item)
-				}
-				return picInfo
+        })
+        // 页面显示图片
+        let picInfo = {
+         createOrder: index,
+         picName: createObjectURL(item),
+         name: item.name
+        }
+        return picInfo
 			})
 			this.param.servicePic = this.param.servicePic.concat(pictureList)
+			if (this.param.servicePic.length > 6) {
+				Toast('最多上传6张图片')
+				this.param.servicePicId = this.param.servicePicId.slice(0, 6)
+				this.param.servicePic = this.param.servicePic.slice(0, 6)
+			}
 		},
 		// 删除图片
 		_deletePic(index) {
@@ -278,6 +480,8 @@ export default {
 				console.log(123, this.param)
 				console.log(234, this.serviceInfo)
 				let pic = this._comparePic(this.param.servicePic, this.comparePic)
+				this.serviceInfo.longitude = String(this.serviceInfo.longitude)
+				this.serviceInfo.latitude = String(this.serviceInfo.latitude)
 				let flag = this._compareValue(this.param, this.serviceInfo)
 				console.log(flag)
 				if (flag || pic) {
@@ -298,6 +502,7 @@ export default {
 				if (this._validate()) {
 					Toast('正在提交')
 					this.sumbiting = true
+					console.log(this.param)
 					saveServiceInfo(this.param).then(data => {
 						console.log(data)
 						if (data.code === '000000') {
@@ -309,9 +514,14 @@ export default {
 				}
 			}
 		},
+		// 验证表单
 		_validate() {
 			if (this.param.title === '') {
 				Toast('标题不能为空！')
+				return
+			}
+			if (this.param.title.length > 15) {
+				Toast('标题不能多于15个字！')
 				return
 			}
 			if (this.param.title.length < 4) {
@@ -330,8 +540,12 @@ export default {
 				Toast('请选择图片')
 				return
 			}
-			if (!this.param.priceNumber === 0) {
+			if (this.param.priceNumber === 0 && this.param.subscription === 0) {
 				Toast('价格不能为空')
+				return
+			}
+			if (this.param.baiduCityName === '请选择') {
+				Toast('请选择地点')
 				return
 			}
 			if (this.sumbiting) {
@@ -341,9 +555,19 @@ export default {
 		},
 		// 获取服务详情
 		_getServiceDetails(id) {
+			this.setLoading(true)
 			getServiceDetails(id).then(data => {
 				this.param = Object.assign({}, this.param, data.serviceInfo)
+				console.log(456898, this.param)
 				this.serviceInfo = data.serviceInfo
+				this.indexs = 0
+				this.serviceInfo.servicePic.forEach(item => {
+					if (this.indexs < item.createOrder) {
+						this.indexs = item.createOrder
+					}
+				})
+				this.indexs += 1
+				console.log(1234, data.serviceInfo)
 				this.comparePic = data.serviceInfo.servicePic.map(item => {
 					return item
 				})
@@ -352,15 +576,24 @@ export default {
 					this.onePrice = this.param.priceNumber
 					this.priceTransmit = 0
 				} else {
-					this.priceTransmit = this.param.priceNumber
+					this.priceTransmit = this.param.subscription + '元'
 				}
 				// 设置地址
-				this._setAddress(this.param.longitude, this.param.latitude)
+				// this._setAddress(this.param.longitude, this.param.latitude)
+				this.setMap({
+					uid: '',
+					point: {
+						lng: this.param.longitude,
+						lat: this.param.latitude
+					},
+					title: this.param.baiduCityName
+				})
 				// 字数显示
 				this.remainNum = 500 - this.param.serviceDescribe.length
 				data.serviceInfo.servicePic.forEach((item, index) => {
 					this.param.servicePicId.push(item.servicePicId)
 				})
+				this.setLoading(false)
 			})
 		},
 		// 获取状态
@@ -400,10 +633,11 @@ export default {
 		_compareValue(val1, val2) {
 			let flag = false
 			for (let key in val1) {
-				if (typeof val1[key] !== 'string') {
+				if (typeof val1[key] !== 'string' && typeof val1[key] !== 'number') {
+					console.log(typeof val1[key])
 					continue
 				} else {
-					if (this.param[key] !== this.serviceInfo[key]) {
+					if (val1[key] !== val2[key]) {
 						flag = true
 						break
 					}
@@ -425,15 +659,17 @@ export default {
 			}
 			return flag
 		},
-		_setAddress(lng, lat) {
-			var myGeo = new BMap.Geocoder()
-			myGeo.getLocation(new BMap.Point(lng, lat), (result) => {
-				this.setMap(result.surroundingPois[0])
-			})
-		},
+		// _setAddress(lng, lat) {
+		// 	var myGeo = new BMap.Geocoder()
+		// 	myGeo.getLocation(new BMap.Point(lng, lat), (result) => {
+		// 		this.setMap(result.surroundingPois[0])
+		// 	})
+		// },
 		...mapMutations({
 			'setStatus': 'STATUS',
-			'setMap': 'MAP'
+			'setMap': 'MAP',
+			'setLocal': 'LOCAL',
+			'setLoading': 'LOADING'
 		})
 	}
 }
@@ -442,11 +678,16 @@ export default {
 <style scoped lang="less" >
  @import '~common/css/variable.less';
  @import '../../common/css/mixin.less';
-.content{
-	overflow: auto;
+.publish-content{
+	overflow-y: auto;
 	bottom:60px;
 	background:#eee;
+	.publish-wrap{
+		padding: 0 5px;
+		background-color: #fff;
+	}
 }
+
 .service-form{
 	height: auto;
 	input,textarea{
@@ -495,7 +736,7 @@ export default {
 	}
 	.form-item{
 		background:#fff;
-		margin-bottom:10px;
+		margin-bottom:4px;
 		.onload-wrap-pic{
 			padding:10px;
 		}
@@ -509,6 +750,9 @@ export default {
 				.size(70%;32px);
 				background-color: #eee;
 				border-radius: 30px;
+			}
+			.text{
+				font-size: 0.56rem;
 			}
 			button{
 				.size(48%;32px);
@@ -527,6 +771,8 @@ export default {
 		.price-input{
 			height: 30px;
 			margin-right:8px;
+			color:#888;
+			font-size:0.7rem;
 			color:@color-primary;
 		}
 	}
@@ -534,18 +780,20 @@ export default {
 .bar-footer{
 		height: 60px;
 		line-height: 60px;
-		background-color: #fff;
+		/*background-color: #fff;*/
 	&.on{
 		z-index: 99
 	}
 }
 .remind-text{
 	display: block;
-	padding:0 10px 20px;
+	height: 26px;
+	padding-left: 10px;
+	font-size: 0.6rem;
 }
 .success-content{
-	bottom:0;
-	z-index:100;
+	bottom:0!important;
+	z-index:9990;
 	padding: 30px 20px;
 	background-color:#fff;
 	.success-icon{
@@ -591,17 +839,17 @@ export default {
 		.auth-btn{
 			display: block;
 			margin: 0 auto;
-			border:none;
+			border:1px solid @color-primary;
 			.size(180px;46px);
-			line-height: 46px;
+			line-height: 44px;
 			font-size: 0.7rem;
 			&.unauth{
-				color: @color-danger;
-				border:1px solid @color-danger;
+				color: @color-primary;
+				border:1px solid @color-primary;
 			}
 			&.auth{
-				background-color: @color-primary;
-				color:#fff;
+				background-color: transparent;
+				color:@color-primary;
 			}
 		}
 		.unauth-text{
@@ -613,5 +861,10 @@ export default {
 		color: @color-text-gray
 	}
 }
-
+.upload::after{
+	content:'';
+	display: block;
+	height: 4px;
+	background-color:#eee;
+}
 </style>

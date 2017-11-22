@@ -27,6 +27,9 @@ const parentMixin = {
       default: false
     }
   },
+  deactivated () {
+    // this.currentIndex = 0
+  },
   beforeDestroy () {
     this.index = 0
   },
@@ -63,9 +66,10 @@ const childMixin = {
     this.$parent.updateIndex()
   },
   deactivated() {
-     if (this.$parent.flag) {
-      this.currentSelected = this.selected
-     }
+    // alert(this.selected)
+     // if (this.$parent.flag) {
+     //  this.currentSelected = this.selected
+     // }
   },
   beforeDestroy () {
     const $parent = this.$parent

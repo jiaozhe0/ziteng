@@ -4,10 +4,9 @@
   <div class="content"> 
     <div class="img-wrap center-block">
     <img src="./logo.png" alt="" class="img-responsive"></div>
-    
     	<label for="" class='center-block login-group'>
     		<input  v-validate="'required|phone'" v-model="tel" type="number" placeholder="手机号码" class='login-input' name='phone'>
-    		<i @click="_reset" class='reset-btn'>X</i>
+    		<span @click="_reset" class='reset-btn' v-show="tel.length>0">x</span>
     	</label>
 	    <label for="" class='center-block login-group'>
 	    	<input v-validate="'required|digits:6'" name='code' v-model="code" type="number" placeholder="验证码" class='login-input'>
@@ -25,9 +24,9 @@
 				登录
 	    </button>
    
-    <div class="wechat">
+    <!-- <div class="wechat">
     	<p class="wechat-title">第三方登录</p>
-    </div>
+    </div> -->
   </div>
   </div>
 </template>
@@ -37,6 +36,7 @@ import { Toast } from 'mint-ui'
 import {getTelMessage, bindWeixinUserPhone} from 'api/login'
 import MtHeader from 'components/mtHeader'
 import {mapMutations, mapGetters} from 'vuex'
+import chat from '../../im/chat'
 export default {
 	data() {
 	return {
@@ -112,7 +112,7 @@ export default {
 				message: '手机绑定中'
 			})
 			bindWeixinUserPhone(this.$route.query.unionid, this.tel, this.code).then((data) => {
-				alert(Object.keys(data))
+				// alert(Object.keys(data))
 				this.loginFlag = false
 				if (data.status && data.status === '1001') {
 					Toast('验证码验证失败')
@@ -122,6 +122,10 @@ export default {
 				} else if (data.userId) {
 					this.setUser(data)
 					Toast('手机绑定成功')
+					chat(this.$store, {
+							user: data.userHuanxin['username'],
+							pwd: data.userHuanxin['password']
+						})
 					window.history.back()
 				}
 			})
@@ -142,7 +146,7 @@ export default {
  	text-align: center;
  	font-size: 0.7rem;
  	.img-wrap{
- 		.size(100px;100px)
+ 		.square(80px)
  	}
  	.login-input{
  		display: block;
@@ -156,7 +160,7 @@ export default {
  	.login-group{
  		position: relative;
 		margin: 20px auto;
-		.hairline(bottom, @border-default-color);
+		.hairline(bottom, @color-split);
 		.ver-btn,.reset-btn{
 			position: absolute;
 			right: 0;
@@ -174,7 +178,12 @@ export default {
 			}
 		}
 		.reset-btn{
-
+			.square(14px);
+			bottom: 12px;
+			border-radius: 100%;
+			background-color: #999;
+			line-height: 14px;
+			color: #fff;
 		}
  	}
  	.reminder-text{

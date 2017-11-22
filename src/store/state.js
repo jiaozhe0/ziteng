@@ -1,8 +1,8 @@
 const states = {
   isFooter: false,
   user: {
-		// userId: 'b762a2348d3b44499847b65e7ef11e85',
-    // userId: '033ae71687d848cea817dcb071fa4533', // i
+		// userId: '49e6797f37c644f8b6c882fcbab37395',
+    // userId: 'b4a6166cd9554070a3006cf0276cbc89',
     userId: '',
 		userName: '',
 		phoneNumber: '',
@@ -22,6 +22,11 @@ const states = {
 		cityId: -1,
 		cityName: '' // 城市名，城市Id
   },
+  localCity: {
+    cityId: -1,
+    cityName: ''
+  },
+  local: {},
   server: {},
   serviceTypeList: [],
   parentTypeList: [],
@@ -41,7 +46,11 @@ const states = {
   serviceInfo: {}, // 服务信息
   openId: '',
   orderUrl: '',
-  serviceUrl: ''
+  serviceUrl: '',
+  chatList: [], // 对话列表
+  chatCount: 0, // 消息数量
+  orderCount: 0, // 订单数量
+  loading: false,
+  cityList: []
 }
-
 export default states

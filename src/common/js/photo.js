@@ -1,6 +1,5 @@
  const Exif = require('exif-js')
  export function imgPreview (file) {
-      console.log(4321, file)
       let Orientation
       // 去获取拍照时的信息，解决拍出来的照片旋转问题
        Exif.getData(file, function() {
@@ -8,7 +7,6 @@
        })
       // 看支持不支持FileReader
       if (!file || !window.FileReader) return
-
       if (/^image/.test(file.type)) {
           // 创建一个reader
           let reader = new FileReader()
@@ -21,18 +19,12 @@
               let img = new Image()
               img.src = result
               // 判断图片是否大于100K,是就直接上传，反之压缩图片
-              if (this.result.length <= (100 * 1024)) {
-                // self.headerImage = this.result
-                // self.postImg()
-                resolve(this.result)
-                // return this.result
+              if (this.result.length <= (200 * 1024)) {
+                resolve(file)
               } else {
                 img.onload = function () {
                   let data = compress(img, Orientation, file.type)
                   resolve(data)
-                  return data
-                  // self.headerImage = data
-                  // self.postImg()
                 }
               }
             }
@@ -43,7 +35,7 @@
 function compress(img, Orientation, type) {
         let canvas = document.createElement('canvas')
         let ctx = canvas.getContext('2d')
-          // 瓦片canvas
+        // 瓦片canvas
         let tCanvas = document.createElement('canvas')
         let tctx = tCanvas.getContext('2d')
         let initSize = img.src.length
@@ -83,6 +75,7 @@ function compress(img, Orientation, type) {
         } else {
           ctx.drawImage(img, 0, 0, width, height)
         }
+
         // 修复ios上传图片的时候 被旋转的问题
         if (Orientation !== '' && Orientation !== 1) {
           switch (Orientation) {
@@ -98,28 +91,27 @@ function compress(img, Orientation, type) {
                 break
           }
         }
-        canvas.toBlob((blob) => {
-          console.log(1234, blob)
-        }, type || 'image/png')
+        // canvas.toBlob((blob) => {
+        // }, type || 'image/png')
         // 进行最小压缩
-        let ndata = canvas.toDataURL('image/jpeg', 0.1)
+        let ndata = canvas.toDataURL('image/jpeg', 0.3)
         let pic = dataURLtoBlob(ndata)
         console.log(pic)
         console.log('压缩前：' + initSize)
         console.log('压缩后：' + ndata.length)
         console.log('压缩率：' + (100 * (initSize - ndata.length) / initSize) + '%')
         tCanvas.width = tCanvas.height = canvas.width = canvas.height = 0
-        return ndata
-      }
+        return pic
+}
 
-export function dataURLtoBlob(dataurl) {
-        var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
-            bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n)
-        while (n--) {
-            u8arr[n] = bstr.charCodeAt(n)
-        }
-        return new Blob([u8arr], {type: mime})
-    }
+export function dataURLtoBlob(urlData) {
+            var arr = urlData.split(','), mime = arr[0].match(/:(.*?);/)[1],
+                bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n)
+            while (n--) {
+                u8arr[n] = bstr.charCodeAt(n)
+            }
+            return new Blob([u8arr], {type: mime})
+}
 
  function rotateImg (img, direction, canvas) {
         // 最小与最大旋转方向，图片旋转4次后回到原方向

@@ -86,7 +86,7 @@ a{
   color:@color-danger!important
 }
 .textOn{
-  color: @color-primary
+  color: @color-primary!important
 }
 //服务列表
 .searchList-wrap{
@@ -128,9 +128,23 @@ a{
   clear:both;
   text-align: center;
 }
-
+input[disabled]{
+  background-color: transparent;
+}
 
 /*----------------------mint-ui样式重写*/
+.mint-swipe-indicator{
+  width: 18px;
+  height: 3px;
+  border-radius: 0;
+  background-color: @color-danger;
+  opacity: 0.3
+}
+.mint-swipe-indicator.is-active {
+  background-color: @color-danger;
+  opacity: 0.7
+}
+
 .small-cell {
   .mint-cell-wrapper{
     font-size:0.6rem!important;
@@ -138,6 +152,11 @@ a{
   .mint-cell{
       min-height: 40px;
     }
+}
+.message-content {
+   .mint-cell{
+      min-height: 60px;
+   }
 }
 .mint-cell-wrapper{
   font-size: 0.7rem!important;
@@ -148,6 +167,7 @@ a{
     font-size: 0.6rem;
    }
 }
+
 .mint-cell{
     min-height: 42px;
 }
@@ -175,10 +195,16 @@ a{
     background-size:0 0;
 }
 
+.mint-header  .backIcon {
+  .square(35px);
+  background:rgba(0,0,0,.4);
+  border-radius: 100%;
+}
+
 /*新建服务地址*/
 .editAddress {
   .value-input .mint-cell-value{
-    width: 79%
+    width: 79%;
   }
   .edit-input{
     display: inline-block;
@@ -186,6 +212,11 @@ a{
     border:none;
     line-height: 40px;
   }
+  .address-name{
+    .mint-cell-title{
+   }
+  }
+  
 }
 
 .sexPopup{
@@ -351,4 +382,13 @@ a{
     }
   }
  }
- 
+ .order-nav{
+  background:@color-primary;
+  font-size:0.65rem;
+  line-height:44px;
+  color:rgba(255,255,255,0.4);
+  .order-nav-active{
+    color:#fff;
+    font-size:0.7rem;
+  }
+}

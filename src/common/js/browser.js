@@ -1,3 +1,5 @@
+// const timeStamp = require('time-stamp')
+
 // 获取/设置 data-* 属性
 export function getData(el, name, val) {
   const prefix = 'data-'
@@ -74,9 +76,12 @@ export function addClass(el, className) {
   if (hasClass(el, className)) {
     return
   }
-
   let newClass = el.className.split(' ')
   newClass.push(className)
   console.log(newClass)
   el.className = newClass.join(' ')
+}
+
+export function formatTime() {
+  return new Date().toLocaleString()
 }

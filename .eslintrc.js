@@ -28,7 +28,8 @@ module.exports = {
     'one-var': 0,
     'indent': 0,
     'no-tabs': 0,
-    'recommended': 0
+    'recommended': 0,
+    'new-cap': 0
   },
   'globals':{
    BMap: false,

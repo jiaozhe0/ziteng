@@ -1,6 +1,6 @@
 <template>
   <mt-header :title="title" :style="bg">
-    	 <mt-button  v-show='share' :style="icon" icon="back" slot="left" @click.native="back()"></mt-button>
+    	 <mt-button  v-show='share'  icon="back" slot="left" @click.native="back()" :class="{'backIcon': icon}"></mt-button>
        <mt-button  slot="right" @click="handle"><slot></slot></mt-button>
   </mt-header>
 </template>
@@ -20,10 +20,8 @@ export default {
       }
     },
     icon: {
-      type: Object,
-      default: function () {
-        return { }
-      }
+      type: Boolean,
+      default: false
     },
     path: {
       type: String,
@@ -44,7 +42,7 @@ export default {
   methods: {
     back() {
       if (this.path) {
-        this.$router.push(this.path)
+        this.$router.replace(this.path)
       } else if (this.isBack) {
          window.history.back()
       } else {

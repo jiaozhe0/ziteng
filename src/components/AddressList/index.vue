@@ -1,6 +1,7 @@
 <template>
+<div>	
 <ul class="addressList">
-	<li v-for='item in addressList' class="addressList-item" @click="_goOrder(item)">
+	<li v-for='item in addressLists' class="addressList-item" @click="_goOrder(item)">
 		<div class="addressList-userInfo">
 			<div class="address-userInfo-userName pull-left">{{item.receiver}}</div>
 			{{item.phoneNumber}}
@@ -8,16 +9,67 @@
 		<div class="addressList-info">
 			<div class="addressList-info-text">{{item.addressDetail}}
 			</div>
-			<div class="edit-address-btn" @click="_goAddress(item)"><div class="icon"></div></div>
+			<div  class="edit-address-btn" @click="_goAddress(item)"><div class="icon"></div></div>
 		</div>
 	</li>
 </ul>
+<div v-if="otherAddressList.length" class="scopeAddress">
+<p >超出服务范围的地点</p>
+<ul class="addressList other" >
+	<li v-for='item in otherAddressList' class="addressList-item" >
+		<div class="addressList-userInfo">
+			<div class="address-userInfo-userName pull-left">{{item.receiver}}</div>
+			{{item.phoneNumber}}
+		</div>
+		<div class="addressList-info">
+			<div class="addressList-info-text">{{item.addressDetail}}
+			</div>
+			<div  class="edit-address-btn" @click="_unGoAddress(item)"><div class="icon"></div></div>
+		</div>
+	</li>
+</ul>
+</div>
+</div>	
 </template>
 
 <script type="text/ecmascript-6">
-import {mapMutations} from 'vuex'
+import {mapMutations, mapGetters} from 'vuex'
+import {Toast} from 'mint-ui'
 export default {
-	props: ['addressList'],
+	props: {
+		addressList: {
+			type: Array
+		},
+		isEdit: {
+			type: Boolean,
+			default: false
+		}
+	},
+	activated() {
+		console.log('地址')
+		console.log(this.addressList)
+	},
+	computed: {
+		...mapGetters(['city']),
+		addressLists() {
+			if (this.isEdit) {
+				return this.addressList.filter(item => {
+					return item.baiduCityId === this.city.cityId
+				})
+			} else {
+				return this.addressList
+			}
+		},
+		otherAddressList() {
+			if (this.isEdit) {
+				return this.addressList.filter(item => {
+					return item.baiduCityId !== this.city.cityId
+				})
+			} else {
+				return []
+			}
+		}
+	},
 	methods: {
 		_goAddress(address) {
 			this.setAddress(address)
@@ -26,8 +78,11 @@ export default {
 		_goOrder(item) {
 			console.log(item.area)
 			if (this.$route.query.order) {
-				this.$router.push({path: '/service/order', query: {address: item.area, id: item.addressId}})
+				this.$router.replace({path: '/service/order', query: {address: item.area, id: item.addressId}})
 			}
+		},
+		_unGoAddress() {
+			Toast('不能编辑超出服务范围的地点')
 		},
 		...mapMutations({
 			setAddress: 'ADDRESS'
@@ -50,6 +105,9 @@ export default {
  .addressList{
  	margin: 0;
  	font-size:0.7rem;
+ 	&.other {
+ 			color:@color-text-gray; 
+ 	}
  	.addressList-item{
  		padding:10px 15px;
  		background-color: #fff;
@@ -79,5 +137,11 @@ export default {
  		
  	}
  }
-
+.scopeAddress{
+	p{
+		margin:6px 0;
+		padding: 0 15px;
+		font-size: 0.6rem;
+	}
+}
 </style>

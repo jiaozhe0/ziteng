@@ -41,6 +41,9 @@ export default {
   activated() {
 		document.title = '关于我们'
   },
+  deactivated() {
+			document.title = '桔子生活'
+	},
   computed: {
 		isHeader() {
 			return this.$route.params.broswer === 'html'

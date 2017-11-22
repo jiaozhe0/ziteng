@@ -7,8 +7,10 @@
           @scroll="scroll">
     <div>
     <div class="current-city">
-      <div class="current-city-name text-center">
-        <span>sf{{city.cityName}}</span>
+      <div class="current-city-name text-center clearfix">
+        <span @click="selected(local.city)">
+        <span class="icon pull-left">
+        </span'><span class="pull-left">{{local.city.cityName}}</span></span>
       </div>
     </div>
     <ul class='city-list'>
@@ -44,7 +46,7 @@ import {getData} from 'common/js/browser' // 获得/设置 data-* 属性
 // const ANCHOR_HEIGHT = 18 // 右边字母锚点的高度
 const TITLE_HEIGHT = 30 // 固定标题栏的高度
 export default {
-  props: ['cityList', 'letter'],
+  props: ['cityList', 'letter', 'localCity'],
   data() {
     return {
       shorcutList: [],
@@ -68,7 +70,7 @@ export default {
       if (this.scrollY > -110) { return '当前城市' }
       return this.cityList[this.currentIndex] ? this.cityList[this.currentIndex].letter : ''
     },
-    ...mapGetters(['city'])
+    ...mapGetters(['city', 'local'])
   },
   methods: {
     onShortcutTouchStart(e) {
@@ -112,7 +114,6 @@ export default {
       })
     },
     selected(item) {
-      console.log(item)
       this.$emit('select', item)
     }
   },
@@ -159,7 +160,7 @@ export default {
 
 <style scoped lang="less" >
  @import '~common/css/variable.less';
- @import '~common/css/mixin.less';
+ @import '../../common/css/mixin.less';
   .content{
     bottom: 0;
   }
@@ -169,26 +170,38 @@ export default {
     left: 0;
     .hairline(bottom, #eee);
     &.currentCity{
-      .size(100%;30px);
+      .size(100%;32px);
       background:#eee;
       color:@color-text;
       line-height:30px;
-      font-size:0.7rem
+      font-size:0.6rem
     } 
   }
   .current-city{
     margin-top: 30px;
     padding: 15px;
     background-color: #eee;
+    position: relative;
     .current-city-name{
-      .size(120px;40px);
+      display: inline-block;
+      padding:0 15px;
+      width: auto;
       background-color: #fff;
-      line-height: 40px;
-      border-radius: 8px;
-      font-size:0.7rem;
+      line-height: 38px;
+      border-radius: 4px;
+      font-size:0.71rem;
       span{
         color: @color-primary;
       }
+    }
+    .icon{
+      display: inline-block;
+      .square(16px);
+      margin-right: 4px;
+       vertical-align: middle;
+       float: left;margin-top: 10px;
+      background-size: 16px 16px;
+      .bg-image('ListView/dizhi')
     }
   }
   .list-shortcut{

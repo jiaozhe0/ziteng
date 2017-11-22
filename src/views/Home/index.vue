@@ -8,11 +8,12 @@
     		</div>
     	</div>
     	<router-link :to="user.userId?'/home/info':'/login'" class="home-edit-info" >
-	    	<div class="home-header-userInfo">
-	    		<p>{{userInfo.userName}}</p>
+	    	<div class="home-header-userInfo" v-if="user.userId">
+	    		<p class='name'>{{userInfo.userName}}</p>
     			<p>编辑个人资料</p>
 	    	</div>
-    		<div class="home-icon">
+	    	<div v-else>点击登录</div>
+    		<div class="home-icon" v-if="user.userId">
     			&gt;
     		</div>
     		</router-link>
@@ -20,11 +21,11 @@
     	<!-- <div class="home-edit-info">点击登录</div> -->
     </header>
     <div class="home-info ">
-    	<router-link class="home-info-total" tag="div" to='/home/income'>
-    		<span class="home-info-score">{{total}}</span>
+    	<router-link class="home-info-total" tag="div" :to="user.userId?'/home/income':'/login'">
+    		<span class="home-info-score" >{{total}}</span>
     		<p class="home-info-text">我的收入</p>
     	</router-link>
-    	<router-link to='/home/collect' class="" tag="div">
+    	<router-link :to="user.userId?'/home/collect':'/login'" class="" tag="div">
     		<span class="home-info-score">{{collectionCount}}</span>
     		<p class="home-info-text">收藏夹</p>
     	</router-link >
@@ -35,7 +36,7 @@
     	<mt-cell title="我的发布" is-link :to="user.userId?'/home/publish':'/login'">
     	<i slot="icon" class="icon publish"></i>
     	</mt-cell>
-    	<mt-cell title="我的认证" is-link :to="user.userId? url:'/login'">
+    	<mt-cell title="我的认证" is-link :to="user.userId? url : '/login'">
     	<i slot="icon" class="icon auth"></i>
     	</mt-cell>
     	<mt-cell title="我的评价" is-link :to="user.userId?'/home/evaluate/my':'/login'">
@@ -47,7 +48,7 @@
     	<mt-cell title="常用地址" is-link :to="user.userId?'/home/address':'/login'">
     	<i slot="icon" class="icon address"></i>
     	</mt-cell>
-    	<mt-cell title="投诉举报" icon="sre" is-link :to="user.userId?'/home/report':'/login'">
+    	<mt-cell title="订单投诉" icon="sre" is-link :to="user.userId?'/home/report':'/login'">
     	<i slot="icon" class='icon complain'></i>	
     	</mt-cell>
     </div>
@@ -68,8 +69,11 @@ import {getIndexInfo, getSerColCount, getTotal, getUserAuthStatus} from 'api/hom
 				url: '/home/auth'
 			}
 		},
+		created() {
+			this.setFooter(true)
+		},
 		activated() {
-			console.log(this.user.userId)
+			this.setFooter(true)
 			this._getIndexInfo(this.user.userId)
 			this._getSerColCount(this.user.userId)
 			this._getTotal(this.user.userId)
@@ -81,14 +85,12 @@ import {getIndexInfo, getSerColCount, getTotal, getUserAuthStatus} from 'api/hom
 		computed: {
 			...mapGetters(['user', 'userInfo'])
 		},
-		mounted() {
-			document.title = '关于我们'
-		},
 		methods: {
 			_getIndexInfo(userId) {
+				this.setLoading(true)
 				getIndexInfo(userId).then((data) => {
-					console.log(12, data)
 					this.setUserInfo(data)
+					this.setLoading(false)
 				})
 			},
 			_getSerColCount(userId) {
@@ -104,13 +106,12 @@ import {getIndexInfo, getSerColCount, getTotal, getUserAuthStatus} from 'api/hom
 			_getUserAuthStatus(id) {
 				getUserAuthStatus(id).then(data => {
 					if (data.code === '000000') {
-						console.log(data)
 						let auth = data.data[0]
 						if (auth.authBusinessStatus > 1) {
 							this.url = '/home/auth/server'
 							this.setStatus('bussion')
 						} else {
-							if (auth.authProfessionalStatus > 1 || auth.authUserIdStatus > 1 || auth.authZhimaxinyongStatus) {
+							if (auth.authProfessionalStatus > 1 || auth.authUserIdStatus > 1 || auth.authZhimaxinyongStatus > 1) {
 								this.url = '/home/auth/person'
 								this.setStatus('person')
 							}
@@ -120,7 +121,9 @@ import {getIndexInfo, getSerColCount, getTotal, getUserAuthStatus} from 'api/hom
 			},
 			...mapMutations({
 				setUserInfo: 'USERINFO',
-				setStatus: 'STATUS'
+				setStatus: 'STATUS',
+				setFooter: 'CHANGE_FOOTER_SHOW',
+				setLoading: 'LOADING'
 			})
 		}
 	}
@@ -168,6 +171,9 @@ import {getIndexInfo, getSerColCount, getTotal, getUserAuthStatus} from 'api/hom
 	 		font-size: 0.6rem;
 	 		margin:0;
 	 	}
+	 	.name{
+	 		font-size:0.9rem;
+	 	}
 	 }
 }
 .home-info{
@@ -188,6 +194,9 @@ import {getIndexInfo, getSerColCount, getTotal, getUserAuthStatus} from 'api/hom
 	 	content:'';
 	 	position: absolute;
 	 	border-right:1px solid @color-split;
+	 	left:50%;
+	 	top:50%;
+	 	transform: translate(-50%;-50%);
 	 	height: 60px;
 	 }
 }

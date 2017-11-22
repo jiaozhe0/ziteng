@@ -1,5 +1,6 @@
 <template>
   <mt-tabbar class='myFooter needsclick'>
+  <!-- :to="user.userId?'/home/info':'/login'" -->
   <mt-tab-item >
     <router-link to='/index' class="needsclick">
       <div @click="selected='home'" >
@@ -17,18 +18,21 @@
     </router-link> 
   </mt-tab-item>
   <mt-tab-item >
-    <router-link to='/photo'>
+  <!--  :to="user.userId ? '/message': '/login'" -->
+    <router-link :to="user.userId ? '/download': '/login'" class='tab-reItem' replace>
       <div  @click="selected='message'">
       <div class="icon message" :class="{'message-on':selected=='message'}"></div>
       消息
       </div>
+      <div class="count" v-if="chatCount>0">{{chatCount}}</div>
     </router-link>
   </mt-tab-item>
   <mt-tab-item >
-    <router-link to='/order'>
+    <router-link :to="user.userId ? '/download': '/login'" class='tab-reItem'>
     <div @click="selected='order'">
-      <div class="icon order" :class="{'order-on':selected=='order'}"></div>订单
+      <div class="icon order" ></div>订单
     </div>
+    <div class="count" v-show="orderCount>0">{{orderCount}}</div>
     </router-link>
   </mt-tab-item>
   <mt-tab-item >
@@ -44,6 +48,7 @@
 
 <script  type="text/ecmascript-6">
 import { Tabbar, TabItem } from 'mint-ui'
+import {mapGetters} from 'vuex'
 export default {
   data() {
     return {
@@ -53,6 +58,9 @@ export default {
   components: {
     mtTabbar: Tabbar,
     mtTabItem: TabItem
+  },
+  computed: {
+    ...mapGetters(['chatCount', 'orderCount', 'user'])
   },
   created() {
     this._setSelcted()
@@ -110,7 +118,7 @@ export default {
       .bg-image('MyFooter/MY-off');
     }
 
-    &.home-on{
+  /*  &.home-on{
       .bg-image('MyFooter/home-on');
     }
     &.classify-on{
@@ -119,13 +127,46 @@ export default {
     &.message-on{
       .bg-image('MyFooter/chatList-on');
     }
-    &.order-on{
-      .bg-image('MyFooter/case-on');
-    }
+   
     &.my-on{
       .bg-image('MyFooter/MY-on');
+    }*/
+     &.order-on{
+      .bg-image('MyFooter/case-on');
+    }
+  }
+ .tab-reItem.active {
+   .icon {
+      &.order{
+        .bg-image('MyFooter/case-on');
+    }
+ }
+}
+  .router-link-exact-active{
+    .icon{
+      &.home{
+        .bg-image('MyFooter/home-on');
+      }
+      &.classify{
+        .bg-image('MyFooter/fenlei-on');
+      }
+      &.message{
+        .bg-image('MyFooter/chatList-on');
+      }
+      &.order{
+        .bg-image('MyFooter/case-on');
+      }
+      &.my{
+        .bg-image('MyFooter/MY-on');
+      }
     }
   }
 }
-
+.count{
+  .square(14px);
+  line-height: 15px;
+  font-size: 0.5rem;
+  top:-7px;
+  right:21px
+}
 </style>

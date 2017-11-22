@@ -1,7 +1,7 @@
 <template>
 <div>	
  <mt-header title="服务地图"></mt-header>
-  <baidu-map class="content" :center="center" @ready="handler" :zoom="15">
+  <baidu-map class="content" :center="center" @ready="handler" :zoom="20">
    <bm-marker :position="center" :dragging="true" animation="BMAP_ANIMATION_BOUNCE">
       <bm-label :content="name" :labelStyle="{color: 'red', fontSize : '14px'}" :offset="{width: -35, height: 30}"/>
     </bm-marker>

@@ -1,7 +1,9 @@
 <template>
  <div class='serDetial'>
-    <mt-header  :path="serviceUrl" :share="$route.query.share && !$route.query.share" :bg="{'background':'rgba(0,0,0,.4)','zIndex':200}" :title="serviceInfo.title"></mt-header>
+    <mt-header :path="serviceUrl" :share="$route.query.share && !$route.query.share" :bg="{'background':'rgba(0,0,0,0)','zIndex':200}" :icon="true"></mt-header>
 		<div class='content serDetial-wraps' ref="scroll">
+		<status :type="false" :serviceStatus="serviceInfo.authStatus" v-if="$route.query.showStatus > 1">
+		</status>
 			<div class="serDetial-wrap">
 			<div class="serDetial-content">
 				<mt-swipe :auto="4000">
@@ -72,7 +74,7 @@
 				<div class="card evaluateList" ref="evaluate" v-if="evaluateList.length">
 			    <div class="card-header" @click="_goEvaluate">
 			    	<div class="serDtial-title">
-			    		用户评价&nbsp;&nbsp;({{evaluateList.length}})
+			    		用户评价&nbsp;&nbsp;({{allCount}})
 			    	</div>
 			    	<div>全部<span class="icon"></span></div>
 			  	</div>
@@ -80,9 +82,15 @@
 						<evaluate-list :footer="false" :evaluateList="[...evaluateList[0]]"></evaluate-list>
 			    </div>
 			  </div>
+			  <div class="space" style="height: 30px"></div>
 			</div>
 		</div>
-		<div class="bar bar-footer serDetial-footer share-footer" v-if="$route.query.share">
+		<router-link class="reminder-text clearfix danger" to="/reminder/user/html" tag="div">
+			<div class="pull-left text">温馨提示：为确保交易安全，请在平台内完成未付款</div>
+			<strong class="pull-right">&gt;</strong>
+		</router-link>
+		 <!-- v-if="$route.query.share" -->
+		<div class="bar bar-footer serDetial-footer share-footer">
 			<div class='clearfix share-footer-logo'>
 					<div class="logo pull-left"></div>
 					<div class="pull-left share-footer-text"> 
@@ -95,11 +103,14 @@
 				href="http://a.app.qq.com/o/simple.jsp?pkgname=com.zitengkeji.app">打开应用</a>
 			</div>
 		</div>
-		<div class="bar bar-footer serDetial-footer" v-else>
-			<div class="store-btn" :class="{'on':collect}" @click="_saveServiceCollection">收藏</div>
-			<div class="message-btn">发消息</div>
-			<div class="order-btn" @click="_goOrder">立即下单</div>
-		</div>
+		<!-- <div class="bar bar-footer serDetial-footer" v-else>
+			<div class="store-btn"  @click="_saveServiceCollection">
+			<div v-if="collect" class="on"> <div class="icon-btn collected" ></div> 已收藏 </div>
+			<div v-else ><div class="icon-btn collect"></div> 收藏 </div>
+			</div>
+			<div class="message-btn" @click="_goChat"><div class="icon-btn send"></div>发消息</div>
+			<div class="order-btn" @click="_goOrder"> 立即下单 </div>
+		</div> -->
  </div>
 </template>
 
@@ -109,11 +120,12 @@ import Scroller from 'components/scroller/index'
 import EvaluateList from 'components/EvaluateList/index'
 import {Swipe, SwipeItem, Toast, Cell} from 'mint-ui'
 import {mapMutations, mapGetters} from 'vuex'
-import {getServiceDetails, saveServiceCollection, getServiceCollection, deleteServiceCollection} from 'api/service'
-import {getEvaluateList} from 'api/evaluate'
+import {getServiceDetails, saveServiceCollection, deleteServiceCollection} from 'api/service'
+import {getEvaluateList, getEvaluateStatistics} from 'api/evaluate'
 // import {share} from 'common/js/share'
 // import {initSize} from 'common/js/browser'
 import Certify from 'components/Certify/index'
+import Status from 'components/Status/index'
 var serUrl = ''
 export default {
 	data() {
@@ -141,9 +153,16 @@ export default {
 			loading: false,
 			refreshing: false,
 			hasMore: false,
-			collect: false
+			collect: false,
+			submitting: false,
+			serviceCollectionId: '',
+			allCount: 0
 		}
 	},
+	// mounted() {
+	// 	this.$nextTick(() => {
+	// 	})
+	// },
 	created() {
 		this.setFooter(false)
 	},
@@ -159,9 +178,12 @@ export default {
 		this._getServiceDetails(serviceId, this.user.userId)
 		this._getEvaluateList(serviceId)
 		this._getServiceTypeName()
+		this._getEvaluateStatistics()
 	},
 	deactivated() {
 		this.setFooter(true)
+		this.collect = false
+		this.serviceCollectionId = ''
 		this.$root.config = {
 			title: '桔子生活', // 分享标题
 			desc: '身边的生活服务专家,都在桔子生活',
@@ -172,8 +194,10 @@ export default {
 	computed: {
 		...mapGetters(['user', 'serviceTypeList', 'serviceUrl']),
 		text() {
-			let ll = /\n+}/g
+			let ll = /\n+/g
 			let t = this.serviceInfo.serviceDescribe.replace(ll, '<br/>')
+			console.log(this.serviceInfo.serviceDescribe)
+			console.log(t)
 			return t
 		}
 	},
@@ -184,10 +208,8 @@ export default {
 		MtSwipeItem: SwipeItem,
 		EvaluateList,
 		Certify,
-		MtCell: Cell
-	},
-	mounted() {
-		this.$refs.describe.innerHTML = this.test
+		MtCell: Cell,
+		Status
 	},
 	beforeRouteEnter(to, from, next) {
     serUrl = from.path
@@ -199,8 +221,15 @@ export default {
 			setConfig: 'CONFIG',
 			setServiceInfo: 'SERVICEINFO',
 			setPictures: 'PICTURES',
-			setServiceUrl: 'SERVICEURL'
+			setServiceUrl: 'SERVICEURL',
+			setLoading: 'LOADING'
 		}),
+		_toLogin() {
+			if (!this.user.userId) {
+				this.$router.push('/login')
+				return
+			}
+		},
 		_toView(pictures, i) {
 			let picList = pictures.map(item => {
 				return {picName: item.picName}
@@ -209,17 +238,19 @@ export default {
       index: i,
       list: picList
      }
-     console.log(picture)
      this.setPictures(picture)
      this.$router.push('/view')
     },
 		_goEvaluate() {
-			this.$router.push({path: '/home/evaluate/service', query: {serviceId: this.$route.query.serviceId}})
+			this.$router.push({path: '/home/evaluate/service', query: {serviceId: this.$route.query.serviceId, footer: false}})
 		},
 		// 获取服务详情
 		_getServiceDetails(serviceId, collectionUserId) {
+			this.setLoading(true)
 			getServiceDetails(serviceId, collectionUserId).then((data) => {
 				this.serviceInfo = Object.assign({}, this.serviceInfo, data.serviceInfo)
+				console.log(999, this.serviceInfo)
+				this.setLoading(false)
 				if (this.user.userId === this.$route.query.serviceId) {
 					this.$root.config = {
 						title: `我在桔子生活发布了一个${this.typeName}服务,求围观`,
@@ -237,6 +268,7 @@ export default {
 				}				// 判断是否收藏
 				if (data.serviceCollection && data.serviceCollection.serviceCollectionId) {
 						this.collect = data.serviceCollection.serviceCollectionId
+						console.log(989, this.collect)
 					} else {
 						this.collect = ''
 				}
@@ -250,29 +282,14 @@ export default {
 			this.param.currentPage = 0
 			this.param.serviceId = serviceId
 			getEvaluateList(this.param).then((data) => {
-				console.log(123, data)
 				this._processingData(data)
 			})
 		},
-		// 刷新
-		_refresh() {
-			this._getEvaluateList(this.$route.query.serviceId)
-		},
-		// 加载更多
-		_loadMore() {
-			if (this.loading) {
-				return
-			}
-			if (this.hasMore) {
-				Toast('没有更多数据')
-				return
-			}
-				console.log('加载更多。。。')
-				this.param.currentPage += 1
-				getEvaluateList(this.param).then((data) => {
-					console.log(data)
-					this._processingData(data, true)
-				})
+		// 获取评价数
+		_getEvaluateStatistics() {
+			getEvaluateStatistics(this.param).then(res => {
+				this.allCount = res.statistics && res.statistics.allCount
+			})
 		},
 		// 数据处理
 		_processingData(data, flag) {
@@ -293,14 +310,22 @@ export default {
 		},
 		// 前往订单页
 		_goOrder() {
+			if (!this.user.userId) {
+				this.$router.push('/login')
+				return
+			}
+			if (this.serviceInfo.userId === this.user.userId) {
+					Toast('不能购买自己的服务')
+					return
+				}
 			let info = {
-				serviceId: this.$route.query.serviceId,
+				serviceId: this.serviceInfo.serviceId,
 				title: this.serviceInfo.title,
 				singleAmount: this.serviceInfo.priceType === 2 ? this.serviceInfo.subscription : this.serviceInfo.priceNumber,
 				priceType: this.serviceInfo.priceType
 			}
 			this.setServiceInfo(info)
-			this.$router.push({path: '/service/order', query: {serviceId: this.$route.query.serviceId}})
+			this.$router.push({path: '/service/order', query: {serviceId: this.serviceInfo.serviceId}})
 		},
 		_imageLoad() {
 			if (!this.checkloaded) {
@@ -321,6 +346,10 @@ export default {
 		},
 		// 删除/保存收藏
 		_saveServiceCollection() {
+			if (!this.user.userId) {
+				this.$router.push('/login')
+				return
+			}
 			if (this.collect !== '') {
 				console.log(this.collect)
 				deleteServiceCollection(this.collect).then(data => {
@@ -331,35 +360,42 @@ export default {
 					}
 				})
 			} else {
+				if (this.serviceInfo.userId === this.user.userId) {
+					Toast('不能收藏自己的服务')
+					return
+				}
 				saveServiceCollection(this.collectParam).then(data => {
 					if (data.code === '000000') {
 						Toast('收藏成功')
-						this.collect = true
+						this.collect = data.data.serviceCollectionId
 					}
 				})
 			}
 		},
-		// 获取收藏
-		_getServiceCollection() {
-			getServiceCollection(this.collectParam).then(data => {
-				if (data.code === '000000') {
-					console.log(data.data.collectionUserId)
-					if (data.data && data.data.collectionUserId) {
-						this.collect = true
-					} else {
-						this.collect = false
-					}
-				}
-			})
-		},
 		// 设置来源路由
 		_setUrl(url) {
       console.log(99999, url)
-      if (url.indexOf('/index') > -1 || url.indexOf('/serviceList') > -1 || url.indexOf('/index/search/list') > -1) {
+      if (url.indexOf('/home/publish') > -1 || url.indexOf('/index') > -1 || url.indexOf('/serviceList') > -1 || url.indexOf('/index/search/list') > -1) {
         console.log(url)
         this.setServiceUrl(url)
       }
-    }
+    },
+     _goChat() {
+				if (!this.user.userId) {
+					this.$router.push('/login')
+					return
+				}
+        if (this.serviceInfo.userId === this.user.userId) {
+					Toast('不能给自己发送信息！')
+					return
+				}
+        this.userInfo = {
+            otherUserId: this.serviceInfo.userId,
+            otherUserNick: this.serviceInfo.userInfo.userName,
+            otherUserPic: this.serviceInfo.userInfo.photoUrl
+        }
+        this.$router.push({path: '/message/chat', query: {...this.userInfo}})
+        }
 	}
 }
 </script>
@@ -422,7 +458,7 @@ export default {
 	.flexbox();
   .flex-wrap(nowrap);
   .justify-content(space-between);
-  .align-items(stretch);
+  .align-items(center);
   .size(100%;50px);
 	text-align: center;
 	line-height: 50px;
@@ -432,9 +468,12 @@ export default {
 	padding: 0;
 	.message-btn,.store-btn{
 		width: 25%;
+		height: 35px;
 		text-align: center;
+		line-height: 20px;
+		font-size: 0.54rem;
 		flex:1;
-		&.on{
+		.on{
 			color:@color-danger
 		}
 	}
@@ -443,7 +482,7 @@ export default {
 	}
 	.order-btn{
 		width: 50%;
-		background-color: #F04848;
+		background-color: @color-primary;
 		color:#fff;
 	}
 }
@@ -545,4 +584,31 @@ export default {
  	}
  }
 
+.icon-btn{
+	.square(16px);
+	background-size: 16px 16px;
+	.center-block();
+	&.collect{
+			.bg-view-image('ServiceDetail/save');
+	}
+	&.collected{
+		.bg-view-image('ServiceDetail/saveSelected');
+	}
+	&.send{
+		.bg-view-image('ServiceDetail/Send-mes');
+	}
+}
+.reminder-text{
+	position: absolute;
+	.size(100%; 30px);
+	padding: 0 10px;
+	line-height: 30px;
+	background-color: #fff8bf;
+	bottom: 50px;
+	z-index: 99;
+	.text{
+		width: 80%;
+		.text-overflow();
+	}
+}
 </style>

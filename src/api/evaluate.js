@@ -35,14 +35,20 @@ export function saveEvaluate(data) {
   return axios.post(url, data, {
     headers: header()
   }).then((res) => {
-    return Promise.resolve(res.data.data)
+    return Promise.resolve(res.data)
   })
 }
 // 2.10.2.保存评价图片
-export function saveEvaluatePic(data) {
+export function saveEvaluatePic(data, callback) {
   const url = `${server}/act/evaluate/saveEvaluatePic`
-  return axios.post(url, data, {
-    headers: header()
+  return axios.post(url,
+    data, {
+    headers: header(),
+    onUploadProgress(progressEvent) {
+      if (progressEvent.lengthComputable) {
+        callback(progressEvent)
+      }
+    }
   }).then((res) => {
     return Promise.resolve(res.data)
   })

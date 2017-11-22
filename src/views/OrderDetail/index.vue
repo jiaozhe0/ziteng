@@ -22,10 +22,11 @@
   				</li>
   			</ul>
   	</div>
+
     <!-- 售出路径 -->
       <div class="appServer-header orderDetail-header text-center service" v-else-if="orderInfo.orderStatus !== 3 && param.userType == 'service'">
           <ul class="appServer-path">
-            <li class="appServer-path-item " :class="{'on':buyPathFirst}">
+            <li class="appServer-path-item " :class="{'on':buyPathSecond}">
               <div class="center-block path-icon on" ></div>
               <span class="path-text on">接单</span>
             </li>
@@ -45,7 +46,7 @@
 
   	<scroll class="content orderDetail-content" 
     :class="{'on':orderInfo.orderStatus == 3, 'success':orderInfo.orderStatus == 3 || orderInfo.orderStatus == 4 && orderInfo.isEvaluate == 1|| orderInfo.orderStatus == 2 && param.userType == 'service'}"
-    >
+    ref="scroll">
       <div class="scroll-content">
   		<p class="order-point" v-if="orderInfo.orderStatus == 3 || orderInfo.orderStatus == 0">
        {{orderInfo.orderStatus == 3 ? '服务已取消'+ '' + '('+ orderInfo.cancelTypeName + ')' : '订单已提交，请在' + minute + '分' + seconds + '秒之内完成付款，超时订单将自动取消'}}
@@ -72,19 +73,23 @@
           </div>
           <div class="name">{{orderInfo.user.userName}}</div>
           </div>
-  			 	<div>dd</div>
+  			 	<div v-if="orderInfo.user">
+          <!-- v-if="orderInfo.orderStatus == 2" -->
+            <a v-if="orderInfo.orderStatus == 2" :href="'tel:'+ _number()" @click.stop="" class="concatBtn phone"></a>
+            <button @click="_goChat" class="concatBtn message"></button>
+          </div>
   			 </div>
   		</div>
   		<mt-cell title="预约时间" class='order-item'>
   			<span class="order-item-text">{{orderInfo.makeTime}}</span>
   		</mt-cell>
-  		<mt-cell title="联系人" class='order-item' v-if="orderInfo.address.receiver">
+  		<mt-cell title="联系人" class='order-item' v-if="orderInfo.address">
   			<span class="order-item-text">{{orderInfo.address.receiver}}</span>
   		</mt-cell>
-  		<mt-cell title="电话" class='order-item'>
+  		<mt-cell title="电话" class='order-item' v-if="orderInfo.address">
   			<span class="order-item-text">{{orderInfo.address.phoneNumber}}</span>
   		</mt-cell>
-  		<mt-cell title="地址" class='order-item' is-link @click.native="_toAddress">
+  		<mt-cell title="地址" class='order-item' is-link @click.native="_toAddress" v-if="orderInfo.address">
   			<span class="order-item-text">{{orderInfo.address.area}}</span>
   		</mt-cell>
   		<mt-cell title="订单编号" class='order-item'>
@@ -98,7 +103,19 @@
         <span class="order-item-text" v-else><div class="payIcon weChat"></div>微信</span>
   		</mt-cell>
       <p class='textOn ' v-if="orderInfo.orderStatus == 2 && param.userType == 'service'">如订单遇到问题，请联系客服解决。客服热线：4006061260</p>
-      </div>
+      <p class='textOn ' v-if="orderInfo.orderStatus == 3 && param.userType == 'user'">退款信息</p>
+     <div class="card evaluateList" ref="evaluate" v-if="evaluateList.length">
+          <div class="card-header">
+            <div class="serDtial-title">
+              我的评价
+            </div>
+          </div>
+          <div class="card-content evaluate-wrap">
+            <evaluate-list :footer="false" :evaluateList="evaluateList"></evaluate-list>
+          </div>
+        </div>
+
+    </div>
   	</scroll>
     <!-- 底部导航 -->
     <div class="bar bar-footer text-right orderDetail-footer" v-if="orderInfo.orderStatus == 0 || orderInfo.orderStatus == 1 || orderInfo.orderStatus == 2 && param.userType == 'user' || orderInfo.orderStatus == 4 && orderInfo.isEvaluate == 0 ">
@@ -122,6 +139,8 @@ import Scroll from 'components/Scroll'
 import {Cell, Toast} from 'mint-ui'
 import {getDetail, getStatus, receiveOrder, finishOrder} from 'api/order'
 import {mapMutations, mapGetters} from 'vuex'
+import {getEvaluateList} from 'api/evaluate'
+import EvaluateList from 'components/EvaluateList/index'
 var url = ''
 export default {
 	data() {
@@ -135,6 +154,7 @@ export default {
       salePathThird: false,
 			second: 0,
 			minute: 0,
+      evaluateList: [],
       orderInfo: {},
       cancel: true,
       param: {
@@ -175,6 +195,9 @@ export default {
     url = from.path
     next()
   },
+  updated() {
+    this.$refs.scroll.refresh()
+  },
   computed: {
     ...mapGetters(['user', 'orderUrl']),
     seconds () {
@@ -184,18 +207,29 @@ export default {
 	components: {
 		MtHeader,
 		MtCell: Cell,
-    Scroll
+    Scroll,
+    EvaluateList
 	},
 	methods: {
+    // 电话
+    _number() {
+      return this.user.userId === this.orderInfo.serviceUserId ? this.orderInfo.address.phoneNumber : this.orderInfo.user.phoneNumber
+    },
     // 前往取消订单/拒接
     _goCancelOrder() {
       this.$router.push({path: '/service/order/cancel', query: {userType: this.$route.query.userType, orderId: this.$route.query.orderId}})
     },
     // 获取订单详情
     _getDetail(data) {
+      console.log('订单服务param')
+      console.log(data)
+      this.setLoading(true)
       getDetail(data).then(res => {
         if (res.code === '000000') {
           this.orderInfo = res.data
+          console.log('服务详情')
+          console.log(this.orderInfo)
+          this.evaluateList = this.orderInfo.evaluate ? new Array(this.orderInfo.evaluate) : []
           if (this.orderInfo.orderStatus === 1) {
             this.buyPathFirst = true
           } else if (this.orderInfo.orderStatus === 2) {
@@ -206,6 +240,7 @@ export default {
             this.buyPathSecond = true
             this.buyPathThird = true
           }
+          this.setLoading(false)
           console.log(555, this.orderInfo)
         }
       })
@@ -236,7 +271,9 @@ export default {
         if (res.code === '000000') {
           if (res.data.status === 103) {
             Toast('接单成功')
-            this._getDetail()
+            this.$nextTick(() => {
+             this._getDetail(this.param)
+            })
           }
         }
       })
@@ -252,7 +289,10 @@ export default {
         if (res.code === '000000') {
           if (res.data.status === 106) {
             Toast('完成订单')
-            this._getDetail()
+            this.$nextTick(() => {
+              // this._getDetail(this.param)
+              this.$router.push({path: '/order/evaluate', query: {orderId: this.orderInfo.orderId, pic: this.orderInfo.service.servicePicName, title: this.orderInfo.service.title}})
+            })
           }
         }
       })
@@ -281,7 +321,16 @@ export default {
     },
     // 去评价
     _goEvaluate() {
-      this.$router.push({path: '/order/evaluate', query: {orderId: this.orderInfo.orderId, pic: this.orderInfo.service.servicePicName, title: this.orderInfo.service.title}})
+      this.$router.replace({path: '/order/evaluate', query: {orderId: this.orderInfo.orderId, pic: this.orderInfo.service.servicePicName, title: this.orderInfo.service.title}})
+    },
+    // 获取评价列表
+    _getEvaluateList(serviceId) {
+      this.refreshing = true
+      this.param.currentPage = 0
+      this.param.serviceId = serviceId
+      getEvaluateList(this.param).then((data) => {
+        console.log(data)
+      })
     },
     _setUrl(url) {
       if (url.indexOf('/order/buy') > -1 || url.indexOf('/order/sale') > -1) {
@@ -297,9 +346,18 @@ export default {
           lat: this.orderInfo.address.latitude,
            name: this.orderInfo.address.area}})
     },
+    _goChat() {
+      this.$router.push({path: '/message/chat',
+        query: {
+          otherUserId: this.orderInfo.user.userId,
+          otherUserNick: this.orderInfo.user.userName,
+          otherUserPic: this.orderInfo.user.photoUrl
+        }})
+    },
 		...mapMutations({
 			setFooter: 'CHANGE_FOOTER_SHOW',
-      setOrderUrl: 'ORDERURL'
+      setOrderUrl: 'ORDERURL',
+      setLoading: 'LOADING'
 		})
 	}
 }
@@ -404,5 +462,24 @@ export default {
   &.aliPay{
     .bg-view-image('OrderDetail/aliPay');
   }
+ }
+ .concatBtn{
+  display: inline-block;
+  .square(28px);
+  background-size: 28px 28px;
+  &.phone{
+    .bg-view-image('OrderDetail/phone')
+  }
+  &.message{
+      margin-left: 18px;
+      border:none;
+     .bg-view-image('OrderDetail/doMessage');
+     background-color: transparent;
+  }
+ }
+ .serDtial-title{
+  border-left: 3px solid @color-danger;
+  padding-left:10px;
+  font-size: 0.7rem;
  }
 </style>

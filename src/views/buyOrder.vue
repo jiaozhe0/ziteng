@@ -16,7 +16,8 @@
         @refresh="_refresh"
         @load="_loadMore"
         >
-       <order-list :orderList="orderList" userType='user' :path="$route.query.flag && $route.query.flag" @refresh="_refresh"></order-list>
+       <order-list :orderList="orderList" 
+       userType='user' :path="$route.query.flag && $route.query.flag" @refresh="_refresh"></order-list>
       </scroller>
     </div>
     <div v-else class='noData-wrap'>
@@ -33,9 +34,10 @@ import Scroller from 'components/scroller/index'
 import NoData from 'components/NoData/index'
 import OrderList from 'components/orderList/index'
 import {getBuyOrderList, getListRemind} from 'api/order'
-import {mapGetters} from 'vuex'
+import {mapGetters, mapMutations} from 'vuex'
 import {Toast} from 'mint-ui'
 const LIMIT = 15
+var fromPath = ''
 export default {
   data() {
     return {
@@ -48,14 +50,22 @@ export default {
         userId: '',
         status: 2,
         currentPage: 0
-      }
+      },
+      bottom: false
     }
   },
   created() {
      this.param.userId = this.user.userId
   },
+  beforeRouteEnter(to, from, next) {
+    fromPath = from.path
+    next()
+  },
   activated() {
-    this._getListRemind(this.user.userId)
+    // 如果小于0
+    if (fromPath.indexOf('order/sale') < 0) {
+      this._getListRemind(this.user.userId)
+    }
     this._getBuyOrderList()
   },
 	components: {
@@ -69,6 +79,9 @@ export default {
     ...mapGetters(['user'])
   },
   methods: {
+   ...mapMutations({
+      setOrderCount: 'ORDERCOUNT'
+    }),
     _setevaluateType(status) {
       this.param.status = status
       this._getBuyOrderList()
@@ -77,8 +90,12 @@ export default {
     _getListRemind(id) {
       getListRemind(id).then(res => {
         if (res.code === '000000') {
-          // this.evaluateCount = res.data.sellListRemind.unCatch
+          let saleCount = res.data.sellListRemind.unCatch
+          this.setOrderCount(saleCount)
           this.evaluateCount = res.data.purchaseListRemind.unEvaluate
+          if (saleCount > 0) {
+             this.$router.replace({path: '/order/sale'})
+          }
         }
       })
     },
@@ -121,6 +138,7 @@ export default {
         Toast('没有更多数据')
       }
       if (flag) {
+        console.log(567, this.orderList)
         this.orderList = this.orderList.concat(data)
         this.loading = false
         if (data.length < LIMIT) {

@@ -1,14 +1,14 @@
 <template>
 <div class='editAddress'>
- <mt-header title="新建服务地点">
-		<span v-if="this.$route.query.update" @click="_deleteAddress">删除</span>
+ <mt-header :title="title">
+		<span v-if="this.$route.query.update" @click="iShow=true">删除</span>
  </mt-header>
  <div class="content">
     <mt-cell title="所在城市：" class="value-input">
-    	<input class="edit-input" type="text" :value="city.cityName">
+    	<input class="edit-input" type="text" :value="param.city ? param.city :city.cityName" disabled>
     </mt-cell>
-    <mt-cell title="小区/大厦/写字楼/学校等：" is-link to="/address">
-    	<span>{{param.area? param.area : '点击选择'}}</span>
+    <mt-cell class="address-name" title="小区/大厦/写字楼/学校等：" is-link to="/address">
+    	<span class="address-text">{{param.area? param.area : '点击选择'}}</span>
     </mt-cell>
     <mt-cell title="门牌号：" class="value-input">
     	<input class="edit-input" v-model="param.houseNumber" type="text" placeholder="例如：5号楼1101室">
@@ -36,6 +36,20 @@
       	<button class="footer-btn editAddress-btn" @click="_saveUserAddress">保存</button>
 			</div>
    </div>
+
+    	<div class="mask" v-show="iShow" @click="iShow=false">
+    		<div class="payPanel">
+    			  <div class="card-content text-center">
+    			    <div class="card-content-inner">
+    			    确认要删除吗？
+    			    </div>
+    			  </div>
+    			  <div class="card-footer">
+    			  	<div class="textOn payPanel-btn" @click="iShow=false">取消</div>
+    			  	<div class="textOn payPanel-btn" @click="_deleteAddress">确定</div>
+    			  </div>
+    		</div>
+    	</div>
 </div>
 </template>
 
@@ -49,6 +63,7 @@ export default {
 		return {
 			addressList: [],
 			submiting: false,
+			iShow: false,
 			param: {
 				sex: 1,
 				userId: '',
@@ -67,12 +82,14 @@ export default {
 		}
 	},
 	activated() {
+		console.log(this.city)
 		this.param.city = this.city.cityName
 		this.param.baiduCityId = this.city.cityId
 		this.param.userId = this.user.userId
 		if (this.$route.query.update) {
 			this.compareParam = this.address // 比较的地址信息
 			this.param = 	Object.assign({}, this.param, this.address)
+			console.log(1234, this.param)
 		}
 		if (this.map.title) {
 			this.param.area = this.map.title
@@ -112,7 +129,10 @@ export default {
 		MtHeader
 	},
 	computed: {
-		...mapGetters(['city', 'user', 'map', 'address'])
+		...mapGetters(['city', 'user', 'map', 'address', 'local']),
+		title() {
+			return this.$route.query.update ? '修改服务地点' : '新建服务地点'
+		}
 	},
 	methods: {
 		_validate() {
@@ -152,7 +172,6 @@ export default {
 				} else {
 					if (this._validate()) {
 						updateUserAddress(this.param).then(data => {
-							console.log(333, data)
 							if (data.code === '000000') {
 								Toast('修改成功！')
 								this.submiting = false
@@ -237,5 +256,13 @@ export default {
  }
 .editAddress-btn{
 	margin-top: 30px;
+}
+.address-text{
+	text-align: right;
+	display: inline-block;
+}
+.card-content-inner{
+	height: 124px;
+	line-height: 124px
 }
 </style>

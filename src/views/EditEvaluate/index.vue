@@ -1,7 +1,7 @@
 <template>
 <div class="editEvaluate">
     <mt-header title="发表评价"></mt-header>
-    <scroll class="content editEvaluate-content" ref="scroll" :data="typeList"> 
+    <div class="content editEvaluate-content"  :data="typeList"> 
     <div class="wrap">
     	<div class="clearfix service">
     		<div class="img-wrap pull-left">
@@ -17,36 +17,31 @@
         <div class="tag">
             <p class="title">请选择评价标签(可多选)</p>
             <ul class="tag-list center-text">
-                <li class="tag-list-item " v-for="item in typeList">
+                <li class="tag-list-item " v-for="item in typeList" :class="{'on':param.evaluateTypes.indexOf(item.evaluateId)>-1}">
                   <input type="checkbox" :value="item.evaluateId" v-model="param.evaluateTypes">
                   {{item.evaluateTypeName}}
                 </li>
             </ul>
         </div>
         <!-- 评价 -->
-        <div class="reason">
-            <div class="result-text">
-                <textarea name="" id="" rows="10" placeholder="说点什么，帮助大家挑选更优质的服务" @keyup="_edit"></textarea>
-                <div class="number">{{num}}</div>
-            </div>
-        </div>
-       <!-- 上传图片列表 -->
-       <div class="upload">
-        <upload-pic-list @open="_openPicBtn" :pictures="pictures"></upload-pic-list>
+         <reason placeholder="请填写" @editReason='_reasonText'></reason>      
+        <!-- 上传图片列表 -->
+       <div class="upload clearfix">
+        <upload-pic-list  @uploadPicture='_saveEvaluatePics' @deletePic="_deletePic" @open="_openPicBtn" :pictures="pictures" :process="process" :multiple="true"></upload-pic-list>
        </div>
        </div>
-    </scroll>
+    </div>
     <div class="bar bar-footer footer-btn-wrap">
       <button class="footer-btn" @click="_saveEvaluate">发表评价</button>
     </div>
      <!-- 上传照片按钮 -->
-    <mt-popup v-model="uploadVisible"
+    <!-- <mt-popup v-model="uploadVisible"
      position="bottom" 
      :modal="true"
      class="sexPopup"
      >
-       <upload :multiple="true" @uploadPicture='_saveEvaluatePic'></upload>
-     </mt-popup>
+       <upload :multiple="true"  @uploadPicture='_saveEvaluatePics'></upload>
+     </mt-popup> -->
   </div>
 </div>
 </template>
@@ -59,7 +54,10 @@ import {mapGetters, mapMutations} from 'vuex'
 import UploadPicList from 'components/uploadPicList/index'
 import Upload from 'components/uploadPicture/index'
 import Scroll from 'components/Scroll'
+import Reason from 'components/reason/index'
 import * as photo from 'common/js/photo'
+import {Toast} from 'mint-ui'
+import {createObjectURL} from 'common/js/browser'
 export default {
     data() {
         return {
@@ -67,14 +65,16 @@ export default {
             typeList: [],
             pictures: [],
             uploadVisible: false,
-            describeLevel: ['off', 'off', 'off', 'off', 'off'],
-            attitudeLevel: ['off', 'off', 'off', 'off', 'off'],
-            professionalLevel: ['off', 'off', 'off', 'off', 'off'],
+            describeLevel: ['on', 'off', 'off', 'off', 'off'],
+            attitudeLevel: ['on', 'off', 'off', 'off', 'off'],
+            professionalLevel: ['on', 'off', 'off', 'off', 'off'],
+            submiting: false,
+            process: 0,
             param: {
               orderId: '',
-              serviceDescribeLevel: 0,
-              serviceAttitudeLevel: 0,
-              serviceProfessionalLevel: 0,
+              serviceDescribeLevel: 1,
+              serviceAttitudeLevel: 1,
+              serviceProfessionalLevel: 1,
               evaluateUserId: '',
               evaluatePics: [],
               evaluateTypes: [],
@@ -86,21 +86,33 @@ export default {
       this._getTypes()
       this.param.evaluateUserId = this.user.userId
     },
-    mounted() {
-      this.$nextTick(() => {
-        this.$refs.scroll.refresh()
-      })
-    },
     activated() {
       this.setFooter(false)
       this.param.orderId = this.$route.query.orderId
+    },
+    deactivated() {
+      this.setFooter(true)
+      this.describeLevel = ['on', 'off', 'off', 'off', 'off']
+      this.attitudeLevel = ['on', 'off', 'off', 'off', 'off']
+      this.professionalLevel = ['on', 'off', 'off', 'off', 'off']
+      this.param = {
+              orderId: '',
+              serviceDescribeLevel: 1,
+              serviceAttitudeLevel: 1,
+              serviceProfessionalLevel: 1,
+              evaluateUserId: this.user.userId,
+              evaluatePics: [],
+              evaluateTypes: [],
+              evaluateDescribe: ''
+            }
     },
     components: {
       Star,
       MtHeader,
       UploadPicList,
       Upload,
-      Scroll
+      Scroll,
+      Reason
     },
     computed: {
       ...mapGetters(['user'])
@@ -145,15 +157,6 @@ export default {
             return item
           })
         },
-        // 编辑
-        _edit(e) {
-            if (this.num <= 0) {
-                return
-            } else {
-                this.num = this.num - e.target.value.length
-            }
-            this.param.evaluateDescribe = e.target.value
-        },
         // 获取标签列表
         _getTypes() {
           getTypes().then(data => {
@@ -162,9 +165,69 @@ export default {
         },
         // 保存评价
         _saveEvaluate() {
-          saveEvaluate(this.param).then(res => {
-            console.log(res)
+          if (this.submiting) {
+            return
+          }
+          if (this.param.evaluateDescribe === '') {
+            Toast('请输入评价')
+            return
+          }
+          this.submiting = true
+          this.param.evaluateTypes = this.param.evaluateTypes.map(item => {
+            return {evaluateTypeId: item}
           })
+          console.log(this.param)
+          saveEvaluate(this.param).then(res => {
+            console.log(123, res)
+            this.submiting = false
+            if (res.code === '000000') {
+              Toast('评价成功')
+              setTimeout(() => {
+                  this.$router.replace({path: '/service/order/detail',
+                  query: {'orderId': this.$route.query.orderId, userType: 'user'}})
+              }, 2000)
+            }
+          })
+        },
+        _deletePic(index) {
+          this.pictures.splice(index, 1)
+          this.param.evaluatePics.splice(index, 1)
+        },
+        _saveEvaluatePics(file) {
+          // 文件循环
+          this.uploadVisible = false
+          if (this.pictures.length > 6) {
+            Toast('最多上传6张图片')
+            return
+          }
+          let picture = [...file].map((item, index) => {
+            this.process = 0
+            // 上传图片
+            let formData = new FormData()
+            formData.append('file', item)
+            formData.append('createOrder', index)
+            saveEvaluatePic(formData, (data) => {
+              console.log(data)
+              let loaded = data.loaded
+              let total = data.total
+              this.$nextTick(() => {
+                this.process = ((loaded / total) * 100).toFixed(2)
+              })
+            }).then(res => {
+              console.log(12, res)
+              this.param.evaluatePics.push({evaluatePicId: res.data.evaluatePicId})
+              if (this.param.evaluatePics.length > 6) {
+                this.param.evaluatePics = this.param.evaluatePics.slice(0, 6)
+              }
+            })
+            return {picName: createObjectURL(item)}
+          })
+          this.pictures = this.pictures.concat(picture)
+          if (this.pictures.length > 6) {
+            Toast('最多上传6张图片')
+            this.pictures = this.pictures.slice(0, 6)
+            this.param.evaluatePics = this.param.evaluatePics.slice(0, 6)
+          }
         },
         // 保存图片
         _saveEvaluatePic(file) {
@@ -177,7 +240,9 @@ export default {
               formData.append('file', file)
               formData.append('createOrder', index)
               console.log(formData)
-              saveEvaluatePic(formData).then(res => {
+              saveEvaluatePic(formData, (data) => {
+                console.log(data)
+              }).then(res => {
                 console.log(12, res)
               })
             })
@@ -191,7 +256,10 @@ export default {
         _uploadPicure() {},
         ...mapMutations({
           setFooter: 'CHANGE_FOOTER_SHOW'
-        })
+        }),
+        _reasonText(text) {
+          this.param.evaluateDescribe = text
+        }
     }
 }
 </script>
@@ -200,6 +268,7 @@ export default {
  @import '~common/css/mixin.less';
  .editEvaluate-content{
   background-color: #eee;
+  overflow-y: auto;
   .title{
     margin: 0;
     font-size: 0.7rem;
@@ -234,7 +303,11 @@ export default {
     margin: 0 10px 10px 0;
     font-size: 0.6rem;
     padding:8px 10px;
-    border-radius: 4px; 
+    border-radius: 4px;
+    &.on{
+      background-color: @color-primary;
+      color: #fff
+    }
     input{
       display: block;
       position: absolute;
@@ -265,7 +338,7 @@ export default {
   }
 }
 .upload{
-  padding:0 10px ;
+  padding:0 10px;
+  height:auto;
 }
-
 </style>

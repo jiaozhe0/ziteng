@@ -1,6 +1,6 @@
 <template>
 <div class="report">
-    <mt-header title="投诉举报" path="/home"></mt-header>
+    <mt-header title="订单投诉" path="/home"></mt-header>
     <div class="content report-content">
     	<mt-cell  title="选择投诉订单" is-link @click.native="_goOrderList">
     		<span>{{title ? title : '选择订单'}}</span>
@@ -10,12 +10,14 @@
     	<radio-cell :radioList='options' :modelVal="result" @changeVal='_changeResult'>
     	</radio-cell>
     	</div>
-    	<div class="report-text">
+    	<!-- 评价 -->
+      <reason  :reasonText="param.reportContent" ref='reason' placeholder="说点什么，帮助大家挑选更优质的服务" @editReason='_reasonText'></reason>
+    	<!-- <div class="report-text">
             <div class="result-text">
                 <textarea name="" id="" rows="10" placeholder="说点什么，帮助大家挑选更优质的服务" @keyup="_edit"></textarea>
                 <div class="number">{{num}}</div>
             </div>
-       </div>
+       </div> -->
     </div>
     <result typeName='report' :success="success" @back="_backHome"></result>
     <div class="bar bar-footer">
@@ -30,6 +32,8 @@ import {getUserReportTypeList, saveUserReport} from 'api/home'
 import RadioCell from 'components/RadioCell/index'
 import {Cell, Toast} from 'mint-ui'
 import {mapGetters, mapMutations} from 'vuex'
+import Reason from 'components/reason/index'
+// var formPath = ''
 export default {
 	data() {
 		return {
@@ -49,10 +53,18 @@ export default {
 		}
 	},
 	created() {
-		this._getUserReportTypeList()
 		this.setFooter(false)
 	},
+	beforeRouteEnter(to, from, next) {
+		// formPath = from.path
+		next()
+	},
+	beforeRouteLeave(to, from, next) {
+		this.toPath = to.path
+		next()
+	},
 	activated() {
+		this._getUserReportTypeList()
 		this.param.reportUserId = this.user.userId
 		this.title = this.$route.query.serviceTitle && this.$route.query.serviceTitle
 		this.param.serviceUserId = this.$route.query.serviceUserId && this.$route.query.serviceUserId
@@ -62,19 +74,24 @@ export default {
 	deactivated() {
 		this.setFooter(true)
 		this.title = ''
-		this.param = {
-			orderId: '',
-			serviceUserId: '',
-			serviceId: '',
-			reportContent: '',
-			reportTypeId: ''
+		if (this.toPath.indexOf('order/buy') < 0) {
+			this.result = ''
+			this.options = []
+			this.param = {
+				orderId: '',
+				serviceUserId: '',
+				serviceId: '',
+				reportContent: '',
+				reportTypeId: ''
+			}
 		}
 	},
 	components: {
 		MtHeader,
 		MtCell: Cell,
 		RadioCell,
-		Result
+		Result,
+		Reason
 	},
 	computed: {
 		...mapGetters(['user'])
@@ -91,16 +108,17 @@ export default {
 					return obj
 				})
 				this.result = this.options[0].value
-				this.param.reportContent = this.options[0].title
 				this.param.reportTypeId = this.options[0].value
 				console.log(this.param.reportContent)
 			})
 		},
+		// 保存投诉
 		_saveUserReport() {
 			if (!this.param.orderId) {
 				Toast('请选择要投诉的订单!')
 				return
 			}
+			this.param.reportContent = this.$refs.reason.$refs.reason.value
 			console.log(this.param)
 			saveUserReport(this.param).then(res => {
 				console.log(res)
@@ -113,10 +131,12 @@ export default {
 			this.options.forEach(item => {
 				if (item.value === val) {
 					console.log(12, val)
-					this.param.reportContent = item.title
 					this.param.reportTypeId = val
 				}
 			})
+		},
+		_reasonText(val) {
+			this.param.reportContent = val
 		},
 		_goOrderList() {
 			this.$router.push({path: '/order/buy', query: {flag: true}})
@@ -137,6 +157,7 @@ export default {
 @import '~common/css/mixin.less';
 .report-content {
 	background-color: #eee;
+	overflow-y: auto;
 	.title{
 		margin: 0;
 		padding:6px 10px 4px;

@@ -3,10 +3,12 @@
  <mt-header title="个人资料"></mt-header>
  <div class="content">
  <div class="content-wrap">
- <mt-cell title="头像" is-link  class="avatar-wrap" @click.native="picVisible = true">
+ <mt-cell title="头像" is-link  class="avatar-wrap">
+ 	<label for="avatar" slot=icon></label>
  	<div class="avatar-img">
+ 	  <input  id="avatar" type="file" accept="image/*"  @change="_uploadPicure" class="avatar-btn">
  		<img :src="userInfo.photoUrl" alt="" class="img-responsive" v-if="userInfo.photoUrl" ref="avatarImg" />
- 		<img src="./n_meiyou.png" v-else alt="" class="img-responsive" ref="avatarImg" />
+ 		<img src="./n_meiyou.png" v-else alt="" class="img-responsive" />
  	</div>
  </mt-cell>
  <mt-cell title="用户名" value="说明文字">
@@ -53,7 +55,7 @@
   </div>
  <mt-picker :slots="sexData" @change="getSlotValue"></mt-picker>
  </mt-popup>
-<!-- 图片 -->
+	<!-- 图片 -->
 	<mt-popup v-model="picVisible"
 					  position="bottom" 
 					  :modal="true"
@@ -71,6 +73,7 @@ import {updateUserInfo, updateUserInfoPicture} from 'api/home'
 import Upload from 'components/uploadPicture'
 import {createObjectURL} from 'common/js/browser'
 const timeStamp = require('time-stamp')
+import {imgPreview} from 'common/js/photo'
 export default {
 	data() {
 		return {
@@ -82,7 +85,7 @@ export default {
 			sexData: [
 				{
 					flex: 1,
-					values: ['', '男', '女'],
+					values: ['男', '女'],
 					defaultIndex: 1
 				}
 			],
@@ -102,14 +105,25 @@ export default {
 		MtPopup: Popup,
 		Upload
 	},
+	mounted() {
+		this.$nextTick(() => {
+			setTimeout(() => {
+				this.$refs.dataPicker.currentValue = new Date(new Date('1990').getFullYear(), 0, 1)
+				this.sexData[0].defaultIndex = 0
+			}, 20)
+		})
+	},
 	created() {
 		this.setFooter(false)
-		this.formData = new FormData()
+	},
+	activated() {
 		this._initUserInfo()
-		this.formData.append('userId', this.userInfo.userId)
 	},
 	deactivated() {
 		this.setFooter(true)
+		this.popupVisible = false
+		this.$refs.dataPicker.close()
+		this.pickerVisible = false
 	},
 	computed: {
 		...mapGetters(['userInfo']),
@@ -129,18 +143,17 @@ export default {
 			return sexValue
 		},
 		getSexText() {
-
 		}
 	},
 	methods: {
 		...mapMutations({
-			setFooter: 'CHANGE_FOOTER_SHOW'
+			setFooter: 'CHANGE_FOOTER_SHOW',
+			setLoading: 'LOADING'
 		}),
 		// 打开日期
 		openDate() {
 			this.$refs.dataPicker.open()
 		},
-
 		getSlotValue(picker, values) {
 			this.sexTransmit = values[0]
 		},
@@ -157,6 +170,7 @@ export default {
 		// 初始化用户信息
 		_initUserInfo() {
 			this.param = {
+				userId: this.userInfo.userId,
 				sex: this.userInfo.sex,
 				userName: this.userInfo.userName,
 				birthday: this.userInfo.birthday
@@ -179,12 +193,15 @@ export default {
 			let flag = false
 			for (let i in this.param) {
 				if (this.param[i] !== this.userInfo[i]) {
+					console.log(i)
 					console.log(this.param[i] + '===' + this.userInfo[i])
 					flag = true
 					break
 				}
 			}
 			if (flag) {
+				console.log(this.param)
+				this.setLoading(true)
 				updateUserInfo(this.param).then(res => {
 				if (this.sumbiting) {
 					return
@@ -192,6 +209,7 @@ export default {
 				this.sumbiting = true
 				console.log(res)
 				if (res.code === '000000') {
+					this.setLoading(false)
 					Toast('修改成功')
 					this.sumbiting = false
 				}
@@ -200,15 +218,22 @@ export default {
 				Toast('未作修改')
 			}
 		},
-		_uploadPicure(file) {
-				this.formData.append('file', file)
-				this.$refs.avatarImg.src = createObjectURL(file)
-				this.picVisible = false
-				updateUserInfoPicture(this.formData).then(res => {
-					if (res.code === '000000') {
-						Toast('修改成功')
-					}
+		_uploadPicure(e) {
+				// this.setLoading(true)
+				let formData = new FormData()
+				let file = e.target.files[0]
+				imgPreview(file).then(data => {
+					formData.append('userId', this.userInfo.userId)
+					formData.append('file', data, 'file_' + Date.parse(new Date()) + '.jpg')
+					updateUserInfoPicture(formData).then(res => {
+						if (res.code === '000000') {
+							this.setLoading(false)
+							Toast('修改成功')
+							this.$refs.avatarImg.src = createObjectURL(file)
+						}
+					})
 				})
+				this.picVisible = false
 		}
 	}
 }
@@ -220,7 +245,7 @@ export default {
  .content{
  	bottom:0;
  }
- .avatar-wrap{
+.avatar-wrap{
  	height: 80px;
  	.flexbox();
  	.align-items(center);
@@ -230,13 +255,21 @@ export default {
  	}
  }
  .avatar-img{
+ 	position:relative;
  	.square(60px);
  	background-color: #eee;
+ 	.avatar-btn{
+		position: absolute;
+		.square(100%);
+		z-index: 999;
+		opacity: 0
+ 	}
  }
  .userName{
  	border:none;
+ 	font-size:0.7rem;
+ 	color:#888;
  	margin-right: 22px;
  }
-
-
+ 
 </style>

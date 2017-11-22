@@ -1,8 +1,8 @@
 <template>
   <div class='searchList'>
-    <search :value="key" @search="_getSearchList" ></search>
-    <div class="content">
-     <scroller class="noData" v-if="!searchList.length">
+    <search :value="key" @search="_getSearchList" path="/index/search"></search>
+    <div class="content" ref="ll">
+     <scroller class="noData" v-if="!searchList.length" ref="noData">
        <no-Data></no-Data>
      </scroller>
     	<div class='test' v-else>
@@ -12,8 +12,9 @@
        @loadMore="_loadMore"
        :refreshIcon="refreshing"
        :loadIcon="loading"
+       ref='scroll'
        >
-    	<service-list :serviceList="searchList"></service-list>
+    	<service-list :serviceList="searchList" :searchContent="data.searchContent && data.searchContent"></service-list>
      </scroller>
      </div>
      </div>
@@ -21,7 +22,7 @@
 </template>
 <script type="text/ecmascript-6">
 import Scroller from 'components/scroller/index'
-import Search from 'components/SearchCom'
+import Search from 'components/searchCom/index'
 import ServiceList from 'components/ServiceList'
 import NoData from 'components/NoData/index'
 import Sort from 'components/Sort'
@@ -30,6 +31,7 @@ import {mapGetters} from 'vuex'
 import {saveToLocal} from 'common/js/store'
 import {Toast} from 'mint-ui'
 const LIMIT = 15
+var url = ''
 export default {
 	data() {
 		return {
@@ -37,7 +39,7 @@ export default {
 			loading: false,
 			refreshing: false,
 			hasMore: false,
-			sortType: {overall: 'desc'},
+			sortType: {salesNumber: 'desc'},
 			value: '',
 			data: {
 				searchContent: '',
@@ -50,10 +52,26 @@ export default {
 		}
 	},
 	created() {
+		console.log('出发了嘛')
+		this.data.searchContent = this.$route.query.value
 	},
 	activated() {
-		this.data.searchContent = this.$route.query.value
-		this._getSearchList(this.$route.query.value)
+		// console.log(this.$refs.ll)
+		if (url.indexOf('/servicedetail') > -1) {
+			this._getSearchList(this.data.searchContent)
+		} else {
+			this.data.searchContent = this.$route.query.value && this.$route.query.value
+			this._getSearchList(this.$route.query.value)
+		}
+	},
+	deactivated() {
+		// if (url.indexOf('/servicedetail') < 0) {
+		// 	this.searchList = []
+		// }
+	},
+	beforeRouteEnter(to, from, next) {
+		url = from.path
+		next()
 	},
 	components: {
 		Search,
@@ -70,7 +88,7 @@ export default {
 					this.sortType = {overall: 'desc'}
 				break
 				case 'price':
-					this.sortType = {priceNumber: 'desc'}
+					this.sortType = {priceNumber: 'asc'}
 				break
 				case 'sale':
 					this.sortType = {salesNumber: 'desc'}
@@ -80,6 +98,7 @@ export default {
 					break
 			}
 			this.data.page = 0
+			console.log(88, this.sortType)
 			getServiceList(Object.assign({}, this.data, this.sortType)).then((data) => {
 				console.log(data)
 				this._processingData(data.data)
@@ -91,6 +110,7 @@ export default {
 			this.data.searchContent = val
 			this.data.baiduCityId = this.city.cityId
 			saveToLocal(val)
+			console.log(123, this.data)
 			getServiceList(Object.assign({}, this.data, this.sortType)).then((data) => {
 				console.log(data)
 				this._processingData(data.data)
