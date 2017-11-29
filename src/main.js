@@ -48,7 +48,7 @@ import {getToken, getUserInfo, registerWeixin} from 'api/login'
 if (window.location.href.indexOf('share') < 0) {
 	let search = window.location.search.slice(1)
 	if (search.indexOf('code') < 0) {
-		let url = 'http://test.ijzsh.com/html/index.html#/index'
+		let url = 'http://www.ijzsh.com/html/index.html#/index'
 		window.location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxf21f71c117f32c34&redirect_uri=${encodeURIComponent(url)}&response_type=code&scope=snsapi_userinfo&state=state&connect_redirect=1#wechat_redirect.html`
 	} else {
 		let pettern = /(^|&)code=([^&]*)(&|$)/
@@ -117,6 +117,11 @@ getJsSignature(ztUrl).then(data => {
 	wx.config(Object.assign(data, config))
 })
 
+// window.addEventListener('popstate', function (event) {
+// 	event.defaultPrevented()
+// 	console.log(event)
+// })
+
 // 创建Vue实例
 function newVue() {
 	setTimeout(() => {
@@ -145,7 +150,7 @@ function newVue() {
 // 初始化页面
 function initVue() {
 	Promise.all([getServiceList(store), getDefualtCity(), getLocal(), cityList()]).then(([service, city, cityData, cityList]) => {
-		store.commit('cityList', cityList.data.baiduCity)
+		store.commit('CITYLIST', cityList.data.baiduCity)
 		if (cityData.city) {
 			cityList.data.baiduCity.some((item, index) => {
 				if (cityData.city.cityName === item.cityName) {

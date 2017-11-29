@@ -28,40 +28,46 @@ export default {
 	props: ['newsList'],
   data() {
     return {
+      timer: null
     }
   },
 	created() {
 		console.log(this.newsList)
 	},
   mounted() {
-    let s = document.querySelector('#scroll')
-    let h = this.$refs.newsList.offsetHeight
-    if (!this.timer) {
-          this.timer = setInterval(() => {
-            if (s.scrollTop >= h) {
-              s.scrollTop = 0
-            } else {
-              s.scrollTop = s.scrollTop + 50
-            }
-          }, 2000)
-    }
+    this.$nextTick(() => {
+      let s = document.querySelector('#scroll')
+      let h = this.$refs.newsList.offsetHeight
+      if (!this.timer) {
+            this.timer = setInterval(() => {
+              if (s.scrollTop >= h) {
+                s.scrollTop = 0
+              } else {
+                s.scrollTop = s.scrollTop + 50
+              }
+            }, 2000)
+      }
+    })
   },
   activated() {
-    let s = document.querySelector('#scroll')
-    let h = this.$refs.newsList.offsetHeight
-          this.timer = setInterval(() => {
-            if (s.scrollTop >= h) {
-              s.scrollTop = 0
-            } else {
-              s.scrollTop = s.scrollTop + 50
-            }
-          }, 2000)
+     this.$nextTick(() => {
+      console.log(1234556, document.querySelector('#scroll'))
+      let s = document.querySelector('#scroll')
+      let h = this.$refs.newsList.offsetHeight
+      if (!this.timer) {
+            this.timer = setInterval(() => {
+              if (s.scrollTop >= h) {
+                s.scrollTop = 0
+              } else {
+                s.scrollTop = s.scrollTop + 50
+              }
+            }, 2000)
+      }
+    })
   },
   deactivated() {
     clearInterval(this.timer)
-  },
-  beforeDestroy() {
-    clearInterval(this.timer)
+    this.timer = null
   }
 }
 </script>

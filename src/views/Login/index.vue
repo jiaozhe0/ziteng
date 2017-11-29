@@ -1,6 +1,6 @@
 <template>
 	<div class="login">
-	<mt-header :bg="{'background':'#fff'}" :icon="{color:'#fe5815','font-size':'xx-large'}"></mt-header>
+	<mt-header :bg="{'background':'#fff'}" :icon="true"></mt-header>
   <div class="content"> 
     <div class="img-wrap center-block">
     <img src="./logo.png" alt="" class="img-responsive"></div>
@@ -20,6 +20,7 @@
 	    	</button>
 	    </label>
 	    <div class="text-left reminder-text">点击登录，即表示同意《用户协议》</div>
+	    <!--  _login -->
 	    <button type="button" class='login-btn' @click="_login">
 				登录
 	    </button>
@@ -33,7 +34,7 @@
 
 <script type="text/ecmascript-6">
 import { Toast } from 'mint-ui'
-import {getTelMessage, bindWeixinUserPhone} from 'api/login'
+import {getTelMessage, bindWeixinUserPhone, checkPhoneCode} from 'api/login'
 import MtHeader from 'components/mtHeader'
 import {mapMutations, mapGetters} from 'vuex'
 import chat from '../../im/chat'
@@ -54,6 +55,9 @@ export default {
 	},
 	computed: {
 		...mapGetters(['user'])
+	},
+	deactivated() {
+		this.code = ''
 	},
   methods: {
 		...mapMutations({
@@ -130,8 +134,21 @@ export default {
 				}
 			})
 		},
+		_checkPhoneCode() {
+			checkPhoneCode(this.tel, this.code).then(data => {
+				console.log(data)
+				this.setOpenId(data.userWeixin.openid)
+				this.setUser(data)
+				chat(this.$store, {
+							user: data.userHuanxin['username'],
+							pwd: data.userHuanxin['password']
+						})
+				window.history.back()
+			})
+		},
 		...mapMutations({
-				setUser: 'USER'
+				setUser: 'USER',
+				setOpenId: 'OPENID'
 		})
   }
   }

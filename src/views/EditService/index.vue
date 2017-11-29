@@ -327,7 +327,7 @@ export default {
 			}
 			this.remainNum = 500 - e.target.value.length
 		},
-		// 选择价格类型
+		// 选择价格类型 1:一口价 2：预约金
 		_selectPriceType(type) {
 			this.param.priceType = type
 			if (type === 1) {

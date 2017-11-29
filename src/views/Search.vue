@@ -46,6 +46,9 @@ export default {
 		console.log(loadFromLocal())
 		this.historyList = loadFromLocal()
 	},
+	deactivated() {
+		window.history.forward(1)
+	},
 	methods: {
 		_delet() {
 			this.historyList = []

@@ -60,11 +60,11 @@ export default {
       this.$refs.searchInput.blur()
       setTimeout(() => {
         if (this.path) {
-          this.$router.push(this.path)
+          this.$router.replace(this.path)
         } else {
           window.history.back()
         }
-      }, 500)
+      }, 20)
 		},
 		_search(e) {
 			let value = e.target.value

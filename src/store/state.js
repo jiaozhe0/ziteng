@@ -1,5 +1,4 @@
 const states = {
-  isFooter: false,
   user: {
 		// userId: '49e6797f37c644f8b6c882fcbab37395',
     // userId: 'b4a6166cd9554070a3006cf0276cbc89',
@@ -15,12 +14,9 @@ const states = {
 			huanxin_activated: '' // 用户
 	}
   },
-  userInfo: { // 用户信息，个人主页用
-		userName: ''
-  },
   city: {
 		cityId: -1,
-		cityName: '' // 城市名，城市Id
+		cityName: '' // 选择城市名，城市Id
   },
   localCity: {
     cityId: -1,
@@ -31,7 +27,6 @@ const states = {
   serviceTypeList: [],
   parentTypeList: [],
   childTypeList: [],
-  address: {}, // 常用地址
   map: {
     address: '',
     city: '',
@@ -40,17 +35,23 @@ const states = {
       lng: ''
     },
     title: ''
-  }, // 地图位置
-  status: '', // 个人/商家
+  }, // 设置地图位置
+  status: '', // 认证个人/商家
   pictures: {}, // 图片浏览
-  serviceInfo: {}, // 服务信息
-  openId: '',
-  orderUrl: '',
-  serviceUrl: '',
+  userInfo: { // 用户信息，修改个人信息时使用
+    userName: ''
+  },
+  address: {}, // 常用地址,修改地址时使用
+  serviceInfo: {}, // 编辑发布服务信息，修改服务信息时使用
+  openId: '', // oCiKTwF0g46BI60Gq3yIH33ddv1c
+  orderUrl: '', // 订单详情的来路路径
+  serviceUrl: '', // 服务详情的来路路径
+  serListUrl: '', // 服务详情的来路路径
   chatList: [], // 对话列表
   chatCount: 0, // 消息数量
   orderCount: 0, // 订单数量
-  loading: false,
-  cityList: []
+  cityList: [], // 选择城市列表
+  loading: false, // 全局Loaing
+  isFooter: false // 全局底部导航
 }
 export default states

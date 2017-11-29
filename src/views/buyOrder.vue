@@ -14,10 +14,13 @@
         :loadIcon="loading"
         :dataList="orderList"
         @refresh="_refresh"
-        @load="_loadMore"
+        @loadMore="_loadMore"
         >
        <order-list :orderList="orderList" 
-       userType='user' :path="$route.query.flag && $route.query.flag" @refresh="_refresh"></order-list>
+       userType='user' 
+       :path="$route.query.flag && $route.query.flag"
+       @setOrderInfo="_setOrderInfo"
+       @refresh="_refresh"></order-list>
       </scroller>
     </div>
     <div v-else class='noData-wrap'>
@@ -25,7 +28,8 @@
         <no-data></no-data>
       </scroller>
     </div>
-   </div> 	
+   </div>
+   
 </div>
 </template>
 <script type="text/ecmascript-6">
@@ -33,7 +37,7 @@ import {Tab, TabItem} from 'components/tab/index'
 import Scroller from 'components/scroller/index'
 import NoData from 'components/NoData/index'
 import OrderList from 'components/orderList/index'
-import {getBuyOrderList, getListRemind} from 'api/order'
+import {getBuyOrderList, getListRemind, finishOrder} from 'api/order'
 import {mapGetters, mapMutations} from 'vuex'
 import {Toast} from 'mint-ui'
 const LIMIT = 15
@@ -45,13 +49,19 @@ export default {
       refreshing: false,
       hasMore: false,
       orderList: [],
-      evaluateCount: 0,
+      evaluateCount: 0, // 评论的数量
       param: {
         userId: '',
-        status: 2,
+        status: 2, // 订单状态（必填：可选数据：0：全部，2：未完成，3：已取消，4：已完成，9：待评价)
         currentPage: 0
       },
-      bottom: false
+      bottom: false,
+      orderInfo: { // 订单信息
+        orderId: '', // 订单Id
+        pic: '', // 图片
+        title: '' // 服务名
+      },
+      hintShow: true // 提示
     }
   },
   created() {
@@ -82,6 +92,27 @@ export default {
    ...mapMutations({
       setOrderCount: 'ORDERCOUNT'
     }),
+    _setOrderInfo(orderInfo) {
+      this.hintShow = true
+      this.orderInfo = Object.assign({}, this.orderInfo, orderInfo)
+    },
+    _finishOrder() {
+      let param = {
+        orderId: this.orderInfo.orderId,
+        orderUserId: this.user.userId
+      }
+      finishOrder(param).then(res => {
+        console.log('res')
+        if (res.code === '000000') {
+          if (res.data.status === 106) {
+            Toast('完成订单')
+            console.log(this.orderInfo)
+            this.$router.push({path: '/order/evaluate', query: {orderId: this.orderInfo.orderId, pic: this.orderInfo.pic, title: this.orderInfo.title}})
+            // this.$emit('refresh')
+          }
+        }
+      })
+    },
     _setevaluateType(status) {
       this.param.status = status
       this._getBuyOrderList()
@@ -103,6 +134,7 @@ export default {
     _getBuyOrderList() {
       this.param.currentPage = 0
       this.refreshing = true
+      this.hasMore = false
       console.log(888, this.param)
       getBuyOrderList(this.param).then(res => {
         console.log(999, res)

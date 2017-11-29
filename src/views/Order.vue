@@ -11,28 +11,35 @@
           <router-view></router-view>
       </keep-alive>
   	</div>
+    <hint :iShow.sync="hintShow" @finishOrder="_finishOrder"></hint>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
-import {getListRemind} from 'api/order'
+import {getListRemind, finishOrder} from 'api/order'
 import MtHeader from 'components/mtHeader'
+import {Toast} from 'mint-ui'
 import {mapGetters, mapMutations} from 'vuex'
+import Hint from 'components/hint/index'
 export default {
   data() {
     return {
-      orderCount: 0
+      orderCount: 0,
+      hintShow: false,
+      param: {}
     }
   },
-  components() {
-    MtHeader
+  components: {
+    MtHeader,
+    Hint
   },
   activated() {
     this.setFooter(true)
-    // this._getListRemind(this.user.userId)
-    // if (!this.$route.query.flag) {
-    //   this._getListRemind(this.user.userId)
-    // }
+    // window.history.forward(1)
+    this.$root.eventHub.$on('setOrderInfo', (data) => {
+      this.hintShow = true
+      this.param = data
+    })
   },
   computed: {
     ...mapGetters(['user'])
@@ -51,6 +58,21 @@ export default {
             this.$router.replace({path: '/order/sale', query: {count: saleCount}})
           } else {
             this.$router.replace({path: '/order/buy'})
+          }
+        }
+      })
+    },
+    _finishOrder() {
+      let params = {
+        orderId: this.param.orderId,
+        orderUserId: this.user.userId
+      }
+        finishOrder(params).then(res => {
+        if (res.code === '000000') {
+          if (res.data.status === 106) {
+            Toast('完成订单')
+            this.hintShow = false
+            this.$router.push({path: '/order/evaluate', query: {orderId: this.param.orderId, pic: this.param.pic, title: this.param.title}})
           }
         }
       })

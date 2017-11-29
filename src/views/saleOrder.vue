@@ -14,7 +14,7 @@
         :loadIcon="loading"
         :dataList="orderList"
         @refresh="_refresh"
-        @load="_loadMore"
+        @loadMore="_loadMore"
         >
        <order-list @refresh="_jdRefresh" :orderList="orderList" userType='service'></order-list>
       </scroller>
@@ -45,7 +45,6 @@ export default {
       refreshing: false,
       hasMore: false,
       orderList: [],
-      orderCount: 0,
       param: {
         userId: '',
         status: 1,
@@ -68,16 +67,18 @@ export default {
     OrderList
   },
   computed: {
-    ...mapGetters(['user'])
+    ...mapGetters(['user', 'orderCount'])
   },
   methods: {
     ...mapMutations({
       setOrderCount: 'ORDERCOUNT'
     }),
+    // 跳到进行中
     _goWorking() {
       this.$refs.tabItem.currentIndex = 1
       this.param.status = 2
     },
+    // 选择订单状态
     _setevaluateType(status) {
       this.param.status = status
       this._getSellOrderList()
@@ -86,11 +87,11 @@ export default {
     _getListRemind(id) {
       getListRemind(id).then(res => {
         if (res.code === '000000') {
-          this.orderCount = res.data.sellListRemind.unCatch
-          this.setOrderCount(this.orderCount)
+          this.setOrderCount(res.data.sellListRemind.unCatch)
         }
       })
     },
+    // 获取订单列表
     _getSellOrderList() {
       this.param.currentPage = 0
       this.refreshing = true
@@ -102,6 +103,7 @@ export default {
         }
       })
     },
+    // 刷新
     _refresh() {
       this._getSellOrderList()
       this._getListRemind(this.user.userId)

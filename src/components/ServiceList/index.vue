@@ -135,19 +135,19 @@ export default {
 		.service-title{
 		margin: 0 0 1px 0;
 		font-weight: 400;
-		font-size: 0.78rem;
+		font-size: 0.74rem;
 		font-weight: 400
 	}
 	.service-text,.service-price,.service-detail{
 		margin:1px 0 ;
 	}
 	.service-price{
-		color:@color-danger;
-		font-size:0.85rem;
+		color:@color-primary;
+		font-size:0.8rem;
 	}
 	.service-text{
 		.text-overflow();
-		font-size:0.7rem;
+		font-size:0.62rem;
 		color:@color-text-secondary;
 	}
 	.service-detail{

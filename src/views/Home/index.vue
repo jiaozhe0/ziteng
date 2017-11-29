@@ -89,6 +89,7 @@ import {getIndexInfo, getSerColCount, getTotal, getUserAuthStatus} from 'api/hom
 			_getIndexInfo(userId) {
 				this.setLoading(true)
 				getIndexInfo(userId).then((data) => {
+					console.log(data)
 					this.setUserInfo(data)
 					this.setLoading(false)
 				})

@@ -11,14 +11,14 @@
  		</div>
  	</div>
  	<mt-cell title="预约时间"  is-link class='order-handler-btn' @click.native="openPopupVisible">
- 	 <i slot="icon" class="icon time"></i>
- 	 <span>{{dateName ? dateName : ''}}</span>
+ 	 	<i slot="icon" class="icon time"></i>
+ 	  <span>{{dateName ? dateName : ''}}</span>
  	</mt-cell>
  	<mt-cell title="选择服务地点"  is-link class='order-handler-btn' @click.native="$router.push({path:'/home/address',query:{order:true}})">
- 	<i slot="icon" class="icon address"></i><span>{{area ? area : ''}}</span>
+ 	  <i slot="icon" class="icon address"></i><span>{{area ? area : ''}}</span>
  	</mt-cell>
- 	<mt-cell    class='order-handler-btn '>
- 		<div slot="icon"><i  class="icon edit"></i><input type="text" class='edit-input' placeholder="备注信息"></div>
+ 	<mt-cell class='order-handler-btn '>
+ 		<div slot="icon"><i  class="icon edit"></i><input type="text"  v-model='param.orderRemark' class='edit-input' placeholder="备注信息"></div>
  	</mt-cell>
  	<mt-cell title="订单金额"  class='order-handler-btn'>
  	<div><span class="price danger">￥{{param.singleAmount}}</span> x {{param.copies}}</div>
@@ -27,7 +27,7 @@
  			<p><strong>温馨提示</strong></p>
  			<p><span class="textOn">请仔细核对填写的手机号，并保持电话畅通</span>，服务者会在服务开始前与此号码沟通服务具体事宜
  			</p>
- 			<p>下单即代表同意 <router-link class="textOn" to="/agreement/service/html" replace><<用户服务协议>></router-link></p>
+ 			<p>下单即代表同意 <router-link class="textOn" to="/agreement/service/html" ><<用户服务协议>></router-link></p>
  	</section>
  
  </div>
@@ -100,7 +100,7 @@ export default {
 		}
 	},
 	deactivated() {
-		if (this.toPath.indexOf('address') < 0) {
+		if (this.toPath.indexOf('address') < 0 && this.toPath.indexOf('agreement/service/html') < 0) {
 			this.dateName = ''
 			this.area = ''
 			this.orderDate = []
@@ -155,9 +155,7 @@ export default {
 		},
 		// 下订单
 		_placeOrder() {
-			console.log(1234545, this.param)
 			placeOrder(this.param).then(res => {
-				console.log(res)
 				if (res.code === '000000') {
 					let data = res.data
 					if (data.status === 101) {
@@ -183,10 +181,12 @@ export default {
 		},
 		// 初始化时间
 		_initDate(flag) {
+			// 当前时间
 			let sT = new Date(this.formatDate(this.currentTime.currentTime)).getTime()
 			if (flag) {
 				sT += 24 * 1 * 3600 * 1000
 			}
+			// 结束时间 + 7天
 			let eT = sT + 24 * 7 * 3600 * 1000
 			let week = ''
 			for (; sT < eT; sT += 24 * 1 * 3600 * 1000) {
@@ -196,6 +196,7 @@ export default {
 				}
 				if (timeStamp(time) !== timeStamp()) {
 					let j = '00'
+					// 一天内的开始时间 结束时间
 					let i = this.currentTime.startTime && parseInt(this.currentTime.startTime.split(':')[0])
 					let e = this.currentTime.endTime && parseInt(this.currentTime.endTime.split(':')[0])
 					this.orderDate.push({
@@ -243,6 +244,7 @@ export default {
 						break
 				}
 				dateData['value'] = timeStamp(time)
+				// 设置日期显示
 				let pettern = /\d{4}-(\d{1,2})-(\d{1,2})$/
 				dateData['name'] = timeStamp(time).replace(pettern, ($1, $2, $3) => {
 					return `${$2}月${$3}日(周${week})`
@@ -252,7 +254,6 @@ export default {
 		},
 		// 初始化小时
 		_initHour(sT, eT) {
-			// console.log('fz' + 60 - parseInt(new Date(this.currentTime.currentTime).getMinutes())) * 60 * 1000)
 			for (; sT <= eT; sT += 30 * 60 * 1000) {
 				let hourData = {
 					parent: timeStamp()
@@ -266,15 +267,22 @@ export default {
 			}
 		},
 		openPopupVisible() {
-			// alert('lllll')
 			this._getAppointmentTime()
 		},
+		// 兼容safari 浏览器
 		formatDate(date) {
 			return date.replace(/-/g, '/')
 		},
 		...mapMutations({
 			setFooter: 'CHANGE_FOOTER_SHOW'
 		})
+	},
+	watch: {
+		popupVisible(val) {
+			if (!val) {
+				this.orderDate = []
+			}
+		}
 	}
 }
 </script>

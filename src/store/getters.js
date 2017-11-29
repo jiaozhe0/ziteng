@@ -17,6 +17,7 @@ export const serviceInfo = state => state.serviceInfo
 export const openId = state => state.openId
 export const orderUrl = state => state.orderUrl
 export const serviceUrl = state => state.serviceUrl
+export const serListUrl = state => state.serListUrl
 export const chatList = state => state.chatList
 export const chatCount = state => state.chatCount
 export const orderCount = state => state.orderCount

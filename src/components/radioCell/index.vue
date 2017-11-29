@@ -26,8 +26,20 @@ export default {
 	},
 	data() {
 		return {
-			result: this.modelVal
+			result: ''
 		}
+	},
+	created() {
+		this.result = this.modelVal
+	},
+	activated() {
+		this.$nextTick(() => {
+			this.result = this.modelVal
+		})
+		console.log(88888, this.result)
+	},
+	deactivated() {
+		this.result = ''
 	},
 	components: {
 		MtCell: Cell
@@ -51,7 +63,7 @@ export default {
  	}
  }
  .title{
- 	font-size:0.68rem;
+ 	font-size:0.64rem;
  }
  .des{
  	display: inline-block;

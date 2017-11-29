@@ -1,6 +1,6 @@
 /* eslint-disable */
 import "script-loader!easemob-websdk/dist/strophe-1.2.8-g.js"
-// import "script-loader!easemob-webrtc/dist/adapter.js"
+import "script-loader!easemob-webrtc/dist/adapter.js"
 // /* eslint-enable */
 import webrtc from "easemob-webrtc"
 import websdk from "easemob-websdk"
@@ -27,7 +27,7 @@ WebIM.conn = new websdk.connection({
     autoReconnectInterval: WebIM.config.autoReconnectInterval,
     isStropheLog: WebIM.config.isStropheLog,
     delivery: WebIM.config.delivery,
-    isAutoLogin: true
+    // isAutoLogin: true
 })
 
 // // for downward compatibility 

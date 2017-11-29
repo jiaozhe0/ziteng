@@ -63,11 +63,14 @@
 <style lang='less' scoped>
 @import '../../common/css/mixin.less';
   .star {
+     line-height: 10px;
     &.star-48 {
       span.star-item {
         display: inline-block;
-        .size(20px; 20px);
-        margin-right: 22px;
+        .size(40px; 20px);
+        line-height: 20px;
+         padding-right: 22px;
+        /*margin-right: 22px;*/
         background-size: 20px 20px;
         &:last-child {
           margin-right: 0;

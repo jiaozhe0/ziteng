@@ -17,7 +17,7 @@
     		<button v-show="show" @click="_sendText" class='btn send'>发送</button>
      </div>
      <div class="picture" v-show="addShow">
-     	<upload-pic :chat="true" @uploadPicture="_sendImage" :multiple="true"></upload-pic>
+     	<upload-pic :chat="true" @goServiceMap="_goServiceMap" @uploadPicture="_sendImage" :multiple="true"></upload-pic>
      </div>
      <div class="emoji" v-show="emojiShow">
      		<emoji-list @selectFace="_selectFace" ></emoji-list>
@@ -56,13 +56,6 @@ export default {
 		EmojiList,
 		uploadPic
 	},
-	created() {
-		this.fromUser = {
-			userId: this.user.userId,
-			userNick: this.user.userName,
-			userPic: this.user.photoUrl
-		}
-	},
 	mounted() {
 		this.$refs.bottom.scrollIntoView(false)
 	},
@@ -70,10 +63,13 @@ export default {
 		this.$refs.bottom.scrollIntoView(false)
 	},
 	activated() {
+		this.fromUser = {
+			userId: this.user.userId,
+			userNick: this.user.userName,
+			userPic: this.user.photoUrl
+		}
 		formatTime()
 		this.setFooter(false)
-		console.log(23456, this.chatsList)
-		localStorage.clear()
 		this._initMessageList()
 		console.log(666666, this.from)
 	},
@@ -101,6 +97,10 @@ export default {
 		}
 	},
 	methods: {
+		_goServiceMap() {
+			this.$router.push({path: '/servicemap'})
+			// alert('..........')
+		},
 		_bottomVisible() {
 			this.bottomShow = false
 			this.addShow = false
@@ -164,11 +164,13 @@ export default {
             }
         }
 		},
+		// 表情包显示
 		_emojiShow() {
 			this.bottomShow = !this.bottomShow
 			this.emojiShow = !this.emojiShow
 			this.addShow = false
 		},
+		// 地图图片显示
 		_addShow() {
 			this.bottomShow = !this.bottomShow
 			this.emojiShow = false
@@ -232,6 +234,7 @@ export default {
 		_selectFace(emoji) {
 			this.msg += emoji
 		},
+		// 初始化信息列表
 		_initMessageList() {
 			this.from = this.$route.query.otherUserId
 			this.chatList.some(item => {

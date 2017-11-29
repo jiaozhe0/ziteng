@@ -1,9 +1,10 @@
 <template>
   <div class='publish'>
-  	<mt-header title="我的收藏"></mt-header>
+  	<mt-header title="我的收藏" path="/home"></mt-header>
     <div class="content">
 			<no-data v-if="!collectList.length"></no-data>
 			<scroller v-else
+				:dataList="collectList"
 			  @refresh='_getServiceCollection'
 			  :refreshIcon='refreshing'
 			  :loadIcon='loading'

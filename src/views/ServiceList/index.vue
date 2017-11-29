@@ -1,7 +1,7 @@
 <template>
 <div class="serviceList">
-	<mt-header title="服务列表"></mt-header>
-	<div class="content" >
+	<mt-header title="服务列表" :path="serListUrl"></mt-header>
+	<div class="content">
 		<div class="serlist-top row" v-if="childTypeList.length">
 			<div class="serlist-nav col-80">
 				<type-slider ref='typeSlider' @getWidth="_getWidth">
@@ -93,9 +93,10 @@ import NoData from 'components/NoData/index'
 import RefreshIcon from 'components/Refresh/index'
 import ServiceList from 'components/ServiceList'
 import {getServiceList} from 'api/search'
-import {mapGetters} from 'vuex'
+import {mapGetters, mapMutations} from 'vuex'
 import Sort from 'components/Sort'
 import {Toast} from 'mint-ui'
+var fromPath = ''
 const LIMIT = 15
 export default {
 	data() {
@@ -127,12 +128,16 @@ export default {
 		RefreshIcon
 	},
 	activated() {
-		console.log(12, this.$route.query)
 		this._getServiceList(this.$route.query)
+		this._setFromPath()
 		this._initIndex()
 	},
 	beforeRouteLeave(to, from, next) {
 		this.toPath = to.path
+		next()
+	},
+	beforeRouteEnter(to, from, next) {
+		fromPath = from.path
 		next()
 	},
 	deactivated() {
@@ -141,7 +146,7 @@ export default {
 		}
 	},
 	computed: {
-		...mapGetters(['city', 'childTypeList'])
+		...mapGetters(['city', 'childTypeList', 'serListUrl'])
 	},
 	mounted() {
 		// this.$nextTick(() => {
@@ -283,7 +288,15 @@ export default {
 					this.refreshing = false
 				}, 20)
 			}
-		}
+		},
+		_setFromPath() {
+			if (fromPath === '/index' || fromPath === '/classify') {
+				this.setSerListUrl(fromPath)
+			}
+		},
+		...mapMutations({
+			setSerListUrl: 'SERLISTURL'
+		})
 	},
 	watch: {
 		selectedType(index) {

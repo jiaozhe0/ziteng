@@ -70,5 +70,4 @@ export default {
 <style scoped lang="less" >
 @import 'common/css/mixin.less';
 
-
 </style>

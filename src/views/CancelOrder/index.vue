@@ -2,14 +2,11 @@
 <div class='cancelOrder'>
    <mt-header title="取消原因"></mt-header>
    <div class="content cancelOrder-content">
-   	<div class="content-wrap" v-if="options[0].title">
+   	<div class="content-wrap" v-if="options.length">
+   		<reminder>请告知您取消服务的原因，您的意见对我们很重要~</reminder>
 	   	<radio-cell :radioList='options' :modelVal="result" @changeVal='_changeResult'>
 	   	</radio-cell>
-	   	<!-- <div class="result-text" v-show="result == 'other'">
-	   		<textarea name="" id="" rows="10" placeholder="请填写您取消的原因"></textarea>
-	   		<div class="number">{{num}}</div>
-	   	</div> -->
-	   	<reason v-show="result ==='other'" placeholder="填写原因" @editReason='_reasonText'></reason>
+	   	<reason v-show="result.indexOf('other') > -1" placeholder="填写原因" @editReason='_reasonText' ref='reason'></reason>
 	  </div>
 	  <div class="footer">
 	  	<button class="footer-btn" @click="_cancelOrder">提交</button>
@@ -21,7 +18,7 @@
 <script type="text/ecmascript-6">
 import MtHeader from 'components/mtHeader'
 import RadioCell from 'components/RadioCell/index'
-import Radio from 'components/RadioCell/radio'
+import Reminder from 'components/reminder/index'
 import {cancelOrder, cancelReasons, refuseOrder} from 'api/order'
 import {mapGetters} from 'vuex'
 import {Toast} from 'mint-ui'
@@ -32,31 +29,14 @@ export default {
 		return {
 			reasonText: '',
 			path: '',
-			options: [
-				{
-					value: 'noWant',
-					title: ''
-				},
-				{
-					value: 'better',
-					title: ''
-				},
-				{
-					value: 'cannot',
-					title: '对方不能提供我要的服务'
-				},
-				{
-					value: 'other',
-					title: '其他原因'
-				}
-			],
+			options: [],
 			param: {
 				reason: {
 					cancelReasonTypeId: '',
 					cancelReasonDescribe: ''
 				}
 			},
-			result: 'noWant',
+			result: '',
 			num: 255
 		}
 	},
@@ -67,8 +47,8 @@ export default {
 	components: {
 		MtHeader,
 		RadioCell,
-		Radio,
-		Reason
+		Reason,
+		Reminder
 	},
 	computed: {
 		...mapGetters(['user'])
@@ -78,6 +58,8 @@ export default {
 		this._getCancelReasons(this.$route.query.userType === 'user' ? 1 : 2)
 	},
 	deactivated() {
+		this.result = ''
+		this.options = []
 		this.param = {
 			reason: {
 				cancelReasonTypeId: '',
@@ -88,10 +70,11 @@ export default {
 	methods: {
 		_changeResult(val) {
 			this.result = val
+			console.log(val)
 			this.options.some(item => {
 				if (item.value === val) {
 					this.param.reason.cancelReasonTypeId = item['cancelReasonId']
-					if (item.value !== 'other') {
+					if (item.value !== 'other1') {
 						this.param.reason.cancelReasonDescribe = item['title']
 					}
 					return true
@@ -104,9 +87,13 @@ export default {
 				console.log(666, res)
 				if (res.code === '000000') {
 					res.data.map((item, index) => {
-						this.options[index]['title'] = item.cancelReasonName
-						this.options[index]['cancelReasonId'] = item.cancelReasonId
+						let obj = {}
+						obj['title'] = item.cancelReasonName
+						obj['cancelReasonId'] = item.cancelReasonId
+						obj['value'] = item.cancelReasonId
+						this.options.push(obj)
 					})
+					this.result = this.options[0]['cancelReasonId']
 					this.param.reason.cancelReasonTypeId = this.options[0]['cancelReasonId']
 					this.param.reason.cancelReasonDescribe = this.options[0]['title']
 				}
@@ -117,12 +104,13 @@ export default {
 			if (this.$route.query.userType === 'user') {
 				this.param.orderId = this.$route.query.orderId
 				this.param.orderUserId = this.user.userId
+				console.log(this.$refs.reason.$refs.reason.value)
 				cancelOrder(this.param).then(res => {
 				console.log(2, res)
 				if (res.code === '000000') {
-					Toast('订单取消成功')
+					Toast(res.data.msg)
 					setTimeout(() => {
-							this.$router.push({path: fromPath,
+							this.$router.replace({path: fromPath,
 							query: {'orderId': this.$route.query.orderId, userType: 'user'}})
 					}, 2000)
 				}
@@ -133,11 +121,11 @@ export default {
 				refuseOrder(this.param).then(res => {
 								console.log(2, res)
 								if (res.code === '000000') {
-									Toast('订单取消成功')
+									Toast(res.data.msg)
 									setTimeout(() => {
-											this.$router.push({path: '/service/order/detail',
+											this.$router.replace({path: fromPath,
 											query: {'orderId': this.$route.query.orderId, userType: 'service'}})
-									}, 2000)
+									}, 20)
 								}
 				})
 			}

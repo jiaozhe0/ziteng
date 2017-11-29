@@ -24,7 +24,7 @@
             </ul>
         </div>
         <!-- 评价 -->
-         <reason placeholder="请填写" @editReason='_reasonText'></reason>      
+         <reason placeholder="请填写" @editReason='_reasonText' ref="reason"></reason>      
         <!-- 上传图片列表 -->
        <div class="upload clearfix">
         <upload-pic-list  @uploadPicture='_saveEvaluatePics' @deletePic="_deletePic" @open="_openPicBtn" :pictures="pictures" :process="process" :multiple="true"></upload-pic-list>
@@ -58,6 +58,7 @@ import Reason from 'components/reason/index'
 import * as photo from 'common/js/photo'
 import {Toast} from 'mint-ui'
 import {createObjectURL} from 'common/js/browser'
+var formPath = ''
 export default {
     data() {
         return {
@@ -65,9 +66,9 @@ export default {
             typeList: [],
             pictures: [],
             uploadVisible: false,
-            describeLevel: ['on', 'off', 'off', 'off', 'off'],
-            attitudeLevel: ['on', 'off', 'off', 'off', 'off'],
-            professionalLevel: ['on', 'off', 'off', 'off', 'off'],
+            describeLevel: ['on', 'on', 'on', 'on', 'on'],
+            attitudeLevel: ['on', 'on', 'on', 'on', 'on'],
+            professionalLevel: ['on', 'on', 'on', 'on', 'on'],
             submiting: false,
             process: 0,
             param: {
@@ -87,14 +88,17 @@ export default {
       this.param.evaluateUserId = this.user.userId
     },
     activated() {
+      this.formUrl = formPath
+      console.log(this.formUrl)
       this.setFooter(false)
       this.param.orderId = this.$route.query.orderId
     },
     deactivated() {
       this.setFooter(true)
-      this.describeLevel = ['on', 'off', 'off', 'off', 'off']
-      this.attitudeLevel = ['on', 'off', 'off', 'off', 'off']
-      this.professionalLevel = ['on', 'off', 'off', 'off', 'off']
+      this.describeLevel = ['on', 'on', 'on', 'on', 'on']
+      this.attitudeLevel = ['on', 'on', 'on', 'on', 'on']
+      this.professionalLevel = ['on', 'on', 'on', 'on', 'on']
+      this.pictures = []
       this.param = {
               orderId: '',
               serviceDescribeLevel: 1,
@@ -105,6 +109,10 @@ export default {
               evaluateTypes: [],
               evaluateDescribe: ''
             }
+    },
+    beforeRouteEnter(from, to, next) {
+      formPath = from.path
+      next()
     },
     components: {
       Star,
@@ -168,6 +176,7 @@ export default {
           if (this.submiting) {
             return
           }
+          this.param.evaluateDescribe = this.$refs.reason.$refs.reason.value
           if (this.param.evaluateDescribe === '') {
             Toast('请输入评价')
             return
@@ -177,15 +186,17 @@ export default {
             return {evaluateTypeId: item}
           })
           console.log(this.param)
+          this.setLoading(true)
           saveEvaluate(this.param).then(res => {
-            console.log(123, res)
             this.submiting = false
             if (res.code === '000000') {
+              this.setLoading(false)
               Toast('评价成功')
               setTimeout(() => {
-                  this.$router.replace({path: '/service/order/detail',
-                  query: {'orderId': this.$route.query.orderId, userType: 'user'}})
-              }, 2000)
+                  window.history.back()
+                  // this.$router.replace({path: '/service/order/detail',
+                  // query: {'orderId': this.$route.query.orderId, userType: 'user', path: this.formUrl}})
+              }, 400)
             }
           })
         },
@@ -255,7 +266,8 @@ export default {
         },
         _uploadPicure() {},
         ...mapMutations({
-          setFooter: 'CHANGE_FOOTER_SHOW'
+          setFooter: 'CHANGE_FOOTER_SHOW',
+          setLoading: 'LOADING'
         }),
         _reasonText(text) {
           this.param.evaluateDescribe = text

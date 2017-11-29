@@ -32,7 +32,19 @@ export const mutation = {
 		state.config = Object.assign({}, state.config, newConfig)
 	},
 	[types.USERINFO](state, userInfo) {
+		console.log(3456778, userInfo)
 		state.userInfo = Object.assign({}, state.userInfo, userInfo)
+		state.user['photoUrl'] = userInfo.photoUrl && userInfo.photoUrl
+		state.user['userName'] = userInfo.userName && userInfo.userName
+		state.chatList.forEach(item => {
+			item.list.forEach(item => {
+				// 如果没有来路
+				if (!item.from) {
+					item.ext.userNick = userInfo.userName && userInfo.userName
+					item.ext.userPic = userInfo.photoUrl && userInfo.photoUrl
+				}
+			})
+		})
 	},
 	[types.ADDRESS](state, address) {
 		state.address = Object.assign({}, state.address, address)
@@ -58,8 +70,11 @@ export const mutation = {
 	[types.SERVICEURL](state, url) {
 		state.serviceUrl = url
 	},
+	[types.SERLISTURL](state, url) {
+		state.serListUrl = url
+	},
 	[types.CITYLIST](state, list) {
-		state.serviceUrl = list
+		state.cityList = list
 	},
 	[types.CHATCOUNT](state, key) {
 		state.chatList.some(item => {
@@ -75,6 +90,7 @@ export const mutation = {
 		console.log(555, option.msg)
     // 空数组，本地聊天的对话
     let key = option.msg.from || option.msg.to
+    // 从本地储存获取
 		if (option.msg instanceof Array) {
 			state.chatList = option.msg
 		} else {
@@ -88,6 +104,7 @@ export const mutation = {
 						return true
 					}
 				})
+				// 如果是新的对话
 				if (!has) {
 					state.chatList.push({
 								count: 1,

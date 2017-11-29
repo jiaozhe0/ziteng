@@ -6,7 +6,7 @@
  			请在{{minute}}时秒{{second < 10 ? '0'+second : second}}内完成支付
  		</p>
  		<mt-cell title="订单金额" class='order-item'>
-  			<span class="payOrder-text danger">{{$route.query.totalAmount}}</span>
+  			<span class="payOrder-text textOn">{{$route.query.totalAmount}}元</span>
   	</mt-cell>
   	<div class='payOrder-title'>支付方式</div>
   	<!--  <mt-cell title="支付宝" class='order-item'>
@@ -60,7 +60,9 @@ export default {
 			param: {
 				orderId: '',
 				openId: ''
-			}
+			},
+			test: false,
+			paySuccess: false
 		}
 	},
 	components: {
@@ -74,12 +76,26 @@ export default {
 		url = from.path
 		next()
 	},
+	beforeRouteLeave(to, from, next) {
+		if (!this.paySuccess) {
+			this.iShow = true
+			setTimeout(() => {
+				if (this.test) {
+					this.test = false
+					this.iShow = false
+					next()
+				}
+		}, 20)
+	} else {
+			next()
+		}
+	},
 	destroyed() {
 		clearInterval(this.timer)
 	},
 	activated() {
 		this.setFooter(false)
-		if (this.$route.query.minute) {
+		if (this.$route.query.minute || this.$route.query.second) {
 			this.minute = this.$route.query.minute
 			this.second = this.$route.query.second
 		}
@@ -89,6 +105,7 @@ export default {
 		clearInterval(this.timer)
 		this.minute = 29
 		this.second = 60
+		this.paySuccess = false
 		this.setFooter(true)
 	},
 	computed: {
@@ -98,19 +115,22 @@ export default {
 		...mapMutations({
 			setFooter: 'CHANGE_FOOTER_SHOW'
 		}),
+		// 前往订单详情页
 		_goOrderDetail() {
 			this.iShow = false
+			this.test = true
 			if (url.indexOf('/service/order') > -1) {
-				this.$router.push({path: '/service/order/detail',
+				this.$router.replace({path: '/service/order/detail',
 					query: {'minute': this.minute,
 					'hour': this.hour,
 					'orderId': this.$route.query.orderId,
 					'serviceId': this.$route.query.serviceId,
 					userType: 'user'}})
 			} else {
-				window.history.back()
+				this.$router.replace({path: url})
 			}
 		},
+		// 支付
 		_payOrder() {
 			this._wxMpPayInfo().then(data => {
 				this._onBridgeReady(data)
@@ -122,14 +142,20 @@ export default {
         clearInterval(this.timer)
       }
       this.timer = setInterval(() => {
-        if (this.second <= 1) {
-          this.minute -= 1
-          this.second = 60
-          if (this.minute < 0) {
+        if (this.second <= 0) {
+          if (this.minute <= 0 && this.second <= 0) {
             this.cancel = false
             clearInterval(this.timer)
+            this.paySuccess = true
+            this.$router.push({path: '/service/order/detail',
+							query: {
+								'orderId': this.$route.query.orderId,
+								'serviceId': this.$route.query.serviceId,
+								userType: 'user'}})
             return
           }
+          this.minute -= 1
+          this.second = 60
         }
         this.second -= 1
       }, 1000)
@@ -147,6 +173,7 @@ export default {
 		_onBridgeReady(data) {
 			WeixinJSBridge.invoke('getBrandWCPayRequest', data, (res) => {
 				if (res.err_msg === 'get_brand_wcpay_request:ok') {
+						this.paySuccess = true
 						this.$router.push({path: '/service/order/detail',
 											query: {'minute': this.minute,
 											'hour': this.hour,

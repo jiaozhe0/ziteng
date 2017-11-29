@@ -3,7 +3,7 @@
     <div v-for="item in chatList">
     <!-- other -->
     <div class="chat-item clearfix" v-if="item.to === user.userId">
-        <div class="time text-center center-block">sj</div>
+        <div class="time text-center center-block" v-if="item.time">{{_setTime(item.time)}}</div>
         <!-- 头像 -->
         <div class="info">
             <div class="avatar-img" @click="_goHomePage(item.ext.userId)">
@@ -49,12 +49,13 @@
                 </div>
                 <!-- 图片消息 -->
                 <div class="text me" v-else>
-                    <img :src="item.body.url" alt="" class="img-responsive" @click="_toView([...item.body.url], 0)">
+                    <img v-if="item.body.url" :src="item.body.url" alt="" class="img-responsive" @click="_toView([...item.body.url], 0)">
+                    
                 </div>
             <!-- </div> -->
             <div class="avatar-img me" @click="_goHomePage(item.ext.userId)">
              <img :src="item.ext.userPic" alt="" class="img-responsive" v-if="item.ext.userPic">
-             <div v-else class="avatar"></div>
+             <img src="./n_meiyou.png" alt="" v-else class="img-responsive">
             </div>
         </div>
     </div>
@@ -119,16 +120,17 @@ export default {
      .square(20px)
   }
  .chat-list{
-     padding: 0 10px;
+     padding: 10px;
     .chat-item{
         margin-bottom: 8px;
         text-align: center;
         .time{
             display: inline-block;
             width:auto;
+            padding:4px;
             border-radius: 4px;
             background-color: #dedbdb;;
-            line-height: 20px;
+            /*line-height: 20px;*/
             font-size: 0.5rem;
             margin-bottom: 4px;
         }

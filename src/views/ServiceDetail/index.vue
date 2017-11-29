@@ -89,8 +89,8 @@
 			<div class="pull-left text">温馨提示：为确保交易安全，请在平台内完成未付款</div>
 			<strong class="pull-right">&gt;</strong>
 		</router-link>
-		 <!-- v-if="$route.query.share" -->
-		<div class="bar bar-footer serDetial-footer share-footer">
+		<!-- v-if="$route.query.share" -->
+		<div class="bar bar-footer serDetial-footer share-footer" v-if="$route.query.share">
 			<div class='clearfix share-footer-logo'>
 					<div class="logo pull-left"></div>
 					<div class="pull-left share-footer-text"> 
@@ -103,14 +103,14 @@
 				href="http://a.app.qq.com/o/simple.jsp?pkgname=com.zitengkeji.app">打开应用</a>
 			</div>
 		</div>
-		<!-- <div class="bar bar-footer serDetial-footer" v-else>
+		<div class="bar bar-footer serDetial-footer" v-else>
 			<div class="store-btn"  @click="_saveServiceCollection">
 			<div v-if="collect" class="on"> <div class="icon-btn collected" ></div> 已收藏 </div>
 			<div v-else ><div class="icon-btn collect"></div> 收藏 </div>
 			</div>
 			<div class="message-btn" @click="_goChat"><div class="icon-btn send"></div>发消息</div>
 			<div class="order-btn" @click="_goOrder"> 立即下单 </div>
-		</div> -->
+		</div>
  </div>
 </template>
 
@@ -159,17 +159,12 @@ export default {
 			allCount: 0
 		}
 	},
-	// mounted() {
-	// 	this.$nextTick(() => {
-	// 	})
-	// },
-	created() {
-		this.setFooter(false)
-	},
 	updated() {
 		this.$refs.describe.innerHTML = this.text
 	},
 	activated() {
+		this.setOrderUrl('')
+		this.setFooter(false)
 		this.$root.config = ''
 		this._setUrl(serUrl)
 		let serviceId = this.$route.query.serviceId
@@ -222,7 +217,8 @@ export default {
 			setServiceInfo: 'SERVICEINFO',
 			setPictures: 'PICTURES',
 			setServiceUrl: 'SERVICEURL',
-			setLoading: 'LOADING'
+			setLoading: 'LOADING',
+			setOrderUrl: 'ORDERURL'
 		}),
 		_toLogin() {
 			if (!this.user.userId) {
@@ -330,11 +326,9 @@ export default {
 		_imageLoad() {
 			if (!this.checkloaded) {
           this.checkloaded = true
-          // this.$refs.scroll.refresh()
       }
 		},
 		_getServiceTypeName() {
-			// let flag = false
 			return this.serviceTypeList.some(item => {
 				item.typeList.some(sonItem => {
 					if (sonItem.serviceTypeId === this.$route.query.serviceTypeId) {
@@ -375,11 +369,12 @@ export default {
 		// 设置来源路由
 		_setUrl(url) {
       console.log(99999, url)
-      if (url.indexOf('/home/publish') > -1 || url.indexOf('/index') > -1 || url.indexOf('/serviceList') > -1 || url.indexOf('/index/search/list') > -1) {
+      if (url.indexOf('/home/collect') > -1 || url.indexOf('/home/publish') > -1 || url.indexOf('/index') > -1 || url.indexOf('/serviceList') > -1 || url.indexOf('/index/search/list') > -1) {
         console.log(url)
         this.setServiceUrl(url)
       }
     },
+    // 对话
      _goChat() {
 				if (!this.user.userId) {
 					this.$router.push('/login')
@@ -474,7 +469,7 @@ export default {
 		font-size: 0.54rem;
 		flex:1;
 		.on{
-			color:@color-danger
+			color:@color-primary
 		}
 	}
 	.store-btn{

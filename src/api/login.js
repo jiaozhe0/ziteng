@@ -1,6 +1,6 @@
 import axios from 'axios'
 import {header, server} from './common'
-const wxserver = 'http://test.ijzsh.com'
+// const server = 'http://test.ijzsh.com'
 // 发送手机验证码
 export function getTelMessage(tel) {
   const url = `${server}/act/loginphone/sendMessage/${tel}`
@@ -48,7 +48,7 @@ export function bindWeixinUserPhone(unionid, tel, code) {
 
 // 2、获取access token信息
 export function getToken(code) {
-  const url = `${wxserver}/act/wx/user/getToken`
+  const url = `${server}/act/wx/user/getToken`
   return axios.post(url, {code: code}, {
     headers: header()
   }).then((res) => {
@@ -58,7 +58,7 @@ export function getToken(code) {
 
 // 刷新access token信息
 export function refreshToken(token) {
-  const url = `${wxserver}/act/wx/user/refreshToken`
+  const url = `${server}/act/wx/user/refreshToken`
   return axios.post(url, {refresh_token: token}, {
     headers: header()
   }).then((res) => {
@@ -68,7 +68,7 @@ export function refreshToken(token) {
 
 // 3、获取用户信息
 export function getUserInfo(accessToken, openid) {
-  const url = `${wxserver}/act/wx/user/getUserInfo`
+  const url = `${server}/act/wx/user/getUserInfo`
   return axios.post(url, {
 			access_token: accessToken,
 			openid: openid
@@ -100,6 +100,16 @@ export function saveLoginLog(id) {
     userId: id,
     systemType: 3
   }, {
+    headers: header()
+  }).then((res) => {
+    return Promise.resolve(res.data)
+  })
+}
+
+// 校验手机验证码
+export function _checkPhoneCode(phoneNumber, phoneCode) {
+  const url = `${server}/act/loginphone/checkPhoneCode/phoneNumber/phoneCode`
+  return axios.get(url, {
     headers: header()
   }).then((res) => {
     return Promise.resolve(res.data)

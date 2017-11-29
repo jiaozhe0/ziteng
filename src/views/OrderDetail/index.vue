@@ -43,7 +43,6 @@
             </li>
           </ul>
       </div>
-
   	<scroll class="content orderDetail-content" 
     :class="{'on':orderInfo.orderStatus == 3, 'success':orderInfo.orderStatus == 3 || orderInfo.orderStatus == 4 && orderInfo.isEvaluate == 1|| orderInfo.orderStatus == 2 && param.userType == 'service'}"
     ref="scroll">
@@ -92,6 +91,10 @@
   		<mt-cell title="地址" class='order-item' is-link @click.native="_toAddress" v-if="orderInfo.address">
   			<span class="order-item-text">{{orderInfo.address.area}}</span>
   		</mt-cell>
+      <mt-cell title="备注信息" class='order-item'>
+        <span class="order-item-text">{{orderInfo.orderRemark}}</span>
+      </mt-cell>
+      <div style="height: 8px"></div>
   		<mt-cell title="订单编号" class='order-item'>
   			<span class="order-item-text">{{orderInfo.displayOrderId}}</span>
   		</mt-cell>
@@ -99,11 +102,14 @@
   			<span class="order-item-text">{{orderInfo.totalAmount}}元</span>
   		</mt-cell>
   		<mt-cell title="支付路径" class='order-item'>
-  			<span class="order-item-text" v-if="orderInfo.payType == 2"><div class="payIcon aliPay"></div>支付宝</span>
-        <span class="order-item-text" v-else><div class="payIcon weChat"></div>微信</span>
+        <div v-if="orderInfo.isPay == 1">
+    			<span class="order-item-text" v-if="orderInfo.payType == 2"><div class="payIcon aliPay"></div>支付宝</span>
+          <span class="order-item-text" v-else><div class="payIcon weChat"></div>微信</span>
+        </div>
   		</mt-cell>
       <p class='textOn ' v-if="orderInfo.orderStatus == 2 && param.userType == 'service'">如订单遇到问题，请联系客服解决。客服热线：4006061260</p>
-      <p class='textOn ' v-if="orderInfo.orderStatus == 3 && param.userType == 'user'">退款信息</p>
+      <!-- v-if="orderInfo.orderStatus == 3 && param.userType == 'user' && orderInfo.isPay == 1 && orderInfo.isRefund == 2" -->
+      <div  v-if="orderInfo.orderStatus == 3 && param.userType == 'user' && orderInfo.isPay == 1 && orderInfo.isRefund == 1" class='refund text-right'>微信退款：<span class='textOn'>{{orderInfo.totalAmount}}元</span> <p>退款将在7-15个工作日内原路返回到账号 </p> </div>
      <div class="card evaluateList" ref="evaluate" v-if="evaluateList.length">
           <div class="card-header">
             <div class="serDtial-title">
@@ -118,24 +124,27 @@
     </div>
   	</scroll>
     <!-- 底部导航 -->
-    <div class="bar bar-footer text-right orderDetail-footer" v-if="orderInfo.orderStatus == 0 || orderInfo.orderStatus == 1 || orderInfo.orderStatus == 2 && param.userType == 'user' || orderInfo.orderStatus == 4 && orderInfo.isEvaluate == 0 ">
+    <div class="bar bar-footer text-right orderDetail-footer" v-if="minute > 0 && orderInfo.orderStatus == 0 || orderInfo.orderStatus == 1 || orderInfo.orderStatus == 2 && param.userType == 'user' || orderInfo.orderStatus == 4 && orderInfo.isEvaluate == 0 ">
       <div class="text-right" v-if="param.userType == 'user'">
            <button class="pay-btn pay" v-if="orderInfo.orderStatus == 4 && orderInfo.isEvaluate == 0" @click="_goEvaluate">去评价</button>
            <button class="pay-btn cancel" @click="_goCancelOrder" v-show="cancel" v-if="orderInfo.orderStatus == 0 || orderInfo.orderStatus == 1 || orderInfo.orderStatus == 2">取消订单</button>
            <button class="pay-btn pay" v-if="orderInfo.orderStatus == 0" @click="_goOrderPay">立即支付</button>
-           <button class="pay-btn pay" v-if="orderInfo.orderStatus == 2" @click="_finishOrder" >确认完成</button>
+           <button class="pay-btn pay" v-if="orderInfo.orderStatus == 2" @click="hintShow=true" >确认完成</button>
       </div>
       <div class="text-right" v-else-if="param.userType == 'service'">
            <button class="pay-btn cancel" @click="_goCancelOrder" v-show="cancel">拒单</button>
            <button class="pay-btn pay" @click="_receiveOrder">确认接单</button>
       </div>
     </div>
+    // 完成订单提示框
+    <hint :iShow.sync="hintShow" @finishOrder="_finishOrder"></hint>
 </div>
 </template>
 
 <script type="text/ecmascript-6">
 import MtHeader from 'components/mtHeader'
 import Scroll from 'components/Scroll'
+import Hint from 'components/hint/index'
 import {Cell, Toast} from 'mint-ui'
 import {getDetail, getStatus, receiveOrder, finishOrder} from 'api/order'
 import {mapMutations, mapGetters} from 'vuex'
@@ -149,28 +158,28 @@ export default {
 			buyPathSecond: false,
       buyPathThird: false,
       buyPathFourth: false,
-      salePathFirst: false,
-      salePathSecond: false,
-      salePathThird: false,
 			second: 0,
 			minute: 0,
-      evaluateList: [],
-      orderInfo: {},
+      hintShow: false,
       cancel: true,
       param: {
         orderId: '', // 服务ID
         userType: '', // 用户类型
         userId: '' // 用户ID
       },
-      orderStatus: {}
+      evaluateList: [], // 评论
+      orderInfo: {}, // 订单信息
+      orderStatus: {} // 订单状态
 		}
 	},
 	created() {
-    this.setFooter(false)
     this.param.userId = this.user.userId
 	},
   activated() {
+    console.log(window.history)
+    this.setFooter(false)
     this._setUrl(url)
+    // 倒计时
     if (this.$route.query.hour) {
       this.minute = this.$route.query.hour && this.$route.query.hour
       this.second = this.$route.query.minute && this.$route.query.minute
@@ -182,9 +191,11 @@ export default {
     this._getStatus(this.$route.query.orderId)
   },
   deactivated() {
-    this.buyPathFirst = false
-    this.buyPathSecond = false
-    this.buyPathThird = false
+    if (this.toPath.indexOf('/view') < 0) {
+      this.buyPathFirst = false
+      this.buyPathSecond = false
+      this.buyPathThird = false
+    }
     this.setFooter(true)
     clearInterval(this.timer)
   },
@@ -193,6 +204,13 @@ export default {
   },
   beforeRouteEnter(to, from, next) {
     url = from.path
+    next()
+  },
+  beforeRouteLeave(to, from, next) {
+    this.toPath = to.path
+    if (to.path === '/service/order') {
+      this.$router.replace({path: this.orderUrl})
+    }
     next()
   },
   updated() {
@@ -208,7 +226,8 @@ export default {
 		MtHeader,
 		MtCell: Cell,
     Scroll,
-    EvaluateList
+    EvaluateList,
+    Hint
 	},
 	methods: {
     // 电话
@@ -242,6 +261,11 @@ export default {
           }
           this.setLoading(false)
           console.log(555, this.orderInfo)
+          this.$nextTick(() => {
+            setTimeout(() => {
+              this.$refs.scroll.refresh()
+            }, 20)
+          })
         }
       })
     },
@@ -299,7 +323,11 @@ export default {
     },
     // 进入支付页面
     _goOrderPay() {
-      this.$router.push({path: '/service/order/pay', query: {'orderId': this.orderInfo.orderId, minute: this.minute, second: this.second}})
+      if (this.minute <= 0 && this.second < 5) {
+        Toast('支付已超时')
+        return
+      }
+      this.$router.push({path: '/service/order/pay', query: {userId: this.orderInfo.userId, 'orderId': this.orderInfo.orderId, minute: this.minute, second: this.second, totalAmount: this.orderInfo.totalAmount}})
     },
     // 倒计时
     _countDown() {
@@ -308,13 +336,14 @@ export default {
       }
       this.timer = setInterval(() => {
         if (this.second <= 0) {
-          this.minute -= 1
-          this.second = 60
-          if (this.minute <= 0) {
+          if (this.minute <= 0 && this.second <= 0) {
+            this._getDetail(this.param)
             this.cancel = false
             clearInterval(this.timer)
             return
           }
+          this.minute -= 1
+          this.second = 60
         }
         this.second -= 1
       }, 1000)
@@ -333,12 +362,19 @@ export default {
       })
     },
     _setUrl(url) {
+      console.log(456, url)
+      // 设置返回路径 如果是从订单列表进入的
       if (url.indexOf('/order/buy') > -1 || url.indexOf('/order/sale') > -1) {
         this.setOrderUrl(url)
-      } else if (url.indexOf('/order/pay') > -1) {
+        // 如果是从支付页面进入，并且之前的路径不是列表页进入的就返回服务详情页
+      } else if (url.indexOf('/order/evaluate') > -1) {
+        console.log(777, this.$route.query.path)
+        this.setOrderUrl(this.$route.query.path)
+      } else if (url.indexOf('/order/pay') > -1 && this.orderUrl.indexOf('/order/buy') < 0 || this.orderUrl.indexOf('/order/buy') < 0) {
         let uri = '/servicedetail?serviceId=' + this.$route.query.serviceId
         this.setOrderUrl(uri)
       }
+      console.log(123, this.orderUrl)
     },
     _toAddress() {
       this.$router.push({path: '/servicemap',
@@ -466,7 +502,7 @@ export default {
  .concatBtn{
   display: inline-block;
   .square(28px);
-  background-size: 28px 28px;
+  background-size:100%;
   &.phone{
     .bg-view-image('OrderDetail/phone')
   }
@@ -481,5 +517,19 @@ export default {
   border-left: 3px solid @color-danger;
   padding-left:10px;
   font-size: 0.7rem;
+ }
+ .refund{
+  margin-top: 10px;
+  padding: 0 10px;
+  width: 100%;
+  font-size: 0.64rem;
+  span.textOn{
+    padding: 0;
+    font-size: 0.74rem;
+  }
+  p{
+    margin: 0;
+    color:@color-text-gray;
+  }
  }
 </style>

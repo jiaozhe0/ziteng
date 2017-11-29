@@ -1,29 +1,32 @@
 <template>
-<div class='status danger text-center' >
+<div class='status danger text-center'>
+	<!-- 我的认证页面：认证状态， -->
 	<div v-if="type">{{statusText}}<span v-if="authDescribe">({{authDescribe}})</span></div>
+	<!-- 服务详情页：服务发布审核状态 -->
 	<div v-else-if='!type && !!serviceStatus'>{{serviceText}}</div>
-  <router-link v-else to=""  class="service-status">
+	<!-- 我的发布页面：认证状态 -->
+  <div v-else  class="service-status">
   	<div>你还未提交认证，用户无法购买您的服务</div>
   	<div>去认证</div>
-  </router-link>
+  </div>
 </div>
 </template>
 <script type="text/ecmascript-6">
 export default {
 	props: {
-		status: {
-			type: Number,
-			default: 0
-		},
-		type: {
+		type: { // 如果type值为true,则表示身份真正
 			type: Boolean,
 			default: true
 		},
-		authDescribe: {
+		status: { // 身份认证状态值
+			type: Number,
+			default: 0
+		},
+		authDescribe: { // 认证信息描述
 			type: String,
 			default: ''
 		},
-		serviceStatus: {
+		serviceStatus: { // 发布服务的审核状态值
 			type: Number,
 			default: 0
 		}

@@ -21,6 +21,13 @@
 					</div>
 					<p :class="{'chatStyleText': chat}">相册</p>
 				</div>
+				<!-- <div class="text-center upload-btn" v-if="chat" >
+					<div class="upload-btn-items"  @click="_goServiceMap">
+						<div class="upload-btn-picture upload-btn-item">
+						</div>
+					</div>
+					<p :class="{'chatStyleText': chat}">地图</p>
+				</div> -->
 			</div>
 </template>
 
@@ -74,6 +81,13 @@ export default {
 			} else {
 				this.$emit('uploadPicture', e.target.files[0])
 			}
+		},
+		_goServiceMap() {
+			// this.$router.push({path: '/servicemap',
+   //      query: {lng: this.orderInfo.address.longitude,
+   //        lat: this.orderInfo.address.latitude,
+   //         name: this.orderInfo.address.area}})
+			this.$emit('goServiceMap')
 		}
 	}
 }

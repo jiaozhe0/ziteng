@@ -6,7 +6,7 @@
 			<div class="homepage-header-content" >
    		<div class="homePage-top"></div>
    		<div class="homePage-info card text-center" ref='main'>
-   			<div class="card-content" >
+   			<div class="card-content" v-if='server.photoUrl'>
    				<div class="card-content-inner">
    					<div class="avatar-img" ref='avatar'>
 							<img :src="server.photoUrl" 
@@ -83,7 +83,8 @@ export default {
 			serviceList: [],
 			refreshText: '下拉',
 			server: {
-				evaluateNumber: 0
+				evaluateNumber: 0,
+				photoUrl: ''
 			},
 			serverStatus: {},
 			isMore: false,
@@ -107,9 +108,6 @@ export default {
 	computed: {
 		...mapGetters(['user', 'config'])
 	},
-	created() {
-		this.setFooter(false)
-	},
 	activated() {
 		this.setFooter(false)
 		this._getUserAllInfo(this.$route.query.userId)
@@ -127,7 +125,7 @@ export default {
 				this.$refs.avatar.style.webkitTransform = `scale(${1 - e.target.scrollTop / 260})`
 				this.$refs.avatar.style.opacity = `${1 - e.target.scrollTop / 260}`
 				this.$refs.main.style.height = `${110 - e.target.scrollTop / 26})px`
-			}, 0)
+			}, 20)
 		}
 		this.$nextTick(function() {
 			this.$refs.serviceWrap.style.height = `${this.height - 44}px`
@@ -153,9 +151,10 @@ export default {
 			this.$router.push({path: '/home/evaluate/server', query: {serviceUserId: this.$route.query.userId}})
 		},
 		_getUserAllInfo(data) {
+			console.log(4567, data)
 			getUserAllInfo(data).then((data) => {
 				console.log(123, data)
-				this.server = data
+				this.server = Object.assign({}, this.server, data)
 				this.serverStatus = data.userAuthStatuss[0]
 				// 设置分享内容
 				if (this.user.userId === this.$route.query.userId) {
@@ -210,6 +209,7 @@ export default {
 		// 数据处理
 		_processData(data, flag) {
 			if (!data.length) {
+				this.refreshing = false
 				Toast('暂无数据')
 				return
 			}

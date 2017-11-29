@@ -11,15 +11,15 @@
   </mt-tab-item>
   <mt-tab-item >
     <router-link to='/classify' class="needsclick">
-    <div  @click="selected='classify'" class="needsclick">
+    <div class="needsclick">
      <div class="icon classify" :class="{'classify-on':selected=='classify'}"></div>
       分类
     </div>
     </router-link> 
   </mt-tab-item>
   <mt-tab-item >
-  <!--  :to="user.userId ? '/message': '/login'" -->
-    <router-link :to="user.userId ? '/download': '/login'" class='tab-reItem' replace>
+  <!--  :to="user.userId ? '/message': '/login'" /download-->
+    <router-link :to="user.userId ? '/message': '/login'" class='tab-reItem' replace>
       <div  @click="selected='message'">
       <div class="icon message" :class="{'message-on':selected=='message'}"></div>
       消息
@@ -28,7 +28,7 @@
     </router-link>
   </mt-tab-item>
   <mt-tab-item >
-    <router-link :to="user.userId ? '/download': '/login'" class='tab-reItem'>
+    <router-link :to="user.userId ? '/order': '/login'" class='tab-reItem'>
     <div @click="selected='order'">
       <div class="icon order" ></div>订单
     </div>

@@ -35,8 +35,9 @@
 				<button class="pay-btn cancel" 
 				@click.stop="_goCancelOrder(item.orderId)"
 				v-if="item.orderStatus == 0 || item.orderStatus == 1 || item.orderStatus == 2">取消订单</button>
-				<button class="pay-btn pay" @click.stop="_goPayOrder(item.orderId)" v-if="item.orderStatus==0">待支付</button>
-				<button class="pay-btn pay" v-if="item.orderStatus == 2" @click.stop="_finishOrder(item)">确认完成</button>
+				<button class="pay-btn pay" @click.stop="_goPayOrder(item)" v-if="item.orderStatus==0">待支付</button>
+				<!-- _finishOrder(item) -->
+				<button class="pay-btn pay needsclick"  v-if="item.orderStatus == 2" @click.stop="_finishOrders(item, $event)">确认完成</button>
 			</div>
 			<!-- 出售订单 -->
 			<div class='orderList-btn' v-else>
@@ -62,6 +63,9 @@ export default {
 		},
 		path: {
 			type: Boolean
+		},
+		orderInfo: {
+			type: Object
 		}
 	},
 	components: {
@@ -91,21 +95,22 @@ export default {
 			this.$router.push({path: '/service/order/cancel', query: {orderId: id, userType: this.userType}})
 		},
 		// 去支付
-		_goPayOrder(id) {
-			getStatus(id).then(res => {
+		_goPayOrder(item) {
+			getStatus(item.orderId).then(res => {
 				if (res.code === '000000') {
-					console.log(res)
 					let time = res.data.remainTime
 					console.log(time)
 					if (time) {
 						let second = parseInt(time / 1000 % 60, 10)
 						let minute = parseInt(time / 1000 / 60 % 60, 10)
-						if (minute > 1) {
-							this.$router.push({path: '/service/order/pay',
-								query: {orderId: id, userType: this.userType, second: second, minute: minute}})
+						if (minute >= 0 && second > 4) {
+							this.$router.replace({path: '/service/order/pay',
+								query: {userId: item.orderUserId, orderId: item.orderId, totalAmount: item.totalAmount, userType: this.userType, second: second, minute: minute}})
 						} else {
+							setTimeout(() => {
 								Toast('支付已超时')
 								return
+							}, 5000)
 						}
 					}
 				}
@@ -119,7 +124,6 @@ export default {
 			}
 			console.log(param)
 			receiveOrder(param).then(res => {
-				console.log(res)
 				if (res.code === '000000') {
 					if (res.data.status === 103) {
 						this.$emit('refresh')
@@ -127,6 +131,21 @@ export default {
 					}
 				}
 			})
+		},
+		_finishOrders(item, event) {
+			console.log(123, event)
+			if (!event._constructed) {
+				return
+			}
+			let orderInfo = {
+				orderId: item.orderId,
+				// orderUserId: this.user.userId,
+				pic: item.servicePicName,
+				title: item.serviceTitle
+			}
+			// this.$emit('setOrderInfo', orderInfo)
+			this.$root.eventHub.$emit('setOrderInfo', orderInfo)
+			// 设置orderInfo信息
 		},
 		// 购买确认完成 ,刷新订单列表 buyOrder
     _finishOrder(item) {
@@ -204,7 +223,7 @@ export default {
 .concatBtn{
   display: inline-block;
   .size(22px,22px);
-  background-size: 22px 22px;
+  background-size: cover;
   &.phone{
     .bg-image('orderList/phone')
   }

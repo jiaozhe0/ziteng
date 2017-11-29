@@ -1,6 +1,6 @@
 <template>
   <div class="classify">
-  	<mt-header title="分类"></mt-header>
+  	<mt-header title="分类" path="/index"></mt-header>
   	<div class="content">
   		<div class="classify-nav pull-left"  ref='classifyNav'>
 				<ul>

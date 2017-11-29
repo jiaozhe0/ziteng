@@ -22,7 +22,6 @@
 						ref="scroll"
 						>
 			<slot></slot>
-
 			<div class="icon-item loading" ref="load">
 				<div class="refresh-text">{{loadText}}加载</div>
 		  	<div class="img-wrap" ref='loadIcon' style='display:none'></div>
@@ -58,7 +57,8 @@ export default {
 			loadText: '上拉'
 		}
 	},
-	mounted() {
+	activated() {
+		// this.$refs.scroll.refresh()
 	},
 	components: {
 		Scroll
@@ -76,19 +76,23 @@ export default {
 		_listenScroll(pos, maxVal) {
 			this.$emit('scrollTop', pos.y)
 			if (pos.y > 0 && pos.y <= 50) {
-				this.$refs.refreshIcon.style.transform = `scale(${1 + pos.y / 100})`
-				this.$refs.refreshIcon.style.webkitTransform = `scale(${1 + pos.y / 100})`
-				this.$refs.refresh.style.transform = `translateY(${pos.y}px)`
-				this.$refs.refresh.style.webkitTransform = `translateY(${pos.y}px)`
+				this.$nextTick(() => {
+					this.$refs.refreshIcon.style.transform = `scale(${1 + pos.y / 100})`
+					this.$refs.refreshIcon.style.webkitTransform = `scale(${1 + pos.y / 100})`
+					this.$refs.refresh.style.transform = `translateY(${pos.y}px)`
+					this.$refs.refresh.style.webkitTransform = `translateY(${pos.y}px)`
+				})
 			}
 			if (pos.y > 50) {
 				this.refreshText = '松开'
 			}
 			if (maxVal >= pos.y) {
-				this.$refs.loadIcon.style.transform = `scale(${1 - (pos.y - maxVal) / 100})`
-				this.$refs.loadIcon.style.webkitTransform = `scale(${1 - (pos.y - maxVal) / 100})`
-				this.$refs.load.style.transform = `translateY(${pos.y - maxVal}px)`
-				this.$refs.load.style.webkitTransform = `translateY(${pos.y - maxVal}px)`
+				this.$nextTick(() => {
+					this.$refs.loadIcon.style.transform = `scale(${1 - (pos.y - maxVal) / 100})`
+					this.$refs.loadIcon.style.webkitTransform = `scale(${1 - (pos.y - maxVal) / 100})`
+					this.$refs.load.style.transform = `translateY(${pos.y - maxVal}px)`
+					this.$refs.load.style.webkitTransform = `translateY(${pos.y - maxVal}px)`
+				})
 			}
 			if (pos.y <= maxVal - 50) {
 				this.loadText = '松开'

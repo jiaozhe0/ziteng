@@ -1,6 +1,6 @@
 <template>
   <div class='searchList'>
-    <search :value="key" @search="_getSearchList" path="/index/search"></search>
+    <search :value="key" @search="_getSearchList" path="/index/search" ></search>
     <div class="content" ref="ll">
      <scroller class="noData" v-if="!searchList.length" ref="noData">
        <no-Data></no-Data>
@@ -13,6 +13,7 @@
        :refreshIcon="refreshing"
        :loadIcon="loading"
        ref='scroll'
+       :dataList="searchList"
        >
     	<service-list :serviceList="searchList" :searchContent="data.searchContent && data.searchContent"></service-list>
      </scroller>
@@ -46,14 +47,10 @@ export default {
 				baiduCityId: '',
 				serviceParentTypeId: '',
 				serviceTypeId: '',
-				page: 0
+				pageNum: 0
 			},
 			refreshText: '下拉'
 		}
-	},
-	created() {
-		console.log('出发了嘛')
-		this.data.searchContent = this.$route.query.value
 	},
 	activated() {
 		// console.log(this.$refs.ll)
@@ -97,7 +94,7 @@ export default {
 					this.sortType = {evaluateNumber: 'desc'}
 					break
 			}
-			this.data.page = 0
+			this.data.pageNum = 0
 			console.log(88, this.sortType)
 			getServiceList(Object.assign({}, this.data, this.sortType)).then((data) => {
 				console.log(data)
@@ -118,6 +115,7 @@ export default {
 		},
 		// 加载更多
 		_loadMore() {
+			// alert('...')
 			if (this.loading) {
 				return
 			}
@@ -125,8 +123,10 @@ export default {
 				Toast('没有更多数据')
 				return
 			}
-				this.data.page += 1
+				this.data.pageNum += 1
 				this.loading = true
+				console.log('加载更多')
+				console.log(Object.assign({}, this.data, this.sortType))
 				getServiceList(Object.assign({}, this.data, this.sortType)).then((data) => {
 					console.log(data)
 					this._processingData(data.data, true)
@@ -137,7 +137,7 @@ export default {
 			if (this.refreshing) {
 				return
 			}
-			this.data.page = 0
+			this.data.pageNum = 0
 			this.refreshing = true
 			getServiceList(Object.assign({}, this.data, this.sortType)).then((data) => {
 				this._processingData(data.data)
@@ -149,16 +149,27 @@ export default {
 				Toast('没有更多数据')
 			}
 			if (flag) {
-				this.searchList.concat(val)
+				this.searchList = this.searchList.concat(val)
 				this.loading = false
 				if (val.length < LIMIT) {
 					this.hasMore = true
 				}
 			} else {
+				console.log('刷新数据')
+				console.log(val)
 				this.searchList = val
 				this.refreshing = false
 			}
 		}
+		// _back() {
+		// 	 setTimeout(() => {
+  //       if (this.path) {
+  //         this.$router.push(this.path)
+  //       } else {
+  //         window.history.back()
+  //       }
+  //     }, 20)
+		// }
 	},
 	computed: {
 		...mapGetters(['city']),

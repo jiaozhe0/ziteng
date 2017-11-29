@@ -40,8 +40,6 @@ export default {
   },
   data() {
 		return {
-				refreshText: '下拉刷新',
-				loadingMoreText: '上拉加载'
 		}
   },
   mounted() {
@@ -67,6 +65,7 @@ export default {
         let me = this
         // 出发滚动和y周最大高度
         this.scroll.on('scroll', (pos) => {
+           console.log('高度')
            console.log(this.scroll.maxScrollY)
            me.$emit('scroll', pos, this.scroll.maxScrollY)
         })
@@ -76,9 +75,10 @@ export default {
 						// alert(this.scroll.maxScrollY)
 						if (this.scroll.y > 40) {
               this.$emit('scrollToTop')
-            } else if (Math.abs(this.scroll.maxScrollY) % -700 === 0 || Math.abs(this.scroll.maxScrollY) % -700 > 100 && this.scroll.y <= (this.scroll.maxScrollY + 50)) {
+            } else if (Math.abs(this.scroll.maxScrollY) % -2103 === 0 || Math.abs(this.scroll.maxScrollY) % -1438 === 0 || Math.abs(this.scroll.maxScrollY) % -700 === 0 || Math.abs(this.scroll.maxScrollY) % -700 > 100 && this.scroll.y <= (this.scroll.maxScrollY + 50)) {
               this.$emit('scrollToEnd')
             }
+            console.log(this.scroll.maxScrollY)
             this.$emit('scrollToGap')
           })
         }

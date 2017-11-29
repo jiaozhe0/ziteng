@@ -10,6 +10,7 @@ export function getServiceList(store) {
 				let serTypeList = []
 				let parTypeList = []
         console.log(1345, data)
+        if (data) {
 				data.forEach((item, index) => {
 					if (!serviceType[item.parentId] && item.parentId !== 'root') {
 						serviceType[item.parentId] = {}
@@ -28,6 +29,9 @@ export function getServiceList(store) {
 				store.commit('PARENTTYPELIST', parTypeList)
 				store.commit('SERVICETYPELIST', serTypeList)
 				return Promise.resolve({parTypeList, serTypeList})
+      } else {
+        console.log('报错啦')
+      }
 	})
 }
 // 2.5.2.修改服务销售状态
