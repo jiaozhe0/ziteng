@@ -1,5 +1,6 @@
 import axios from 'axios'
 import {header, server} from './common'
+import store from '../store'
 // 2.8.1.获取系统预约时间规则
 export function getAppointmentTime(data) {
   const url = `${server}/act/order/appointmentTime`
@@ -44,9 +45,12 @@ export function getListRemind(id) {
 export function getDetail(data) {
   const url = `${server}/act/order/detail`
   return axios.post(url, data, {
-    headers: header()
+    headers: header(),
+    timeout: 7000
   }).then((res) => {
     return Promise.resolve(res.data)
+  }).catch(() => {
+    store.commit('LOADING', false)
   })
 }
 // 2.8.6.获取购买订单列表

@@ -58,6 +58,7 @@ import {Cell, Popup, Toast} from 'mint-ui'
 import {mapGetters, mapMutations} from 'vuex'
 import {getAppointmentTime, placeOrder} from 'api/order'
 import Picker from 'components/picker/index'
+var fromPath = ''
 // , placeOrder
 const timeStamp = require('time-stamp')
 export default {
@@ -65,6 +66,7 @@ export default {
 		return {
 			area: '', // 地址
 			dateTransmit: '',
+			hxUserId: '', // 环信userid
 			param: {
 				'serviceId': '', // 服务id
 				'orderUserId': '', // 下单用户
@@ -84,6 +86,10 @@ export default {
 			year6Value: []
 		}
 	},
+	beforeRouteEnter(to, from, next) {
+		fromPath = from.path
+		next()
+	},
 	beforeRouteLeave(to, from, next) {
 		this.toPath = to.path
 		next()
@@ -91,8 +97,10 @@ export default {
 	activated() {
 		this.setFooter(false)
 		this.param.orderUserId = this.user.userId
-		// this.param.serviceId = this.$route.query.serviceId
 		this.param = Object.assign({}, this.param, this.serviceInfo)
+		if (fromPath.indexOf('servicedetail') > -1) {
+			this.hxUserId = this.$route.query.userId && this.$route.query.userId
+		}
 		// 地址
 		if (this.$route.query.id) {
 			this.param.orderAddressId = this.$route.query.id
@@ -102,6 +110,7 @@ export default {
 	deactivated() {
 		if (this.toPath.indexOf('address') < 0 && this.toPath.indexOf('agreement/service/html') < 0) {
 			this.dateName = ''
+			this.hxUserId = ''
 			this.area = ''
 			this.orderDate = []
 			this.param = {
@@ -159,7 +168,7 @@ export default {
 				if (res.code === '000000') {
 					let data = res.data
 					if (data.status === 101) {
-						this.$router.replace({path: '/service/order/pay', query: {orderId: data.orderId, serviceId: this.$route.query.serviceId, totalAmount: this.pay}})
+						this.$router.replace({path: '/service/order/pay', query: {orderId: data.orderId, userId: this.hxUserId, serviceId: this.$route.query.serviceId, totalAmount: this.pay}})
 					} else {
 						Toast(data.msg)
 					}

@@ -66,7 +66,7 @@ import {getIndexInfo, getSerColCount, getTotal, getUserAuthStatus} from 'api/hom
 				flag: true,
 				collectionCount: 0,
 				total: 0,
-				url: '/home/auth'
+				url: '/home/auth/person'
 			}
 		},
 		created() {

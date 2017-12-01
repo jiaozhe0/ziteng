@@ -3,7 +3,7 @@
 	 <div v-show="!pictureList.lenght">
 		 <mt-header :title="title"></mt-header>
 		 <!-- v-show="!evaluateList.length && !unData" -->
-		 <no-data v-if="!evaluateList.length && !unData"></no-data>
+		 <no-data v-if="!evaluateList.length && !unData" :typeStyle="false"></no-data>
 		 <!-- v-show='evaluateList.length || unData' -->
 		 <div v-show='evaluateList.length || unData'>
 		 <div class="wrap" ref="wrap">

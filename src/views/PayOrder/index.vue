@@ -3,7 +3,7 @@
  	<mt-header title="支付收银台" @click.native="iShow=true" :isBack="false"></mt-header>
  	<div class="content payOrder-content">
  		<p class="timer text-center">
- 			请在{{minute}}时秒{{second < 10 ? '0'+second : second}}内完成支付
+ 			请在{{minute}}分{{second < 10 ? '0'+second : second}}秒内完成支付
  		</p>
  		<mt-cell title="订单金额" class='order-item'>
   			<span class="payOrder-text textOn">{{$route.query.totalAmount}}元</span>
@@ -48,6 +48,7 @@
 import MtHeader from 'components/mtHeader'
 import {wxMpPayInfo} from 'api/order'
 import {Cell} from 'mint-ui'
+import WebIM from '../../im/WebIM'
 import {mapGetters, mapMutations} from 'vuex'
 var url = ''
 export default {
@@ -170,16 +171,32 @@ export default {
 				}
 			})
 		},
+		_sendMessage(userId, callback) {
+			var id = WebIM.conn.getUniqueId() // 生成本地消息id
+			var msg = new WebIM.message('cmd', id) // 创建命令消息
+			msg.set({
+				msg: '',
+				to: userId,
+				action: 'SaleOrder',
+				ext: {},
+				success() {
+					callback()
+				}
+			})
+			WebIM.conn.send(msg.body)
+		},
 		_onBridgeReady(data) {
 			WeixinJSBridge.invoke('getBrandWCPayRequest', data, (res) => {
 				if (res.err_msg === 'get_brand_wcpay_request:ok') {
-						this.paySuccess = true
-						this.$router.push({path: '/service/order/detail',
-											query: {'minute': this.minute,
-											'hour': this.hour,
-											'orderId': this.$route.query.orderId,
-											'serviceId': this.$route.query.serviceId,
-											userType: 'user'}})
+						this._sendMessage(this.$route.query.userId, () => {
+							this.paySuccess = true
+							this.$router.replace({path: '/service/order/detail',
+												query: {'minute': this.minute,
+												'hour': this.hour,
+												'orderId': this.$route.query.orderId,
+												'serviceId': this.$route.query.serviceId,
+												userType: 'user'}})
+						})
 					}
 				})
 		}

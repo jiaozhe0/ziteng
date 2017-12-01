@@ -1,12 +1,10 @@
 import VeeValidate, {Validator} from 'vee-validate'
 import zh from 'vee-validate/dist/locale/zh_CN'
 Validator.addLocale(zh)
-
 const Veeconfig = {
     locale: 'zh_CN',
     events: 'blur'
 }
-
 const dictionary = {
     zh_CN: {
         messages: {

@@ -24,7 +24,7 @@
             </ul>
         </div>
         <!-- 评价 -->
-         <reason placeholder="请填写" @editReason='_reasonText' ref="reason"></reason>      
+         <reason placeholder="说点什么，帮助大家挑选更优质的服务" @editReason='_reasonText' ref="reason"></reason>      
         <!-- 上传图片列表 -->
        <div class="upload clearfix">
         <upload-pic-list  @uploadPicture='_saveEvaluatePics' @deletePic="_deletePic" @open="_openPicBtn" :pictures="pictures" :process="process" :multiple="true"></upload-pic-list>
@@ -101,14 +101,18 @@ export default {
       this.pictures = []
       this.param = {
               orderId: '',
-              serviceDescribeLevel: 1,
-              serviceAttitudeLevel: 1,
-              serviceProfessionalLevel: 1,
+              serviceDescribeLevel: 5,
+              serviceAttitudeLevel: 5,
+              serviceProfessionalLevel: 5,
               evaluateUserId: this.user.userId,
               evaluatePics: [],
               evaluateTypes: [],
               evaluateDescribe: ''
             }
+    },
+    beforeRouteLeave(from, to, next) {
+      this.$refs.reason.$refs.reason.blur()
+      next()
     },
     beforeRouteEnter(from, to, next) {
       formPath = from.path
@@ -128,6 +132,9 @@ export default {
     methods: {
         // 描述评分
         _checkDes(e) {
+          if (!e.target.id) {
+            return
+          }
           let level = parseInt(e.target.id) + 1
           this.param.serviceDescribeLevel = level
           this.describeLevel = this.describeLevel.map((item, index) => {
@@ -141,6 +148,9 @@ export default {
         },
         // 态度评分
         _checkAtt(e) {
+          if (!e.target.id) {
+            return
+          }
           let level = parseInt(e.target.id) + 1
           this.param.serviceAttitudeLevel = level
           this.attitudeLevel = this.attitudeLevel.map((item, index) => {
@@ -154,6 +164,9 @@ export default {
         },
         // 技能评分
         _checkPro(e) {
+          if (!e.target.id) {
+            return
+          }
           let level = parseInt(e.target.id) + 1
           this.param.serviceProfessionalLevel = level
           this.professionalLevel = this.professionalLevel.map((item, index) => {

@@ -1,5 +1,5 @@
 import * as types from './mutation-types'
-
+import {saveChatToLocal} from 'common/js/store'
 export const mutation = {
 	[types.CHANGE_FOOTER_SHOW](state, ishow) {
 		state.isFooter = ishow
@@ -124,6 +124,12 @@ export const mutation = {
 		state.chatList.forEach(item => {
 			state.chatCount += item.count
 		})
+	},
+	[types.DELETECHAT](state, id) {
+		state.chatList = state.chatList.filter(item => {
+			return item.id !== id
+		})
+		saveChatToLocal(state.chatList)
 	},
 	[types.ORDERCOUNT](state, num) {
 		state.orderCount = num

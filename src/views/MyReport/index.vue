@@ -11,7 +11,7 @@
     	</radio-cell>
     	</div>
     	<!-- 评价 -->
-      <reason  :reasonText="param.reportContent" ref='reason' placeholder="说点什么，帮助大家挑选更优质的服务" @editReason='_reasonText'></reason>
+      <reason  :reasonText="param.reportContent" ref='reason' placeholder="请选择投诉举报的原因" @editReason='_reasonText'></reason>
     	<!-- <div class="report-text">
             <div class="result-text">
                 <textarea name="" id="" rows="10" placeholder="说点什么，帮助大家挑选更优质的服务" @keyup="_edit"></textarea>

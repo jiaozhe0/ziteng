@@ -25,7 +25,7 @@
     </div>
     <div v-else class='noData-wrap'>
       <scroller :refreshIcon="refreshing" @refresh="_refresh">
-        <no-data></no-data>
+        <no-data :typeStyle="false"></no-data>
       </scroller>
     </div>
    </div>

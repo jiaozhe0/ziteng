@@ -1,5 +1,6 @@
 import axios from 'axios'
 import {header, server} from './common'
+import store from '../store'
 // 2.10.5.按分类获取评价列表
 export function getEvaluateList(data) {
   const url = `${server}/act/evaluate/list`
@@ -33,9 +34,12 @@ export function getTypes(data) {
 export function saveEvaluate(data) {
   const url = `${server}/act/evaluate/saveEvaluate`
   return axios.post(url, data, {
-    headers: header()
+    headers: header(),
+    timeout: 10000
   }).then((res) => {
     return Promise.resolve(res.data)
+  }).catch(() => {
+    store.commit('LOADING', false)
   })
 }
 // 2.10.2.保存评价图片

@@ -54,7 +54,7 @@ export default {
 				}
 			},
 			authStatus: {},
-			url: '/home/auth?skill=true'
+			url: '/home/auth/person?skill=true'
 		}
 	},
 	created() {

@@ -71,7 +71,7 @@
 						<button @click="_back" class="auth-btn auth">知道了</button>
 					</div>
 					<div class="success-btn-wrap" v-else>
-						<router-link :to="{path:url, query:{skill:true}}" class="auth-btn danger unauth">立即认证</router-link to="">
+						<router-link replace :to="{path:url, query:{skill:true}}" class="auth-btn danger unauth" >立即认证</router-link to="">
 						<p class="danger unauth-text">提示：您还没有实名认证，通过认证后用户才能看到您发布的服务</p>
 					</div>
 					</div>
@@ -261,7 +261,7 @@ export default {
 			return name
 		},
 		url() {
-				let url = '/home/auth'
+				let url = '/home/auth/person'
 				if (this.status === 'person') {
 					url = '/home/auth/person'
 				} else if (this.status === 'business') {

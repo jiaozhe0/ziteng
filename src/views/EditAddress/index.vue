@@ -19,10 +19,14 @@
      <mt-cell title="性别：" class="value-input">
     	<div class="edit-input">
   		 <label for="women" class="editAddress-radio">
-  		 <div class="editAddress-radio-icon" :class="{'selected':param.sex==2}">✓</div>
+  		 <div class="editAddress-radio-icon" :class="{'selected':param.sex==2}">
+  		 		<div class="radio-icon"></div>
+  		 </div>
   		 <input type="radio" id="women" value=2  v-model="param.sex">女士</label>
   		 <label for="man" class="editAddress-radio">
-  		  <div class="editAddress-radio-icon" :class="{'selected':param.sex==1}">✓</div>
+  		  <div class="editAddress-radio-icon" :class="{'selected':param.sex==1}">
+  		  		<div class="radio-icon"></div>
+  		  </div>
   		  <input type="radio" id="man" value=1  v-model="param.sex" >男士</label>
     	</div>
     </mt-cell>
@@ -216,7 +220,7 @@ export default {
 
 <style scoped lang="less" >
  @import '~common/css/variable.less';
- @import '~common/css/mixin.less';
+ @import '../../common/css/mixin.less';
  .content{
  	bottom: 0;
  	background-color: #eee;
@@ -238,6 +242,13 @@ export default {
  			text-align: center;
  			line-height: 25px;
  			color:transparent;
+ 			.radio-icon{
+					display: inline-block;
+				 	line-height: 28px;
+				 	.size(12px;8px);
+				 	background-size: 100%;
+				 	.bg-view-image('EditAddress/right');
+ 			}
  			&.selected{
  				background-color: @color-primary;
  				color:#fff;

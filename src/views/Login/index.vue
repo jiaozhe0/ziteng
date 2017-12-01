@@ -19,7 +19,7 @@
 	    		<span v-else-if="again">重新发送</span>	
 	    	</button>
 	    </label>
-	    <div class="text-left reminder-text">点击登录，即表示同意《用户协议》</div>
+	    <router-link to="agreement/user/html" tag='div' class="text-left reminder-text">点击登录，即表示同意《用户协议》</router-link >
 	    <!--  _login -->
 	    <button type="button" class='login-btn' @click="_login">
 				登录
@@ -34,7 +34,7 @@
 
 <script type="text/ecmascript-6">
 import { Toast } from 'mint-ui'
-import {getTelMessage, bindWeixinUserPhone, checkPhoneCode} from 'api/login'
+import {getTelMessage, bindWeixinUserPhone, checkPhoneCode, saveLoginLog} from 'api/login'
 import MtHeader from 'components/mtHeader'
 import {mapMutations, mapGetters} from 'vuex'
 import chat from '../../im/chat'
@@ -125,12 +125,16 @@ export default {
 					this.$router.push('/index')
 				} else if (data.userId) {
 					this.setUser(data)
-					Toast('手机绑定成功')
 					chat(this.$store, {
 							user: data.userHuanxin['username'],
 							pwd: data.userHuanxin['password']
 						})
-					window.history.back()
+					Toast('手机绑定成功')
+					saveLoginLog(data.userId).then((loginRes) => {
+						if (loginRes.code === '000000') {
+							window.history.back()
+						}
+					})
 				}
 			})
 		},

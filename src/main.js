@@ -44,7 +44,8 @@ var preloadImage = function () {
 }
 
 // 如果是不是分享过来的, 需要授权认证
-import {getToken, getUserInfo, registerWeixin} from 'api/login'
+import {getToken, getUserInfo, registerWeixin, saveLoginLog} from 'api/login'
+import {header} from 'api/common'
 if (window.location.href.indexOf('share') < 0) {
 	let search = window.location.search.slice(1)
 	if (search.indexOf('code') < 0) {
@@ -67,22 +68,28 @@ if (window.location.href.indexOf('share') < 0) {
 					name: res.nickname
 				}
 				let userData = Object.assign({}, postData, weixinData, res)
-				console.log(userData)
 				registerWeixin(userData).then((datas) => {
-					console.log(datas)
 					preloadImage()
 					if (!datas['userId']) {
-						initVue()
-						router.push({path: '/login', query: {unionid: weixinData.unionid}})
+						// 游客登入日志
+						let youkeId = 'youke-' + header()['token']
+						saveLoginLog(youkeId).then((loginRes) => {
+							if (loginRes.code === '000000') {
+								initVue()
+								router.push({path: '/login', query: {unionid: weixinData.unionid}})
+							}
+						})
 					} else {
 						store.commit('USER', datas)
-						// alert(datas)
-						// alert(datas.userHuanxin['username'] + '====' + datas.userHuanxin['password'])
 						chat(store, {
 							user: datas.userHuanxin['username'],
 							pwd: datas.userHuanxin['password']
 						})
-						initVue()
+						saveLoginLog(datas.userId).then((loginRes) => {
+							if (loginRes.code === '000000') {
+								initVue()
+							}
+						})
 					}
 				})
 			})

@@ -11,10 +11,8 @@
   </mt-tab-item>
   <mt-tab-item >
     <router-link to='/classify' class="needsclick">
-    <div class="needsclick">
      <div class="icon classify" :class="{'classify-on':selected=='classify'}"></div>
       分类
-    </div>
     </router-link> 
   </mt-tab-item>
   <mt-tab-item >
@@ -37,10 +35,8 @@
   </mt-tab-item>
   <mt-tab-item >
     <router-link to='/home'>
-      <div @click="selected='my'">
       <div class="icon my" :class="{'my-on':selected=='my'}"></div>
       我的
-      </div>
     </router-link>
   </mt-tab-item>
 </mt-tabbar>
@@ -161,12 +157,5 @@ export default {
       }
     }
   }
-}
-.count{
-  .square(14px);
-  line-height: 15px;
-  font-size: 0.5rem;
-  top:-7px;
-  right:21px
 }
 </style>

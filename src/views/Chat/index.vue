@@ -13,14 +13,14 @@
     		<input type="text" v-model='msg' class='msg-input' @focus="_bottomVisible">
     		<div class="emoji-icon" @click="_emojiShow"></div>
     	 </div>
-    		<button v-show="!show"  class='btn add' @click="_addShow">+</button>
+    		<button v-show="!show"  class='btn add' @click="_addShow"><div>+</div></button>
     		<button v-show="show" @click="_sendText" class='btn send'>发送</button>
      </div>
      <div class="picture" v-show="addShow">
      	<upload-pic :chat="true" @goServiceMap="_goServiceMap" @uploadPicture="_sendImage" :multiple="true"></upload-pic>
      </div>
      <div class="emoji" v-show="emojiShow">
-     		<emoji-list @selectFace="_selectFace" ></emoji-list>
+     		<emoji-list @selectFace="_selectFace"></emoji-list>
      </div>
     </div>
 </div>
@@ -99,7 +99,6 @@ export default {
 	methods: {
 		_goServiceMap() {
 			this.$router.push({path: '/servicemap'})
-			// alert('..........')
 		},
 		_bottomVisible() {
 			this.bottomShow = false
@@ -215,7 +214,6 @@ export default {
 					}
 					return obj
 				})
-			console.log(5656, message)
 					return message
 			} else {
 				if (msgArr.length === 1) {
@@ -312,17 +310,22 @@ export default {
  		display: block;
  		right: 10px;
  		&.add{
- 			.square(32px);
+ 			display:block;
+ 			.square(30px);
  			padding: 0;
- 			line-height: 10px;
+ 			line-height: 0px;
  			box-sizing: border-box;
- 			border-radius: 50%;
+ 			border-radius: 100%;
  			text-align: center;
- 			font-size: 28px;
-			font-weight: bold;
+ 			font-size: 24px;
+			font-weight: 700;
  			background-color: transparent;
  			border:1px solid @color-text-gray;
  			color: @color-text-secondary;
+ 			div{
+ 				.square(100%);
+ 				line-height: 24px;
+ 			}
  		}
 		&.send{
 		 .size(76px;35px);

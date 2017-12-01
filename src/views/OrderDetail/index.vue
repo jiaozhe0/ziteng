@@ -312,9 +312,9 @@ export default {
         console.log(res)
         if (res.code === '000000') {
           if (res.data.status === 106) {
+            this.hintShow = false
             Toast('完成订单')
             this.$nextTick(() => {
-              // this._getDetail(this.param)
               this.$router.push({path: '/order/evaluate', query: {orderId: this.orderInfo.orderId, pic: this.orderInfo.service.servicePicName, title: this.orderInfo.service.title}})
             })
           }
@@ -501,8 +501,10 @@ export default {
  }
  .concatBtn{
   display: inline-block;
-  .square(28px);
+  .square(31px);
   background-size:100%;
+  /*overflow: hidden;*/
+  background-position: center;
   &.phone{
     .bg-view-image('OrderDetail/phone')
   }

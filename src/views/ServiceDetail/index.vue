@@ -321,7 +321,7 @@ export default {
 				priceType: this.serviceInfo.priceType
 			}
 			this.setServiceInfo(info)
-			this.$router.push({path: '/service/order', query: {serviceId: this.serviceInfo.serviceId}})
+			this.$router.push({path: '/service/order', query: {serviceId: this.serviceInfo.serviceId, userId: this.serviceInfo.userId}})
 		},
 		_imageLoad() {
 			if (!this.checkloaded) {

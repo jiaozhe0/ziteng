@@ -43,7 +43,7 @@ const states = {
   },
   address: {}, // 常用地址,修改地址时使用
   serviceInfo: {}, // 编辑发布服务信息，修改服务信息时使用
-  openId: '', // oCiKTwF0g46BI60Gq3yIH33ddv1c
+  openId: '', // oCiKTwF0g46BI60Gq3yIH33ddv1cS
   orderUrl: '', // 订单详情的来路路径
   serviceUrl: '', // 服务详情的来路路径
   serListUrl: '', // 服务详情的来路路径

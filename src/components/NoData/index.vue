@@ -3,7 +3,7 @@
 	  <div class="noData-content">
 	  	<div class="noData-pic"></div>
 	    <p class='noData-title'>暂无数据</p>
-			<p class='noData-info'>SORRY,没有找到您要的服务</p>
+			<p class='noData-info' v-if="typeStyle">SORRY,没有找到您要的服务</p>
   	</div>
   </div>
 </template>
@@ -11,6 +11,12 @@
 <script type="text/ecmascript-6">
 import Scroll from '../Scroll'
 export default {
+	props: {
+		typeStyle: {
+			type: Boolean,
+			default: true
+		}
+	},
 	components: {
 		Scroll
 	},
@@ -37,8 +43,8 @@ export default {
 	transform: translate(-50%;-60%);
 	text-align: center;
 	.noData-pic{
-		.size(375px;180px);
-		background-size:375px 180px;
+		.size(300px;140px);
+		background-size:300px 140px;
 		background-repeat: no-repeat;
 		vertical-align: top;
 		.bg-image("NoData/noData")
@@ -47,8 +53,9 @@ export default {
 		margin: 0;
 	}
 	.noData-title{
+		margin: 5px auto;
+		font-size:0.8rem;
 		color: @color-primary;
-		margin-bottom: 5px;
 	}
 	.noData-info{
 		font-size: 0.6rem;

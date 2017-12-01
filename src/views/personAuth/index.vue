@@ -110,10 +110,9 @@ export default {
 		}),
 		_goZhima() {
 			if (this.authStatus.authZhimaxinyongStatus === 4) {
-				console.log(this.score)
 				this.$router.push({path: '/zmscore/html', query: {value: this.score}})
 			} else {
-				this.$router.replace('/home/auth/person/zhima')
+				this.$router.push('/home/auth/person/zhima')
 			}
 		},
 		_getUserAuthStatus(id) {
